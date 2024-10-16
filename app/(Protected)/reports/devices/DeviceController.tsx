@@ -19,7 +19,7 @@ export default function DeviceController() {
   });
   return (
     <div className="flex w-full flex-row items-center gap-2 border-b border-cstm-border px-4 py-3">
-      <Popover>
+      {/* <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
@@ -60,7 +60,7 @@ export default function DeviceController() {
       </Popover>
       <Button>
         <FilterIcon />
-      </Button>
+      </Button> */}
     </div>
   );
 }

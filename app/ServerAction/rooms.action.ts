@@ -122,7 +122,7 @@ export async function addRoomType(values: any) {
 }
 export async function getEditValues(value: any = 1) {
   const { data, error } = await supabase
-    .from("get_current_roomtype_rate")
+    .from("get_current_roomtype_rate_3")
     .select("*")
     .eq("RoomTypeId", value).limit(1);
   if (error) {

@@ -26,6 +26,7 @@ import {
 } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
+import { XIcon } from "lucide-react";
 
 export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     },
   });
 
-  const formSchema = z.object({
+  const formSchema = z.object({ 
     /* Room Details */
     roomTypeName: z.string().min(1, { message: "Required" }),
     adultCount: z.string().min(1, { message: "Required" }),
@@ -66,6 +67,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     extraAdultWeekDayRate: z.string().min(1, { message: "Required" }),
     /* Descrption */
     description: z.string().min(1, { message: "Required" }),
+    image_urls: z.array(z.string().url().optional())
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -89,6 +91,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       extraChildWeekDayRate: id ? editValues?.ExtraChildRate.toString() : "",
       extraAdultWeekDayRate: id ? editValues?.ExtraAdultRate.toString() : "",
       description: id ? editValues?.Description.toString() : defaultDescription,
+      image_urls: id ? editValues?.image_urls || [] : []
     },
   });
 
@@ -152,10 +155,36 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   }
   return (
     <div className="w-full p-4">
+      {/* {
+        editValues ? (
+          editValues.Images.map((image: any) => {
+            return <img src={image} className="w-full h-[200px] object-contain" />
+          })          
+        ) : (
+          null
+        )
+      } */}
+      <div className="flex justify-between mb-4">
+        <p className="text-2xl font-semibold text-cstm-secondary">{ editValues ? `Editing Room Type ${editValues.RoomType}` : "New Room Type" }</p>
+        <div className="flex gap-4">
+          <Button
+            className="border-2 border-cstm-secondary text-cstm-secondary bg-transparent"
+            onClick={(e) => {
+              e.preventDefault();
+              router.push("/rooms/viewroomtypes");
+            }}
+          >
+            {generalI18n.cancel}
+          </Button>
+          <Button className="bg-cstm-secondary">
+            {roomsI18n.saveNewRoomType}
+          </Button>
+        </div>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="flex items-start gap-4">
-            <div className="flex w-3/4 flex-col gap-4">
+            <div className="flex w-1/2 flex-col gap-4">
               <Card className="bg-cstm-secondary">
                 <CardHeader className="flex rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
                   {roomsI18n.roomDetails}
@@ -443,9 +472,9 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                 </div>
               </Card>
             </div>
-            <div className="sticky top-4 flex w-1/4 flex-col">
+            <div className="flex w-1/2 flex-col">
               <div className="flex flex-col justify-between gap-2">
-                <Button className="bg-cstm-secondary">
+                {/* <Button className="bg-cstm-secondary">
                   {roomsI18n.saveNewRoomType}
                 </Button>
                 <Button
@@ -456,9 +485,75 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                   }}
                 >
                   {generalI18n.cancel}
-                </Button>
+                </Button> */}
               </div>
+              <Card className="bg-cstm-secondary">
+                <CardHeader className="rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
+                  Room Images
+                </CardHeader>
+                <div className="p-4">
+                  <FormField
+                    control={form.control}
+                    name="image_urls"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">
+                          Upload Images
+                        </FormLabel>
+                        <div>
+                          <FormControl>
+                            <Input
+                              className="text-lg"
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              onChange={(e) => {
+                                const fileArray = Array.from(e.target.files as FileList)
+                                const urls = fileArray.map((file) => URL.createObjectURL(file))
+                                field.onChange([...(field.value || []), ...urls])
+                              }}
+                            />
+                          </FormControl>
+                          {
+                            field.value &&
+                            <>
+                              <p className="text-white mt-4">Image Previews</p>
+                              <div className="flex flex-wrap mt-4 p-4 gap-4 border-2 border-white/[.70] rounded-md">
+                                {field.value?.map((url, index) => (
+                                  <div className="relative">
+                                    <img
+                                      key={index}
+                                      src={url}
+                                      className="h-40 w-40 object-cover"
+                                    />
+                                    <Button 
+                                      type="button"
+                                      className="absolute top-2 right-2 bg-red-800 rounded-full flex items-center justify-center"
+                                      onClick={() => {
+                                        const updatedImgs = field.value.filter((_, i) => i !== index)
+                                        field.onChange(updatedImgs)
+                                      }}
+                                    >
+                                      <XIcon color="white" size={12}></XIcon>
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            
+                            </>
+                          }
+                          <div className="h-4">
+                            <FormMessage />
+                          </div>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                  
+                </div>
+              </Card>
             </div>
+              
           </div>
         </form>
       </Form>
