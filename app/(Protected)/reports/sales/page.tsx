@@ -72,7 +72,7 @@ export default function page() {
       <div className="flex gap-4 p-4">
         <Button 
           className=""
-          onClick={() => exportCSV(filteredSales)}
+          onClick={() => exportCSV(filteredSales, `${format(new Date(selectedReportRange.from), 'MMMM-yyyy')}_to_${format(new Date(selectedReportRange.to), 'MMMM-yyyy')}_sales.csv`, ["Sales"])}
         >
           Export To Excel
         </Button>

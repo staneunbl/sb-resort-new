@@ -178,13 +178,13 @@ function toCSV(data: any[], currencyColumns: string[] = []): string[] {
   return csvData
 }
 
-export function exportCSV(data: any[], fileName: string = 'report.csv') {
+export function exportCSV(data: any[], fileName: string = 'report.csv', currencyColumns: string[] = []) {
 
   if(!data || data.length === 0) {
     return
   }
   
-  const csvData = toCSV(data)
+  const csvData = toCSV(data, currencyColumns)
 
   const blob = new Blob([csvData.join('\n')], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
