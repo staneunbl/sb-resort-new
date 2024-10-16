@@ -149,13 +149,21 @@ export function generateReferenceNumber(): string {
     return `${year}${month}${day}${result}`;
 }
 
-function toCSV(data: any[]): string[] {
+function toCSV(data: any[], currencyColumns: string[] = []): string[] {
   const csvData = []
 
   const headers = Object.keys(data[0])
   const formatter = (header: string) => {
     return header.replace(/([A-Z])/g, ' $1').trim()
   }
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "PHP",
+    });
+  };
+
   const formattedHeaders = headers.map(formatter)
 
   csvData.push(formattedHeaders.join(','))
@@ -194,16 +202,31 @@ export function exportCSV(data: any[], fileName: string = 'report.csv') {
 interface PrintCSVOptions {
   filename: string,
   title: string, 
-  companyName: string
+  companyName: string,
+  currencyColumns?: string[]
 }
 
-export function printCSV(data: any[], {filename, title, companyName}: PrintCSVOptions) {  
+export function printCSV(data: any[], {filename, title, companyName, currencyColumns = []}: PrintCSVOptions) {  
   if(!data || data.length === 0) {
     return
   }
 
-  const csvData = toCSV(data)
-  const headers = csvData[0].split(',')
+  const headers = Object.keys(data[0])
+  const formatter = (header: string) => {
+    return header.replace(/([A-Z])/g, ' $1').trim()
+  }
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "PHP",
+    });
+  };
+
+  const formattedHeaders = headers.map(formatter)
+
+  const csvData = toCSV(data).join('\n')
+  console.log(csvData)
 
   let tableHTML = `
       <html>
@@ -224,26 +247,34 @@ export function printCSV(data: any[], {filename, title, companyName}: PrintCSVOp
         </head>
         <body>
 
-          <h2 style="margin:0;">${title}</h2>
-          <h3 style="margin:0;">${companyName}</h3>
-          <h4 style="margin:0;"></h4>
+          <h2>${title}</h2>
           <table>
             <thead>
               <tr>
-                ${headers.map(header => `<th>${header}</th>`).join('')}
+                ${formattedHeaders.map(header => `<th>${header}</th>`).join('')}
               </tr>
             </thead>
             <tbody>
               ${data.map(row => `
                 <tr>
-                  ${headers.map(header => `<td>${row[header]}</td>`).join('')}
+                  ${headers.map(header => {
+                    let value = row[header];
+    
+                    // Apply currency formatting if the column is in currencyColumns
+                    if (currencyColumns.includes(header)) {
+                      value = formatCurrency(Number(value));
+                    }
+    
+                    return `<td>${value}</td>`;
+                  }).join('')}
                 </tr>
               `).join('')}
             </tbody>
           </table>
           <hr>
-          <div>
-            <small>Generated at ${format(new Date(), 'yyyy-MM-dd h:mma')}</small>
+          <div style="display:flex;justify-content: space-between;">
+            <small style="display:flex;align-items:end;font-weight: bold;">${companyName}</small> 
+            <small>Generated at ${format(new Date(), 'MM/dd/yyyy | h:mma')}</small>
           </div>
         </body>
       </html>

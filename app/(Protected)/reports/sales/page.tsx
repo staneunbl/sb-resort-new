@@ -81,7 +81,8 @@ export default function page() {
           onClick={() => printCSV(filteredSales, {
             filename: "",
             title: `Sales Report (${format(new Date(selectedReportRange.from), 'MMMM yyyy')} to ${format(new Date(selectedReportRange.to), 'MMMM yyyy')})`,
-            companyName: companyName
+            companyName: companyName,
+            currencyColumns: ["Sales"]
           })}
           >Print</Button>
       </div>
