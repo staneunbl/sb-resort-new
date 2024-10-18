@@ -1,13 +1,14 @@
-import { getAmenities } from "@/app/ServerAction/rooms.action";
+import { deleteAmenity, getAmenities } from "@/app/ServerAction/rooms.action";
 import AlertConfirmDelete from "@/components/AlertConfirmDelete";
 import DetailedDataTable from "@/components/DetailedDataTable";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useGlobalStore } from "@/store/useGlobalStore";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { set } from "date-fns";
 import { Ellipsis, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function AmenitiesTable() {
 
@@ -28,7 +29,29 @@ export function AmenitiesTable() {
     })
 
     const [open, setOpen] = useState(false);
-    const [selectedId, setSelectedId] = useState("");
+    const [selectedId, setSelectedId] = useState(-1);
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
+            const res = await deleteAmenity(id);
+            if (!res.success) return error;
+            return res.res;
+        },
+
+        onSuccess: () => {
+            toast.error("Deleted successfully", {
+                description:`Amenity ID ${selectedId} deleted successfully.`,
+            });
+            setOpen(false);
+            setSelectedId(-1);
+        },
+        onError: () => {
+            console.log(error)
+            setOpen(false);
+            setSelectedId(-1);
+        },
+    });
+
 
     const column = [
         {
@@ -99,8 +122,8 @@ export function AmenitiesTable() {
                 openState={open}
                 onOpenChange={setOpen}
                 onConfirm={() => {
-                    console.log(selectedId)
-                    console.log(selectedAmenity)
+                    console.log("trigger")
+                    deleteMutation.mutate(selectedId)
                 }}
             />
             <DetailedDataTable

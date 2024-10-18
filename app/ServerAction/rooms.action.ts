@@ -436,7 +436,7 @@ export async function getAvailableRoomTypeRPC(to: Date, from: Date) {
 export async function getRoomAmenities(roomTypeId: number): Promise<RoomAmenityResponse[]> {
   const { data, error } = await supabase
     .from("RoomTypeAmenities")
-    .select("RoomTypeId, Amenities (Id, Label, Description)")
+    .select("RoomTypeId, Amenities (Id, Label, Description, IsDeleted)")
     .eq("RoomTypeId", roomTypeId)
     
   if (error) {
@@ -492,7 +492,7 @@ export async function addAmenityToRoomType(roomTypeId: number, amenityId: number
 export async function deleteAmenity(id: number){
   const {data, error} = await supabase
     .from("Amenities")
-    .update({isDeleted: true})
+    .update({IsDeleted: true})
     .eq("Id", id)
 
     if (error) {
