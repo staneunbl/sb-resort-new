@@ -286,3 +286,7 @@ export function printCSV(data: any[], {filename, title, companyName, currencyCol
     printWindow!.print()
 
 }
+
+export function convertMBtoBytes(mb: number){
+  return mb * 1024 * 1024
+}

@@ -100,24 +100,41 @@ export async function addRoomType(values: any) {
     extraChildWeekDayRate: extrachildrate,
     extraAdultWeekDayRate: extraadultrate,
     description: roomtypedescription,
+    image_urls: images
   } = values;
-  const { data, error } = await supabase.rpc("add_room_type", {
-    baseroomrate,
-    bedtypeid,
-    extraadultrate,
-    extrachildrate,
-    roomtypedescription,
-    roomtypemaxadult,
-    roomtypemaxchild,
-    roomtypename,
-    weekendextraadultrate,
-    weekendextrachildrate,
-    weekendroomrate,
+
+  console.log(values)
+  const { data, error } = await supabase.rpc("add_room_type_rpc", {
+    baseroomrate: baseroomrate,
+    bedtypeid: bedtypeid,
+    extraadultrate: extraadultrate,
+    extrachildrate: extrachildrate,
+    roomtypedescription: roomtypedescription,
+    roomtypemaxadult: roomtypemaxadult,
+    roomtypemaxchild: roomtypemaxchild,
+    roomtypename: roomtypename,
+    weekendextraadultrate: weekendextraadultrate,
+    weekendroomrate: weekendroomrate,
+    weekendextrachildrate: weekendextrachildrate,
   });
 
   if (error) {
+    console.log(error)
     return { success: false, res: data, error: error.message };
   }
+  console.log(data)
+
+  console.log(images)
+
+  const { data: imgBind, error: imgError } = await supabase
+    .from("RoomTypes")
+    .update({ Images: images})
+    .eq("Id", data.RoomTypeId);
+  
+  if(imgError) {
+    return { success: false, res: [], error: imgError.message };
+  }
+
   return { success: true, res: data };
 }
 export async function getEditValues(value: any = 1) {
@@ -145,6 +162,7 @@ export async function editRoomType(values: any) {
     extraChildWeekDayRate: extrachildrate,
     extraAdultWeekDayRate: extraadultrate,
     description: roomtypedescription,
+    image_urls: images
   } = values;
 
   const { data, error } = await supabase.rpc("update_room_details", {
@@ -166,6 +184,16 @@ export async function editRoomType(values: any) {
     console.log(error);
     return { success: false, res: data, error: error.message };
   }
+
+  const {data: imgBind, error: imgError} = await supabase
+    .from("RoomTypes")
+    .update({ Images: images})
+    .eq("Id", roomtypeid)
+
+  if(imgError) {
+    return { success: false, res: [], error: imgError.message };
+  }
+
   return { success: true, res: data };
 }
 export async function deleteRoomType(value: any) {
@@ -310,6 +338,28 @@ export async function getRoomRateTypeOptions() {
   }
   return { success: true, res: data };
 
+}
+
+export async function uploadImage(file: File) {
+  const path =  `${file.name}`
+
+  const { data, error } = await supabase.storage
+    .from("images")
+    .upload(path, file, {
+      cacheControl: "3600",
+      upsert: false
+    })
+
+  if (error) {
+    console.log(error)
+    return null
+  }
+
+  const { data: publicUrl } = await supabase.storage
+    .from("images")
+    .getPublicUrl(path)
+
+  return publicUrl
 }
 
 /* Public Available */

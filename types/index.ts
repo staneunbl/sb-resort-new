@@ -103,3 +103,11 @@ interface Reservation{
     } | null;
     Remarks: string;
 }
+
+interface ImageUploadObject {
+    name: string,
+    url: string,
+    size: number,
+    file: File,
+    isSizeExceeded: boolean
+}

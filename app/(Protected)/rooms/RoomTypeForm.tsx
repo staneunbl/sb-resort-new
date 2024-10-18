@@ -22,22 +22,35 @@ import {
   addRoomType,
   deleteRoomType,
   editRoomType,
-  getEditValues,
+  getEditValues
 } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
-import { XIcon } from "lucide-react";
+import { Loader2, XIcon } from "lucide-react";
+import { convertMBtoBytes } from "@/utils/Helpers";
+import { useEffect, useState } from "react";
+import { imageConfigDefault } from "next/dist/shared/lib/image-config";
+import { data } from "autoprefixer";
+import { B } from "million/dist/shared/million.50256fe7";
+import { createClient } from "@supabase/supabase-js";
 
 export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const { t } = useTranslation();
   const roomsI18n = t("RoomsPage");
   const generalI18n = t("general");
-  const { bedTypeOptionsQuery } = useGlobalStore();
-  const { data: bedTypeOptions } = bedTypeOptionsQuery();
+  const { bedTypeOptionsQuery, imageUploadMaxMB } = useGlobalStore();
+  const { data: bedTypeOptions, isLoading: bedLoading } = bedTypeOptionsQuery();
+  const [imgObjArray, setImgObjArray] = useState<ImageUploadObject[]>([] as ImageUploadObject[]);
+  const [imgUploadCount, setImgUploadCount] = useState(0)
+  const [imgUp, setImgUp] = useState<File>({} as File);
+
+ 
 
   const router = useRouter();
 
-  const { data: editValues } = useQuery({
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string);
+
+  const { data: editValues, isLoading } = useQuery({
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     queryKey: ["getEditValues", id],
@@ -50,6 +63,27 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       return res.res?.[0];
     },
   });
+
+  async function uploadImage(file: File) {
+    let path =  `${file.name}`
+    
+    const { data, error } = await supabase.storage
+      .from("images")
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: false
+      })
+
+    if (error) {
+      console.log(error)
+    }
+
+    const { data: publicUrl } = await supabase.storage
+      .from("images")
+      .getPublicUrl(path)
+  
+    return publicUrl
+  }
 
   const formSchema = z.object({ 
     /* Room Details */
@@ -91,7 +125,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       extraChildWeekDayRate: id ? editValues?.ExtraChildRate.toString() : "",
       extraAdultWeekDayRate: id ? editValues?.ExtraAdultRate.toString() : "",
       description: id ? editValues?.Description.toString() : defaultDescription,
-      image_urls: id ? editValues?.image_urls || [] : []
+      image_urls: id ? editValues?.Images || [] : []
     },
   });
 
@@ -109,6 +143,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       });
     },
     onError: (error) => {
+      console.log(error)
       toast.error("Adding Room Type Failed"),
         {
           description:
@@ -141,7 +176,44 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Validation
+    const sizeError = imgObjArray?.some((img: ImageUploadObject) => img.isSizeExceeded)
+
+    if (sizeError) { 
+      console.log("size check")
+      toast.error(`One or more images exceed ${imageUploadMaxMB} MB.`);
+      return;
+    }
+    
+    const sonner = toast.loading("Uploading Images...")
+    toast.loading("Uploading Images...", {
+      id: sonner,
+      duration: Infinity
+    })
+
+    const supabaseUrls = await Promise.all(
+      imgObjArray.map( async (img: ImageUploadObject) => {
+        if(img.url.includes("blob:") || img.url.includes("localhost")){
+          console.log(img)
+          const publicUrl = await uploadImage(img.file as File);
+          console.log(publicUrl)
+          setImgUploadCount(prev => prev + 1)
+          toast.loading(`Uploaded ${imgUploadCount} ${imgUploadCount > 1 ? "images" : "image"}`, {
+            id: sonner,
+            duration: Infinity
+          })
+          if(publicUrl){
+            return publicUrl?.publicUrl
+          }
+      }
+      return img.url
+    })
+  )
+
+    values.image_urls = supabaseUrls
+    console.log(values)
+
     if (id) {
       editMutation.mutate({
         ...values,
@@ -150,9 +222,42 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
         RoomTypeId: editValues?.RoomTypeId,
       });
     } else {
+      
       addMutation.mutate(values);
     }
+
+    toast.success("Room Type Saved");
+    setTimeout(() => {
+      toast.dismiss()
+    }, 3000)
   }
+
+  useEffect(() => {
+    if (editValues?.Images) {
+      const existingImgs = editValues.Images.map((url: string) => ({
+        url: url,
+        name: url.split("/").pop(),
+        size: -1,
+        isSizeExceeded: false,
+        file: null
+      }))
+
+      setImgObjArray(existingImgs);
+    }
+  }, [editValues])
+
+
+  if(isLoading || bedLoading){
+    return (
+      <div className="w-full h-full p-4 flex flex-col justify-center items-center">
+        <div className="w-full flex justify-center">
+          <Loader2 size={40} className="animate-spin" />
+        </div>
+        <p>Loading Form...</p>
+      </div>
+    )
+  }
+  console.log(editValues.BedTypeId)
   return (
     <div className="w-full p-4">
       {/* {
@@ -164,25 +269,25 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
           null
         )
       } */}
-      <div className="flex justify-between mb-4">
-        <p className="text-2xl font-semibold text-cstm-secondary">{ editValues ? `Editing Room Type ${editValues.RoomType}` : "New Room Type" }</p>
-        <div className="flex gap-4">
-          <Button
-            className="border-2 border-cstm-secondary text-cstm-secondary bg-transparent"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push("/rooms/viewroomtypes");
-            }}
-          >
-            {generalI18n.cancel}
-          </Button>
-          <Button className="bg-cstm-secondary">
-            {roomsI18n.saveNewRoomType}
-          </Button>
-        </div>
-      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="flex justify-between mb-4">
+            <p className="text-2xl font-semibold text-cstm-secondary">{ id && editValues ? `Editing Room Type ${editValues?.RoomType}` : "New Room Type" }</p>
+            <div className="flex gap-4">
+              <Button
+                className="border-2 border-cstm-secondary text-cstm-secondary bg-transparent"
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push("/rooms/viewroomtypes");
+                }}
+              >
+                {generalI18n.cancel}
+              </Button>
+              <Button className="bg-cstm-secondary">
+                {roomsI18n.saveNewRoomType}
+              </Button>
+            </div>
+          </div>
           <div className="flex items-start gap-4">
             <div className="flex w-1/2 flex-col gap-4">
               <Card className="bg-cstm-secondary">
@@ -295,7 +400,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
               </Card>
               <Card className="bg-cstm-secondary">
                 <CardHeader className="flex rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
-                  {roomsI18n.roomRates}
+                  {roomsI18n.roomRate}
                 </CardHeader>
                 <div className="flex space-x-4 p-4 pt-2">
                   <div className="w-1/2">
@@ -374,7 +479,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                   </div>
                   <div className="w-1/2">
                     <h1 className="text-lg text-center font-semibold text-white">
-                      {roomsI18n.weekdayRate}({roomsI18n.mondayToFriday})
+                      {roomsI18n.weekdayRate} ({roomsI18n.mondayToFriday})
                     </h1>
                     <FormField
                       control={form.control}
@@ -509,37 +614,115 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                               accept="image/*"
                               onChange={(e) => {
                                 const fileArray = Array.from(e.target.files as FileList)
+                                const imgArray = Array.from(e.target.files as FileList).map((file) => {
+                                  return {
+                                    name: file.name,
+                                    size: file.size,
+                                    file: file,
+                                    url: URL.createObjectURL(file),
+                                    isSizeExceeded: file.size > convertMBtoBytes(imageUploadMaxMB)
+                                  }
+                                })
                                 const urls = fileArray.map((file) => URL.createObjectURL(file))
+                                console.log(field)
+                                setImgObjArray((prev: any) => [...prev, ...imgArray])
                                 field.onChange([...(field.value || []), ...urls])
+                                console.log(field)
                               }}
                             />
+                            {/* <Input 
+                              className="w-60"
+                              name="imageUploader"
+                              type="file"
+                              onChange={(e) => {
+                                setImgUp(e.target.files![0])
+                                console.log(e.target.files)
+                              }} 
+                            ></Input> */}
                           </FormControl>
                           {
-                            field.value &&
+                            field.value.length > 0 &&
                             <>
-                              <p className="text-white mt-4">Image Previews</p>
-                              <div className="flex flex-wrap mt-4 p-4 gap-4 border-2 border-white/[.70] rounded-md">
-                                {field.value?.map((url, index) => (
-                                  <div className="relative">
+                              <p className="text-white mt-4 text-sm">Image Previews</p>
+                              <div className="flex flex-col flex-wrap mt-4 gap-4">
+                                {/* {field.value?.map((url, index) => (
+                                  <div className="relative rounded">
                                     <img
                                       key={index}
                                       src={url}
-                                      className="h-40 w-40 object-cover"
+                                      className="h-40 w-40 object-cover rounded"
                                     />
                                     <Button 
                                       type="button"
                                       className="absolute top-2 right-2 bg-red-800 rounded-full flex items-center justify-center"
                                       onClick={() => {
                                         const updatedImgs = field.value.filter((_, i) => i !== index)
+                                        setImgObjArray(imgObjArray.filter((_: any, i: number) => i !== index))
                                         field.onChange(updatedImgs)
                                       }}
                                     >
                                       <XIcon color="white" size={12}></XIcon>
                                     </Button>
                                   </div>
+                                ))} */}
+                                {imgObjArray?.map((obj: any, index: number) => (
+                                  <div className={`relative flex rounded p-4 gap-4 bg-cstm-primary w-full ${obj.isSizeExceeded ? "border-2 border-red-500" : " border-2 border-white-200"}`} >
+                                    <img
+                                      key={index}
+                                      src={obj.url}
+                                      className="h-16 w-16 object-cover rounded"
+                                    />
+                                    {/* <Button 
+                                      type="button"
+                                      className="absolute top-2 right-2 bg-red-800 rounded-full flex items-center justify-center"
+                                      onClick={() => {
+                                        const updatedImgs = field.value.filter((_, i) => i !== index)
+                                        setImgObjArray(imgObjArray.filter((_: any, i: number) => i !== index))
+                                        field.onChange(updatedImgs)
+                                        console.log(field)
+                                      }}
+                                    >
+                                      <XIcon color="white" size={12}></XIcon>
+                                    </Button> */}
+                                    <div className="flex justify-between w-full">
+                                      <div className="flex-col w-full">
+                                        <p className="truncate font-bold overflow-hidden text-wrap">{obj.name}</p>
+                                        <div className="flex gap-2 flex-wrap items-center">
+                                          {
+                                            obj.size > 0 &&
+                                            <p className="text-black/[.70]">
+                                              {obj.size / 1024 / 1024 < 1 ? Math.ceil(obj.size / 1024) + "KB" : (obj.size / 1024 / 1024).toFixed(1) + "MB"}
+                                            </p>
+                                          }
+                                          {obj.isSizeExceeded && <p className="text-red-700 text-sm">Image size exceeds the maximum limit of {imageUploadMaxMB} MB.</p>}
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-col justify-center h-full">
+                                        <Button 
+                                          type="button"
+                                          variant="ghost"
+                                          onClick={() => {
+                                            const updatedImgs = field.value.filter((_, i) => i !== index)
+                                            const updatedImgArray = imgObjArray.filter((_: any, i: number) => i !== index)
+                                            console.log(updatedImgs)
+                                            setImgObjArray(updatedImgArray)
+                                            console.log(field) 
+                                            field.onChange(updatedImgs)
+                                            console.log(field)
+                                          }}
+                                        >
+                                          <XIcon color="currentColor" size={16}></XIcon>
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </div>
                                 ))}
                               </div>
-                            
+                              <div className="text-white">
+                                {field.value.map((url, index) => (
+                                  <p>{`${index}. ${url}`}</p>
+                                ))}
+                              </div>
                             </>
                           }
                           <div className="h-4">

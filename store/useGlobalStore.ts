@@ -22,6 +22,9 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   companyName: "ABCName",
   setCompanyName: (name: string) => set(() => ({companyName: name})),
 
+  imageUploadMaxMB: 2,
+  setImageUploadMaxMB: (data: number) => set(() => ({imageUploadMaxMB: data})),
+
   localeFns: {
     en: enUS,
     ja: ja,
@@ -249,6 +252,10 @@ interface GlobalState {
   /* Company Info */
   companyName: string,
   setCompanyName: (name: string) => void,
+
+  // General
+  imageUploadMaxMB: number,
+  setImageUploadMaxMB: (value: number) => void
 
   localeFns: { [key: string]: Locale };
   /*  RoomForm States */
