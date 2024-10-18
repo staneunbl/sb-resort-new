@@ -10,6 +10,7 @@ import TipTapToolbar from "./TipTapToolbar";
 import Heading from "@tiptap/extension-heading";
 import OList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
+import { useEffect } from "react";
 
 const Tiptap = ({ value, onChange }: any) => {
   const editor = useEditor(
@@ -43,6 +44,13 @@ const Tiptap = ({ value, onChange }: any) => {
     },
     [value],
   );
+
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
 
   return (
     <div className="flex flex-col gap-2">

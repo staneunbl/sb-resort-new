@@ -426,7 +426,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                 </CardHeader>
                 <div className="flex space-x-4 p-4 pt-2">
                   <div className="w-1/2">
-                    <h1 className="text-lg text-center font-semibold text-white">
+                    <h1 className="text-lg font-semibold text-white">
                       {`${roomsI18n.weekendRate} (${(roomsI18n.saturdayToSunday)})`}
                     </h1>
                     <FormField
@@ -500,7 +500,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                     />
                   </div>
                   <div className="w-1/2">
-                    <h1 className="text-lg text-center font-semibold text-white">
+                    <h1 className="text-lg font-semibold text-white">
                       {roomsI18n.weekdayRate} ({roomsI18n.mondayToFriday})
                     </h1>
                     <FormField

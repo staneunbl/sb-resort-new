@@ -31,7 +31,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Calendar } from "@/components/ui/calendar";
-import { AtSignIcon, BabyIcon, BedDoubleIcon, Book, Calendar as CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleUserRoundIcon, Loader, Loader2, PhoneIcon } from "lucide-react";
+import { ArrowUpIcon, AtSignIcon, BabyIcon, BedDoubleIcon, Book, Calendar as CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleUserRoundIcon, Loader, Loader2, PhoneIcon } from "lucide-react";
 import { format, formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useBookingStore } from "@/store/useBookingStore";
@@ -78,7 +78,7 @@ export default function MainBookingForm() {
   ][pageState];
 
   return (
-    <div className="flex flex-col justify-end gap-4">
+    <div className="relative flex flex-col justify-end gap-4">
       {BookingForms}
       <div
         className={cn(
@@ -107,6 +107,7 @@ export default function MainBookingForm() {
           Next
         </Button> */}
       </div>
+     
     </div>
   );
 }
@@ -518,6 +519,7 @@ function SelectRoomForm({
                 <p className="text-black/[.70] "><span className="text-cstm-primary font-semibold">{formatDate(checkInRange.from, "MMMM dd, yyyy")}</span> to <span className="text-cstm-primary font-semibold">{formatDate(checkInRange.to, "MMMM dd, yyyy")}</span></p>
             </div>
             <p className="text-black/[.70]">Select your preferred room type before proceeding.</p>
+            <p className="text-sm text-black/[.60]">Room Availability is subject to change due to various factors, such as new bookings, updates to room inventory, and customer cancellations.</p>
             <div className="flex gap-4 flex-wrap justify-center">
             {roomTypes?.map((roomType: any, i: number) => {
 
