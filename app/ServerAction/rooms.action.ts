@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { Description } from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 
 const supabase = createClient();
@@ -148,6 +149,7 @@ export async function getEditValues(value: any = -1) {
   }
   return { success: true, res: data };
 }
+
 export async function editRoomType(values: any) {
   const {
     RoomTypeId: roomtypeid,
@@ -200,6 +202,7 @@ export async function editRoomType(values: any) {
 export async function deleteRoomType(value: any) {
   const { data: RoomTypes, error: RoomTypesError } = await supabase
     .from("get_current_roomtype_rate")
+/******  a6cd1e1d-d700-4065-8232-1b8045411cda  *******/
     .select("RoomTypeId,RoomRateID")
     .eq("RoomTypeId", value);
   if (RoomTypesError) {
@@ -441,6 +444,84 @@ export async function getRoomAmenities(roomTypeId: number): Promise<RoomAmenityR
   }
   console.log(data)
   return data;
+}
+
+
+export async function getAmenities(id: number = -1){
+  if(id == -1) {
+    const { data, error } = await supabase
+    .from("Amenities")
+    .select("*")
+    .eq("IsDeleted", false);
+    if (error) {
+      return { success: false, res: error.message, };
+    }
+    return { success: true, res: data };
+  }
+
+  const { data, error } = await supabase
+    .from("Amenities")
+    .select("*")
+    .eq("Id", id)
+    .neq("isDeleted", true);
+  if (error) {
+    return { success: false, res: error.message, };
+  }
+  return { success: true, res: data };
+}
+
+export async function addAmenity(label: string, description: string){
+  const {data, error} = await supabase
+    .from("Amenities")
+    .insert({ Label: label, Description: description })
+    .select()
+}
+
+export async function addAmenityToRoomType(roomTypeId: number, amenityId: number){
+  const {data, error} = await supabase
+    .from("RoomTypeAmenities")
+    .insert({ RoomTypeId: roomTypeId, AmenityId: amenityId })
+    .select()
+
+    if (error) {
+      return { success: false, res: error.message, };
+    }
+    return { success: true, res: data };
+}
+
+export async function deleteAmenity(id: number){
+  const {data, error} = await supabase
+    .from("Amenities")
+    .update({isDeleted: true})
+    .eq("Id", id)
+
+    if (error) {
+      return { success: false, res: error.message, };
+    }
+    return { success: true, res: data };
+}
+
+export async function deleteRoomTypeAmenity(roomTypeId: number, amenityId: number){
+  const {data, error} = await supabase
+    .from("RoomTypeAmenities")
+    .delete()
+    .match({RoomTypeId: roomTypeId, AmenityId: amenityId})
+
+  if (error) {
+    return { success: false, res: error.message, };
+  }
+  return { success: true, res: data };
+}
+
+export async function editAmenity(amenityId: number, label: string, description: string){ 
+  const { data, error } = await supabase
+    .from("Amenities")
+    .update({ Label: label, Description: description})
+    .eq("Id", amenityId);
+  if (error) {
+    return { success: false, res: data, error: error.message };
+  }
+  return { success: true, res: data };
 }
 
 interface RoomAvailability {

@@ -136,6 +136,12 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     });
   },
 
+  // Amenity
+  selectedAmenity: [],
+  setSelectedAmenity: (amenity: any) => set(() => ({ selectedAmenity: amenity })),
+  amenityFormModalState: false,
+  setAmenityFormModalState: (state: boolean) => set(() => ({ amenityFormModalState: state })), 
+
   usersQuery: () => {
     return useQuery({
       queryKey: ["getUsers"],
@@ -358,8 +364,11 @@ interface GlobalState {
   guestEditModalState: boolean;
   setGuestEditModalState: (state: boolean) => void
 
-  // Booking
- 
+  // Amenities
+  selectedAmenity: any;
+  setSelectedAmenity: (data: any) => void;
+  amenityFormModalState: boolean;
+  setAmenityFormModalState: (state: boolean) => void;
 }
 
 

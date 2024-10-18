@@ -83,6 +83,12 @@ const NavBar = memo(function ({
           icon: <BedDouble />,
           role: [1, 2, 3],
         },
+        {
+          name: "Amenities",
+          url: "/rooms/amenities",
+          icon: <BedDouble />,
+          role: [1, 2, 3],
+        },
       ],
     },
     {
