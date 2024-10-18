@@ -137,9 +137,10 @@ export async function addRoomType(values: any) {
 
   return { success: true, res: data };
 }
-export async function getEditValues(value: any = 1) {
+export async function getEditValues(value: any = -1) {
+  //if (value == -1) return { success: true, res: [] };
   const { data, error } = await supabase
-    .from("get_current_roomtype_rate_3")
+    .from("get_current_roomtype_rate_4")
     .select("*")
     .eq("RoomTypeId", value).limit(1);
   if (error) {

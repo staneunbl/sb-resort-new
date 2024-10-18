@@ -33,6 +33,7 @@ import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import { data } from "autoprefixer";
 import { B } from "million/dist/shared/million.50256fe7";
 import { createClient } from "@supabase/supabase-js";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const { t } = useTranslation();
@@ -56,8 +57,8 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     queryKey: ["getEditValues", id],
     queryFn: async () => {
       const res = await getEditValues(id);
-      if (!res.success) {
-        throw new Error(res.error);
+      if (!res?.success) {
+        throw new Error(res?.error);
       }
       ``;
       return res.res?.[0];
@@ -111,15 +112,15 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       roomTypeName: id ? editValues?.RoomType : "",
       adultCount: id ? editValues?.MaxAdult.toString() : "",
       childCount: id ? editValues?.MaxChild.toString() : "",
-      bedType: id ? editValues?.BedTypeId.toString() : "",
+      bedType: id ? editValues?.BedTypeId.toString() || "3" : "",
       /* ============ */
       weekendRoomRate: id ? editValues?.WeekendRoomRate.toString() : "",
       extraChildWeekEndRate: id
-        ? editValues?.WeekendExtraChildRate.toString()
-        : "",
+      ? editValues?.WeekendExtraChildRate.toString()
+      : "",
       extraAdultWeekEndRate: id
-        ? editValues?.WeekendExtraAdultRate.toString()
-        : "",
+      ? editValues?.WeekendExtraAdultRate.toString()
+      : "",
       /* ------------ */
       baseRoomRate: id ? editValues?.BaseRoomRate.toString() : "",
       extraChildWeekDayRate: id ? editValues?.ExtraChildRate.toString() : "",
@@ -128,6 +129,9 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       image_urls: id ? editValues?.Images || [] : []
     },
   });
+
+  //console.log(editValues?.BedTypeId.toString())
+  console.log(form.getValues("bedType"))
 
   const addMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -246,6 +250,25 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     }
   }, [editValues])
 
+  // useEffect(() => {
+  //   console.log("useeffect trigger")
+  //   if (id && editValues) {
+  //     form.reset({
+  //       roomTypeName: editValues.RoomType,
+  //       adultCount: editValues.MaxAdult.toString(),
+  //       childCount: editValues.MaxChild.toString(),
+  //       bedType: editValues.BedTypeId?.toString() || "3",  // Ensure bedType is updated properly here
+  //       weekendRoomRate: editValues.WeekendRoomRate?.toString(),
+  //       extraChildWeekEndRate: editValues.WeekendExtraChildRate?.toString(),
+  //       extraAdultWeekEndRate: editValues.WeekendExtraAdultRate?.toString(),
+  //       baseRoomRate: editValues.BaseRoomRate?.toString(),
+  //       extraChildWeekDayRate: editValues.ExtraChildRate?.toString(),
+  //       extraAdultWeekDayRate: editValues.ExtraAdultRate?.toString(),
+  //       description: editValues.Description || defaultDescription,
+  //       image_urls: editValues.Images || [],
+  //     });
+  //   }
+  // }, [editValues, id, form])
 
   if(isLoading || bedLoading){
     return (
@@ -257,7 +280,6 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       </div>
     )
   }
-  console.log(editValues.BedTypeId)
   return (
     <div className="w-full p-4">
       {/* {
@@ -382,7 +404,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                             <FormControl>
                               <SelectComponent
                                 className="w-full"
-                                setState={field.onChange}
+                                
                                 state={field.value}
                                 options={bedTypeOptions}
                                 placeholder={roomsI18n.selectBedType}
@@ -665,64 +687,74 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                                     </Button>
                                   </div>
                                 ))} */}
-                                {imgObjArray?.map((obj: any, index: number) => (
-                                  <div className={`relative flex rounded p-4 gap-4 bg-cstm-primary w-full ${obj.isSizeExceeded ? "border-2 border-red-500" : " border-2 border-white-200"}`} >
-                                    <img
-                                      key={index}
-                                      src={obj.url}
-                                      className="h-16 w-16 object-cover rounded"
-                                    />
-                                    {/* <Button 
-                                      type="button"
-                                      className="absolute top-2 right-2 bg-red-800 rounded-full flex items-center justify-center"
-                                      onClick={() => {
-                                        const updatedImgs = field.value.filter((_, i) => i !== index)
-                                        setImgObjArray(imgObjArray.filter((_: any, i: number) => i !== index))
-                                        field.onChange(updatedImgs)
-                                        console.log(field)
-                                      }}
-                                    >
-                                      <XIcon color="white" size={12}></XIcon>
-                                    </Button> */}
-                                    <div className="flex justify-between w-full">
-                                      <div className="flex-col w-full">
-                                        <p className="truncate font-bold overflow-hidden text-wrap">{obj.name}</p>
-                                        <div className="flex gap-2 flex-wrap items-center">
-                                          {
-                                            obj.size > 0 &&
-                                            <p className="text-black/[.70]">
-                                              {obj.size / 1024 / 1024 < 1 ? Math.ceil(obj.size / 1024) + "KB" : (obj.size / 1024 / 1024).toFixed(1) + "MB"}
-                                            </p>
-                                          }
-                                          {obj.isSizeExceeded && <p className="text-red-700 text-sm">Image size exceeds the maximum limit of {imageUploadMaxMB} MB.</p>}
-                                        </div>
-                                      </div>
-                                      <div className="flex flex-col justify-center h-full">
-                                        <Button 
-                                          type="button"
-                                          variant="ghost"
-                                          onClick={() => {
-                                            const updatedImgs = field.value.filter((_, i) => i !== index)
-                                            const updatedImgArray = imgObjArray.filter((_: any, i: number) => i !== index)
-                                            console.log(updatedImgs)
-                                            setImgObjArray(updatedImgArray)
-                                            console.log(field) 
-                                            field.onChange(updatedImgs)
-                                            console.log(field)
-                                          }}
-                                        >
-                                          <XIcon color="currentColor" size={16}></XIcon>
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
+
+                                {imgObjArray?.length == 0 &&
+                                 id &&
+                                 editValues?.Images ? (
+                                  <Skeleton className="w-full p-4">
+                                    <Skeleton className="h-16 w-16"></Skeleton>
+                                  </Skeleton>
+                                 ) : (
+                                   imgObjArray?.map((obj: any, index: number) => (
+                                     <div className={`relative flex rounded p-4 gap-4 bg-cstm-primary w-full ${obj.isSizeExceeded ? "border-2 border-red-500" : " border-2 border-white-200"}`} >
+                                       <img
+                                         key={index}
+                                         src={obj.url}
+                                         className="h-16 w-16 object-cover rounded"
+                                       />
+                                       {/* <Button 
+                                         type="button"
+                                         className="absolute top-2 right-2 bg-red-800 rounded-full flex items-center justify-center"
+                                         onClick={() => {
+                                           const updatedImgs = field.value.filter((_, i) => i !== index)
+                                           setImgObjArray(imgObjArray.filter((_: any, i: number) => i !== index))
+                                           field.onChange(updatedImgs)
+                                           console.log(field)
+                                         }}
+                                       >
+                                         <XIcon color="white" size={12}></XIcon>
+                                       </Button> */}
+                                       <div className="flex justify-between w-full">
+                                         <div className="flex-col w-full">
+                                           <p className="truncate font-bold overflow-hidden text-wrap">{obj.name}</p>
+                                           <div className="flex gap-2 flex-wrap items-center">
+                                             {
+                                               obj.size > 0 &&
+                                               <p className="text-black/[.70]">
+                                                 {obj.size / 1024 / 1024 < 1 ? Math.ceil(obj.size / 1024) + "KB" : (obj.size / 1024 / 1024).toFixed(1) + "MB"}
+                                               </p>
+                                             }
+                                             {obj.isSizeExceeded && <p className="text-red-700 text-sm">Image size exceeds the maximum limit of {imageUploadMaxMB} MB.</p>}
+                                           </div>
+                                         </div>
+                                         <div className="flex flex-col justify-center h-full">
+                                           <Button 
+                                             type="button"
+                                             variant="ghost"
+                                             onClick={() => {
+                                               const updatedImgs = field.value.filter((_, i) => i !== index)
+                                               const updatedImgArray = imgObjArray.filter((_: any, i: number) => i !== index)
+                                               console.log(updatedImgs)
+                                               setImgObjArray(updatedImgArray)
+                                               console.log(field) 
+                                               field.onChange(updatedImgs)
+                                               console.log(field)
+                                             }}
+                                           >
+                                             <XIcon color="currentColor" size={16}></XIcon>
+                                           </Button>
+                                         </div>
+                                       </div>
+                                     </div>
+                                   ))
+                                 )
+                                }
                               </div>
-                              <div className="text-white">
+                              {/* <div className="text-white">
                                 {field.value.map((url, index) => (
                                   <p>{`${index}. ${url}`}</p>
                                 ))}
-                              </div>
+                              </div> */}
                             </>
                           }
                           <div className="h-4">

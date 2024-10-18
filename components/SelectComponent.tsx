@@ -29,8 +29,16 @@ export default function SelectComponent({
   defaultValue?: string;
   required?: boolean;
 }) {
+  // Use the state directly to handle component state instead of relying solely on props
+  const handleValueChange = (value: string) => {
+    // Avoid resetting the state if the value hasn't changed
+    if (value !== state) {
+      setState?.(value);
+    }
+  };
+
   return (
-    <Select required={required} onValueChange={setState} value={state} defaultValue={defaultValue}>
+    <Select required={required} onValueChange={handleValueChange} value={state} defaultValue={defaultValue}>
       <SelectTrigger
         className={cn("w-[180px] border-cstm-secondary", className)}
       >
