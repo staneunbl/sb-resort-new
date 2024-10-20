@@ -1,4 +1,5 @@
 import {
+  getAmenities,
   getAvailableRoomsRPC,
   getBedTypeOptions,
   getCurrentRoomTypesRate,
@@ -250,6 +251,15 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await getAvailableRoomsRPC(to,from)).res as any
       }
     })
+  },
+
+  amenityQuery: () => {
+    return useQuery({
+      queryKey: ["GetAmenities"],
+      queryFn: async () => {
+        return (await getAmenities()).res as any
+      }
+    })
   }
 }));
 
@@ -369,6 +379,7 @@ interface GlobalState {
   setSelectedAmenity: (data: any) => void;
   amenityFormModalState: boolean;
   setAmenityFormModalState: (state: boolean) => void;
+  amenityQuery: () => any
 }
 
 

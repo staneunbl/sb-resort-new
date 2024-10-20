@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Form,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,7 +35,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import SelectComponent from "@/components/SelectComponent";
 import { useTranslation } from "next-export-i18n";
-import { addRoomRate, editRoomRate } from "@/app/ServerAction/rooms.action";
+import { addRoomRate, editAmenity, editRoomRate } from "@/app/ServerAction/rooms.action";
 import { useEffect } from "react";
 
 export function AmenitiesModal() {
@@ -42,8 +43,47 @@ export function AmenitiesModal() {
     const {
         amenityFormModalState,
         setAmenityFormModalState,
-        selectedAmenity
+        selectedAmenity,
+        amenityQuery
     } = useGlobalStore()
+
+    const {refetch} = amenityQuery()
+
+    const formSchema = z.object({
+        Label: z.string().min(1, "Required"),
+        Description: z.string().min(1, "Required"),
+    });
+
+    const form = useForm<z.infer<typeof formSchema>>({
+      mode: "onChange",
+      resolver: zodResolver(formSchema),
+      values: {
+        Label: selectedAmenity.Label,
+        Description: selectedAmenity.Description
+      }
+    });
+
+    const mutation = useMutation({
+        mutationFn: async (values: z.infer<typeof formSchema>) => {
+            const {res: data, error} = await editAmenity(selectedAmenity.Id, values.Label, values.Description)
+            
+            if(error) throw new Error("Error")
+
+            return data
+        },
+        onSuccess: (data) => {
+            toast.success("Amenity updated successfully");
+            refetch();
+            setAmenityFormModalState(false);
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        }
+      });
+
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        mutation.mutate(values);
+    }
 
     return (
         <Dialog
@@ -61,8 +101,54 @@ export function AmenitiesModal() {
                 Edit an Amenity's Label and Description
               </DialogDescription>
             </DialogHeader>
-            <p>{selectedAmenity.Label}</p>
-            <p>{selectedAmenity.Description}</p>
+            <Form {...form}>
+              <form className="gap-4 flex flex-col" onSubmit={form.handleSubmit(onSubmit)}>
+                <FormField
+                  name="Label"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Label</FormLabel>
+                      <Input
+                        placeholder="Label"
+                        {...field}
+                      />
+                      <FormDescription>
+                        Used to display the Amenity in the system.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}>
+                </FormField>
+                <FormField
+                  name="Description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <Input
+                        placeholder="Description"
+                        {...field}
+                      />
+                      <FormDescription>
+                        Text to be displayed to the customer.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}>
+                </FormField>
+                <DialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost">
+                    Cancel
+                  </Button>
+                  <Button
+                  type="submit"
+                  variant="default">
+                    Save
+                  </Button>
+                </DialogFooter>
+                </form>
+            </Form>
           </DialogContent>
         </Dialog>
       );

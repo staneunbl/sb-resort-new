@@ -17,16 +17,10 @@ export function AmenitiesTable() {
         setSelectedAmenity,
         amenityFormModalState,
         setAmenityFormModalState,
+        amenityQuery
     } = useGlobalStore()
     
-    const {data: amenities, error, isLoading} = useQuery({
-        queryKey: ["amenities"],
-        queryFn: async () => {
-            const res = await getAmenities();
-            if (!res.success) throw new Error();
-            return res.res;
-        },
-    })
+    const {data: amenities, error, isLoading} = amenityQuery();
 
     const [open, setOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(-1);
