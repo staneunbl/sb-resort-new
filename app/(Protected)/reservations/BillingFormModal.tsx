@@ -205,7 +205,7 @@ export default function BillingFormModal() {
                     values={field.value}
                     onValuesChange={field.onChange}
                     loop
-                    className="max-w"
+                    className="max-w text-sm" 
                     maximumSelectedValues={selectedReservationData?.RoomCount}
                   >
                     <MultiSelectorTrigger>

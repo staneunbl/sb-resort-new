@@ -3,6 +3,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  editReservationRemark,
   getReservation,
   getReservationDetails,
 } from "@/app/ServerAction/reservations.action";
@@ -23,6 +24,7 @@ import { editGuest, getGuestDetails } from "@/app/ServerAction/manage.action";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Resolver } from "dns";
 export default function ReservationDetails({ id }: { id: string }) {
   const { localeFns } = useGlobalStore();
 
@@ -124,6 +126,48 @@ export default function ReservationDetails({ id }: { id: string }) {
     },
   });
 
+  // Edit Remarks
+
+  const editRemarksFormSchema = z.object({
+    Remarks: z.string().optional(),
+  })
+
+  const editRemarksForm = useForm<z.infer<typeof editRemarksFormSchema>>({
+    resolver: zodResolver(editRemarksFormSchema),
+    values: {
+      Remarks: data?.Remarks || "",
+    }
+  }); 
+
+  const editRemarksMutation = useMutation({
+    mutationKey: ["EditRemarks"],
+    mutationFn: async (values: z.infer<typeof editRemarksFormSchema>) => {
+      const res = await editReservationRemark(id, values.Remarks);
+      if (!res.success) {
+        throw new Error("Something went wrong, please try again later");
+      }
+      return res.res;
+    },
+    onSuccess: () => {
+      toast.success("Success", {
+        description: "Remarks updated successfully",
+      });
+      refetch();
+      setRemarksEdit(false);
+    },
+    onError: () => {
+      toast.error("Oops!", {
+        description: "Something went wrong, please try again later",
+      })
+    }
+  })
+
+  function onSubmit(values: z.infer<typeof editRemarksFormSchema>) {
+    editRemarksMutation.mutate(values)
+  }
+
+
+
   const cardHeaderClass =
     "flex rounded-t-md bg-cstm-primary p-1 pl-4 text-lg font-semibold text-white";
 
@@ -214,7 +258,7 @@ export default function ReservationDetails({ id }: { id: string }) {
           <CardHeader className={cardHeaderClass}>
             <div className="flex justify-between items-center">
               <p >{guestI18n.guestDetails}</p>
-              <Button onClick={() => setGuestDetailsEdit(true)} className={`${guestDetailsEdit ? "invisible" : "visible"}`}><PencilIcon size={12} color="white" className={`mr-2 `}  /> Edit</Button>
+              {/* <Button onClick={() => setGuestDetailsEdit(true)} className={`${guestDetailsEdit ? "invisible" : "visible"}`}><PencilIcon size={12} color="white" className={`mr-2 `}  /> Edit</Button> */}
             </div>
           </CardHeader>
             <div className={`${guestDetailsEdit ? "block" : "hidden"} p-4`}>
@@ -323,7 +367,7 @@ export default function ReservationDetails({ id }: { id: string }) {
           <CardHeader className={cardHeaderClass}>
             <div className="flex justify-between items-center">
               <p >{reservationI18n.specialRequest}</p>
-              <Button onClick={() => {setRequestEdit(true)}} className={`${requestEdit ? "invisible" : "visible"}`}><PencilIcon size={12} color="white" className={`mr-2 `}  /> Edit</Button>
+              {/* <Button onClick={() => {setRequestEdit(true)}} className={`${requestEdit ? "invisible" : "visible"}`}><PencilIcon size={12} color="white" className={`mr-2 `}  /> Edit</Button> */}
             </div>
           </CardHeader>
           {requestEdit ? (
@@ -352,9 +396,27 @@ export default function ReservationDetails({ id }: { id: string }) {
             </div>
           </CardHeader>
           {remarksEdit ? (
-            <div className="flex gap-4 p-4 justify-end">
-              <Button onClick={() => {setRemarksEdit(false)}} variant={"outline"}>Cancel</Button>
-              <Button>Save</Button>
+            <div>
+              <Form {...editRemarksForm}>
+                <form className="p-4" onSubmit={editRemarksForm.handleSubmit(onSubmit)}>
+                  <FormField
+                    control={editRemarksForm.control}
+                    name="Remarks"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex gap-4 p-4 justify-end">
+                    <Button onClick={() => {setRemarksEdit(false)}} variant={"outline"}>Cancel</Button>
+                    <Button type="submit" >Save</Button>
+                  </div>
+                </form>
+              </Form>
             </div>
           ) : (
             <div className="p-4">

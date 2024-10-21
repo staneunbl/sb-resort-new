@@ -171,7 +171,7 @@ const MultiSelectorTrigger = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "flex flex-wrap gap-1 rounded-lg border border-muted bg-background p-1 py-2",
+        "flex flex-wrap gap-1 rounded-lg border border-input bg-background p-1 py-2",
         className,
       )}
       {...props}
@@ -190,7 +190,7 @@ const MultiSelectorTrigger = forwardRef<
             aria-label={`Remove ${item} option`}
             aria-roledescription="button to remove option"
             type="button"
-            onMouseDown={mousePreventDefault}
+            
             onClick={() => onValueChange(item)}
           >
             <span className="sr-only">Remove {item} option</span>

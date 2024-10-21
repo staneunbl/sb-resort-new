@@ -169,10 +169,10 @@ export async function editReservationStatus(id: string, statusId: number) {
   return { success: true, res: data };
 }
 
-export async function editReservationRemark(id: string, remark: string){
+export async function editReservationRemark(id: string, remark?: string){
   const {data, error} = await supabase
     .from("Reservations")
-    .update({ Remark: remark })
+    .update({ Remarks: remark })
     .eq("Id", id);
 
   if(error){
