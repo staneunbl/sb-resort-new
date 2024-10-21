@@ -218,7 +218,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                     {dashboardI18n.forCheckOut}
                   </h1>
                   <p className="w-1/2">
-                    {format(new Date(data.CheckInDate), "MMM dd, yyyy", {
+                    {format(new Date(data.CheckOutDate), "MMM dd, yyyy", {
                       locale: localeFns[locale],
                     })}
                   </p>
@@ -239,7 +239,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                     differenceInDays(
                       new Date(data.CheckOutDate),
                       new Date(data.CheckInDate),
-                    ) - 1
+                    )
                   } Night(s)`}</p>
                 </div>
                 <div className="flex w-full">
