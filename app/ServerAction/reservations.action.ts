@@ -374,3 +374,15 @@ export async function peekLastReservation() {
   }
   return { success: true, res: data };
 }
+
+export async function getAssignedRoom(reservationId: number){
+  const {data, error} = await supabase
+    .from('assigned_rooms')
+    .select('*')
+    .eq('ReservationId', reservationId)
+  if(error){
+    console.log(error)
+    return {success: false, res: []}
+  }
+  return {success: true, res: data}
+} 

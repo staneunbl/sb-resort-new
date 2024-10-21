@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   editReservationRemark,
+  getAssignedRoom,
   getReservation,
   getReservationDetails,
 } from "@/app/ServerAction/reservations.action";
@@ -48,6 +49,15 @@ export default function ReservationDetails({ id }: { id: string }) {
       return res.res;
     },
   });
+
+  const { data: roomNumber, isLoading: roomNumLoading } = useQuery({
+    queryKey: ["RoomNumber", id],
+    queryFn: async () => {
+      const res = await getAssignedRoom(parseInt(id));
+      if (!res.success) throw new Error();
+      return res.res;
+    }
+  })
   
   // GUEST DETAILS EDIT 
 
@@ -230,6 +240,16 @@ export default function ReservationDetails({ id }: { id: string }) {
                   <div className="w-1/2">
                     <ReservationStatusBadge status={data?.ReservationStatus} />
                   </div>
+                </div>
+                <div className="flex w-full">
+                  <h1 className="w-1/2 font-semibold">
+                    Room Number
+                  </h1>
+                  <p className="w-1/2">{`${
+                    !roomNumLoading && roomNumber ? 
+                    roomNumber.map((room: any) => room.RoomNumber).join(", ") :
+                    <p>Loading...</p>
+                  }`}</p>
                 </div>
                 <div className="flex w-full">
                   <h1 className="w-1/2 font-semibold">
