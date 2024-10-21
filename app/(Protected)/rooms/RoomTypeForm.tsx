@@ -22,7 +22,9 @@ import {
   addRoomType,
   deleteRoomType,
   editRoomType,
-  getEditValues
+  getAmenities,
+  getEditValues,
+  getRoomAmenities
 } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
@@ -34,6 +36,7 @@ import { data } from "autoprefixer";
 import { B } from "million/dist/shared/million.50256fe7";
 import { createClient } from "@supabase/supabase-js";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const { t } = useTranslation();
@@ -44,6 +47,9 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const [imgObjArray, setImgObjArray] = useState<ImageUploadObject[]>([] as ImageUploadObject[]);
   const [imgUploadCount, setImgUploadCount] = useState(0)
   const [imgUp, setImgUp] = useState<File>({} as File);
+  const [selectedAmenities, setSelectedAmenities] = useState<number[]>([])
+  const [amenitySearch, setAmenitySearch] = useState<string>("")
+
 
  
 
@@ -64,6 +70,15 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       return res.res?.[0];
     },
   });
+
+  const { data: amenities, isLoading: amenitiesLoading } = useQuery({
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    queryKey: ["GetAmenities"], 
+    queryFn: async () => {
+      return (await getAmenities()).res as RoomAmenity[]
+    }
+  })
 
   async function uploadImage(file: File) {
     let path =  `${file.name}`
@@ -86,6 +101,18 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     return publicUrl
   }
 
+  const toggleAmenity = (id: number) => {
+    if(selectedAmenities.includes(id)){
+      setSelectedAmenities(selectedAmenities.filter(amenity => amenity !== id))
+    } else {
+      setSelectedAmenities([...selectedAmenities, id])
+    }
+  }
+
+  const filteredAmenities = amenities?.filter(amenity => {
+    return amenity.Label.toLowerCase().includes(amenitySearch.toLowerCase()) || amenity.Description.toLowerCase().includes(amenitySearch.toLowerCase())
+  })
+
   const formSchema = z.object({ 
     /* Room Details */
     roomTypeName: z.string().min(1, { message: "Required" }),
@@ -102,7 +129,8 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     extraAdultWeekDayRate: z.string().min(1, { message: "Required" }),
     /* Descrption */
     description: z.string().min(1, { message: "Required" }),
-    image_urls: z.array(z.string().url().optional())
+    image_urls: z.array(z.string().url().optional()),
+    amenities: z.array(z.number().optional())
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -126,12 +154,13 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       extraChildWeekDayRate: id ? editValues?.ExtraChildRate.toString() : "",
       extraAdultWeekDayRate: id ? editValues?.ExtraAdultRate.toString() : "",
       description: id ? editValues?.Description.toString() : defaultDescription,
-      image_urls: id ? editValues?.Images || [] : []
+      image_urls: id ? editValues?.Images || [] : [],
+      amenities: id ? editValues?.Amenities || [] : [],
     },
   });
 
   //console.log(editValues?.BedTypeId.toString())
-  console.log(form.getValues("bedType"))
+  //console.log(form.getValues("bedType"))
 
   const addMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -219,11 +248,17 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     console.log(values)
 
     if (id) {
+
+      if(values.amenities != selectedAmenities) {
+        
+      }
+
       editMutation.mutate({
         ...values,
         RateTypeId: editValues?.RateTypeId,
         RoomRateId: editValues?.RoomRateID,
         RoomTypeId: editValues?.RoomTypeId,
+        amenitiesOld: selectedAmenities
       });
     } else {
       
@@ -247,6 +282,12 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       }))
 
       setImgObjArray(existingImgs);
+    }
+  }, [editValues])
+
+  useEffect(() => {
+    if(editValues?.Amenities) {
+      setSelectedAmenities(editValues.Amenities)
     }
   }, [editValues])
 
@@ -404,7 +445,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                             <FormControl>
                               <SelectComponent
                                 className="w-full"
-                                
+                                setState={field.onChange}
                                 state={field.value}
                                 options={bedTypeOptions}
                                 placeholder={roomsI18n.selectBedType}
@@ -575,6 +616,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                   </div>
                 </div>
               </Card>
+             
               <Card className="bg-cstm-secondary">
                 <CardHeader className="rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
                   {generalI18n.description}
@@ -599,26 +641,12 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                 </div>
               </Card>
             </div>
-            <div className="flex w-1/2 flex-col">
-              <div className="flex flex-col justify-between gap-2">
-                {/* <Button className="bg-cstm-secondary">
-                  {roomsI18n.saveNewRoomType}
-                </Button>
-                <Button
-                  className="bg-cstm-primary"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.push("/rooms/viewroomtypes");
-                  }}
-                >
-                  {generalI18n.cancel}
-                </Button> */}
-              </div>
+            <div className="flex w-1/2 flex-col gap-4">
               <Card className="bg-cstm-secondary">
                 <CardHeader className="rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
                   Room Images
                 </CardHeader>
-                <div className="p-4">
+                <div className="p-4 p-t-0">
                   <FormField
                     control={form.control}
                     name="image_urls"
@@ -766,6 +794,110 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                   />
                   
                 </div>
+              </Card>
+              <Card className="bg-cstm-secondary">
+                <CardHeader className="rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
+                  Amenities
+                </CardHeader>
+                <FormField
+                  control={form.control}
+                  name="amenities"
+                  render={({field}) => {
+                    return (
+                      <FormItem>
+                          {
+                            field.value.length > 0 && (
+                              <div className="flex flex-col gap-4 p-4">
+                                <p className="text-white font-bold">Selected Amenities ({field.value.length})</p>
+                                <div className="flex gap-4 flex-wrap">
+                                  {
+                                    field.value?.map((selectedId: any) => {
+                                      let amenity = amenities?.find((item: any) => item.Id === selectedId);
+                                      return (
+                                        amenity && (
+                                          <div 
+                                            className="flex gap-4 p-2 items-center bg-cstm-primary rounded" 
+                                            tabIndex={0} 
+                                            role="button"
+                                            key={amenity.Id} 
+                                            onClick={() => {
+                                              const newValue = field.value.filter((id) => id !== selectedId)
+                                              field.onChange(newValue)
+                                            }}
+                                          >
+                                            <p className="text-white text-sm">{amenity.Label}</p>
+                                            <XIcon size={12} color="white"></XIcon>
+                                          </div>
+                                        )
+                                      );
+                                    })
+                                  }
+                                  {/* {
+                                    amenities?.map((amenity: any) => (
+                                      selectedAmenities.includes(amenity.Id) && (
+                                        <div 
+                                          className="flex gap-4 p-2 items-center bg-cstm-primary rounded" 
+                                          tabIndex={0} 
+                                          role="button"
+                                          key={amenity.Id} 
+                                          onClick={() => toggleAmenity(amenity.Id)}
+                                        >
+                                          <p className="text-white text-sm">{amenity.Label}</p>
+                                          <XIcon size={12} color="white"></XIcon>
+                                        </div>
+                                      )
+                                    ))
+                                  } */}
+                                </div>
+                              </div>
+                            )
+                          }
+                        <div className="p-4">
+                          <Input 
+                            placeholder="Search for amenities..."
+                            value={amenitySearch} 
+                            onChange={(e) => setAmenitySearch(e.target.value)} 
+                          ></Input>
+                          <hr className="border-white/[.20] mt-4"></hr>
+                        </div>
+
+                        <div className="p-4 pt-0 flex flex-col gap-4 max-h-[500px] overflow-y-auto">
+                            {
+                              amenitiesLoading ? (
+                                <Loader2 size={40} className="animate-spin" />
+                              ) : (
+                                filteredAmenities?.map((amenity: any) => (
+                                  <div 
+                                    key={amenity.Id}
+                                    className={`p-3 rounded flex gap-4 items-center ${field.value.includes(amenity.Id) ? "bg-cstm-primary text-white" : "bg-white/[.85] text-black"} transition transition-all`}>
+                                    <Checkbox
+                                      checked={field.value.includes(amenity.Id)}
+                                      onCheckedChange={() => {
+                                        const newValue = field.value.includes(amenity.Id) ?
+                                        field.value.filter(((id) => id !== amenity.Id)) :
+                                        [...field.value, amenity.Id]
+
+                                        field.onChange(newValue)
+                                      }}
+                                      className="data-[state=checked]:bg-white data-[state=checked]:text-cstm-primary data-[state=unchecked]:bg-cstm-secondary data-[state=checked]:text-cstm-primary border-cstm-primary w-5 h-5 rounded border-0 transition transition-all"
+                                    />
+                                    <div className="flex flex-col">
+                                      <p className={`${field.value.includes(amenity.Id) ? "text-white" : "text-black"} font-semibold transition transition-all`}>{amenity.Label}</p>
+                                      <p className={`${field.value.includes(amenity.Id) ? "text-white/[.70]" : "text-black/[.70]"} text-sm transition transition-all`}>{amenity.Description}</p>
+                                    </div>
+                                  </div>
+                                ))
+                              )
+                            }
+                        </div>
+                        <FormMessage>
+
+                        </FormMessage>
+                      </FormItem>
+                    )
+                  }}>
+
+                </FormField>
               </Card>
             </div>
               

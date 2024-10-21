@@ -101,7 +101,8 @@ export async function addRoomType(values: any) {
     extraChildWeekDayRate: extrachildrate,
     extraAdultWeekDayRate: extraadultrate,
     description: roomtypedescription,
-    image_urls: images
+    image_urls: images,
+    amenities: amenities
   } = values;
 
   console.log(values)
@@ -136,12 +137,20 @@ export async function addRoomType(values: any) {
     return { success: false, res: [], error: imgError.message };
   }
 
+  const { data: amenityAssoc, error: amenityError } = await supabase 
+    .from("RoomTypeAmenities")
+    .insert(
+      amenities.map((amenity: any) => ({ RoomTypeId: data.RoomTypeId, AmenityId: amenity }))
+    )
+
+    if(amenityError) return {success: false, res: [], error: amenityError.message}
+
   return { success: true, res: data };
 }
 export async function getEditValues(value: any = -1) {
   //if (value == -1) return { success: true, res: [] };
   const { data, error } = await supabase
-    .from("get_current_roomtype_rate_4")
+    .from("get_current_roomtype_rate_rpc")
     .select("*")
     .eq("RoomTypeId", value).limit(1);
   if (error) {
@@ -165,7 +174,9 @@ export async function editRoomType(values: any) {
     extraChildWeekDayRate: extrachildrate,
     extraAdultWeekDayRate: extraadultrate,
     description: roomtypedescription,
-    image_urls: images
+    image_urls: images,
+    amenities: amenitiesNew,
+    amenitiesOld: amenitiesOld,
   } = values;
 
   const { data, error } = await supabase.rpc("update_room_details", {
@@ -195,6 +206,34 @@ export async function editRoomType(values: any) {
 
   if(imgError) {
     return { success: false, res: [], error: imgError.message };
+  }
+
+  console.log(amenitiesNew, amenitiesOld, amenitiesNew == amenitiesOld)
+  if(!(amenitiesNew == amenitiesOld)){
+    // find new
+    const newEntries = amenitiesNew.filter((amenity: any) => !amenitiesOld.includes(amenity))
+    const deletedEntries = amenitiesOld.filter((amenity: any) => !amenitiesNew.includes(amenity))
+    console.log(newEntries, deletedEntries)
+    
+    if(newEntries.length > 0) {
+      const { data: addAmenity, error: addAmenityError } = await supabase
+        .from("RoomTypeAmenities")
+        .insert(
+          newEntries.map((amenity: number) => ({ RoomTypeId: roomtypeid, AmenityId: amenity }))
+        )
+    
+        if(addAmenityError) console.log(addAmenityError)
+    }
+
+    if(deletedEntries > 0) {
+      const { data: deleteAmenity, error: deleteAmenityError } = await supabase
+        .from("RoomTypeAmenities")
+        .delete()
+        .in("AmenityId", deletedEntries)
+        .eq("RoomTypeId", roomtypeid)
+      
+      if(deleteAmenityError) console.log(deleteAmenityError)
+    }
   }
 
   return { success: true, res: data };
