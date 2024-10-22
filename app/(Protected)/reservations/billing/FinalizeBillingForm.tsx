@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,10 @@ export default function FinalizeBillingForm() {
     setFinilizeBillingModalState,
     selectedBillingData,
   } = useGlobalStore();
+
+  useEffect(() => {
+    console.log(selectedBillingData)
+  }, [])
 
   const { mutate } = useMutation({
     mutationKey: ["FinalizeBill"],
@@ -62,41 +66,41 @@ export default function FinalizeBillingForm() {
           <div className="w-3/5">
             <p className="text-sm font-bold text-black/[.50]">RESERVATION DETAILS</p>
             <div>
-              <p className="text-2xl font-semibold text-black/[.80]">FirstName LastName</p>
-              <p className="text-black/[.65]">Reservation ID #55</p>
+              <p className="text-2xl font-semibold text-black/[.80]">{selectedBillingData.FirstName} {selectedBillingData.LastName}</p>
+              <p className="text-black/[.65]">Reservation ID#{selectedBillingData.ReservationId}</p>
               <div className="flex mt-4">
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Room Type</p>
-                  <p className="text-black/[.65]">Deluxe</p>
+                  <p className="text-black/[.65]">{selectedBillingData.RoomType}</p>
                 </div>
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Room Number</p>
-                  <p className="text-black/[.65]">Room 1234</p>
+                  <p className="text-black/[.65]">Room {selectedBillingData.RoomNumber}</p>
                 </div>
               </div>
               <div className="flex mt-4">
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Check-In</p>
-                  <p className="text-black/[.65]">October 1, 2024</p>
+                  <p className="text-black/[.65]">{selectedBillingData.CheckInDate}</p>
                 </div>
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Check-Out</p>
-                  <p className="text-black/[.65]">October 4, 2024</p>
+                  <p className="text-black/[.65]">{selectedBillingData.CheckOutDate}</p>
                 </div>
               </div>
               <div className="flex mt-4">
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Adult Guests</p>
-                  <p className="text-black/[.65]">2</p>
+                  <p className="text-black/[.65]">-</p>
                 </div>
                 <div className="w-1/2">
                   <p className="text-black/[.70] font-bold">Child Guests</p>
-                  <p className="text-black/[.65]">1</p>
+                  <p className="text-black/[.65]">-</p>
                 </div>
               </div>
               <div className="mt-4">
                 <p className="text-black/[.70] font-bold">Special Requests</p>
-                <p className="text-black/[.65]">Use red bed sheets please.</p>
+                <p className="text-black/[.65]">{selectedBillingData.Request ? selectedBillingData.Request : "None"}</p>
               </div>
               <div className="flex flex-col mt-4">
                 <p className="text-black/[.70] font-bold">Add-Ons</p>

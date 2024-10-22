@@ -1,4 +1,5 @@
 import { useBookingStore } from "@/store/useBookingStore";
+import { MainOptions, RoomRate } from "@/types";
 import { format } from "date-fns";
 
 export function capitalizeFirstLetter(word: string) {

@@ -1,5 +1,5 @@
 "use client";
-import { getBillings } from "@/app/ServerAction/reservations.action";
+import { getBillings, getReservationSummary } from "@/app/ServerAction/reservations.action";
 import DetailedDataTable from "@/components/DetailedDataTable";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { ColumnDef } from "@tanstack/react-table";
 import { commafy } from "@/utils/Helpers";
+import { ReservationSummaryRecord } from "@/types";
 export default function BillingsTable() {
   const { t } = useTranslation();
   const { locale } = t("locale");
@@ -38,6 +39,11 @@ export default function BillingsTable() {
 
   const { data: billings, isLoading } = billingsQuery();
 
+  const {data, error} = useQuery({
+    queryKey: ["reservationSummary"],
+    queryFn: async () => (await getReservationSummary()).res as ReservationSummaryRecord[],
+  })
+
   const column = [
     {
       accessorKey: "Id",
@@ -49,23 +55,23 @@ export default function BillingsTable() {
       filterFn: "includesString",
     },
     {
-      accessorKey: "BillingStatus",
+      accessorKey: "Status",
       header: reservationI18n.billingStatus,
     },
-    {
-      accessorKey: "InitialBill",
-      header: reservationI18n.initialBill,
-      cell: ({ cell }: any) => {
-        return `₱ ${commafy(cell.getValue())}`;
-      },
-    },
-    {
-      accessorKey: "TotalPerAddOn",
-      header: reservationI18n.totalAddOnPrice,
-      cell: ({ cell }: any) => {
-        return `₱ ${commafy(cell.getValue())}`;
-      },
-    },
+    // {
+    //   accessorKey: "InitialBill",
+    //   header: reservationI18n.initialBill,
+    //   cell: ({ cell }: any) => {
+    //     return `₱ ${commafy(cell.getValue())}`;
+    //   },
+    // },
+    // {
+    //   accessorKey: "TotalPerAddOn",
+    //   header: reservationI18n.totalAddOnPrice,
+    //   cell: ({ cell }: any) => {
+    //     return `₱ ${commafy(cell.getValue())}`;
+    //   },
+    // },
     {
       accessorKey: "Deposit",
       header: reservationI18n.deposit,
@@ -91,22 +97,22 @@ export default function BillingsTable() {
       accessorKey: "LastName",
       enableHiding: false,
     },
-    ,
-    {
-      accessorKey: "CreatedAt",
-      header: generali18n.createdAt,
-      cell: ({ cell }: any) => {
-        return format(new Date(cell.getValue()), "MMM dd, yyyy", {
-          locale: localeFns[locale],
-        });
-      },
-    },
+    // ,
+    // {
+    //   accessorKey: "CreatedAt",
+    //   header: generali18n.createdAt,
+    //   cell: ({ cell }: any) => {
+    //     return format(new Date(cell.getValue()), "MMM dd, yyyy", {
+    //       locale: localeFns[locale],
+    //     });
+    //   },
+    // },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }: any) => {
         const record = row.original;
-        const isFinalized = record.BillingStatus === "Fully Paid";
+        const isFinalized = record.Status === "Fully Paid";
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -149,11 +155,11 @@ export default function BillingsTable() {
           title={reservationI18n.billings}
           isLoading={isLoading}
           columns={column as ColumnDef<any>[]}
-          data={billings || []}
+          data={data || []}
           visibility={{ Id: false, FirstName: false, LastName: false }}
           filterByCol={[
             {
-              column: "BillingStatus",
+              column: "Status",
               filterValue: selectedBillingStatusFilter,
             },
           ]}

@@ -17,6 +17,7 @@ import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
+import { Reservation, MainOptions, Room, RoomRate } from "@/types";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
