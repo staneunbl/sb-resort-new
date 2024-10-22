@@ -92,6 +92,7 @@ export function dateAnalysis(startDate: Date, endDate: Date) {
 }
 
 export function formatCurrencyJP(value: number) {
+  if(!value) return '0.00'
   return value.toLocaleString('ja-JP', {
     minimumFractionDigits: 2
   })
