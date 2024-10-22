@@ -37,6 +37,7 @@ import { B } from "million/dist/shared/million.50256fe7";
 import { createClient } from "@supabase/supabase-js";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUploadObject, RoomAmenity } from "@/types";
 
 export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const { t } = useTranslation();

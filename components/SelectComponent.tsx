@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { MainOptions } from "@/types";
 
 export default function SelectComponent({
   className,

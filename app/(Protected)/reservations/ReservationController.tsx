@@ -7,6 +7,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useTranslation } from "next-export-i18n";
 import { useQuery } from "@tanstack/react-query";
 import { getReservationStatusOptions } from "@/app/ServerAction/reservations.action";
+import { MainOptions, Reservation } from "@/types";
 export default function ReservationController() {
   const { t } = useTranslation();
   const reservationI18n = t("ReservationsPage");

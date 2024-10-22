@@ -1,5 +1,6 @@
 "use server";
 
+import { RoomAmenityResponse } from "@/types";
 import { createClient } from "@/utils/supabase/server";
 import { Description } from "@radix-ui/react-dialog";
 import { format } from "date-fns";

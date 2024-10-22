@@ -19,6 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { deleteRoom } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
+import { Room } from "@/types";
 
 export default function RoomTable() {
   const {

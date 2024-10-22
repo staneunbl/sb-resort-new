@@ -206,7 +206,6 @@ export default function ReservationTable() {
       ),
       cell: ({ cell, row }: any) => {
         const status = cell.getValue() as string;
-
         return (
           <div className="flex h-min justify-center">
             <ReservationStatusBadge status={status} />

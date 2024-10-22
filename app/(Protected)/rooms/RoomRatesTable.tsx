@@ -19,6 +19,7 @@ import { useTranslation } from "next-export-i18n";
 import { deleteRoomRate } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { RoomRate } from "@/types";
 
 export default function RoomRatesTable() {
   const { t } = useTranslation();

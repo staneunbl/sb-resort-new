@@ -42,6 +42,7 @@
   import { isEmptyObj } from "@/utils/Helpers";
   import { useTranslation } from "next-export-i18n";
   import { Textarea } from "@/components/ui/textarea";
+import { Reservation } from "@/types";
 
   export default function ReservationModal() {
     const {

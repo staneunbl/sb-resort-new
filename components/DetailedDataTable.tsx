@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import { useEffect } from "react";
 import { useTranslation } from "next-export-i18n";
+import { FilterByCol } from "@/types";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
