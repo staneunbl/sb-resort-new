@@ -42,7 +42,7 @@ export async function monthlyReservations() {
 }
 export async function thisMonthSales() {
   const { data, error } = await supabase
-    .from("ThisMonthSales")
+    .from("thismonthsales")
     .select()
     .single();
   console.log(data);
