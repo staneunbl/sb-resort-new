@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { Cell } from "recharts";
 import { useTranslation } from "next-export-i18n";
 import { Ellipsis } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { ColumnDef } from "@tanstack/react-table";
 import { commafy } from "@/utils/Helpers";
@@ -31,18 +31,21 @@ export default function BillingsTable() {
     localeFns,
     setBillingAddOnFormModalState,
     setSelectedBillingData,
+    selectedBillingData,
     billingsQuery,
     setFinilizeBillingModalState,
     selectedBillingStatusFilter,
     resetSelectOptState,
   } = useGlobalStore();
 
-  const { data: billings, isLoading } = billingsQuery();
+  const { data: billings } = billingsQuery();
 
-  const {data, error} = useQuery({
+  const {data, isLoading, error} = useQuery({
     queryKey: ["reservationSummary"],
     queryFn: async () => (await getReservationSummary()).res as ReservationSummaryRecord[],
   })
+
+  console.log(selectedBillingData)
 
   const column = [
     {

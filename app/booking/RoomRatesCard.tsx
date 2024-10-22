@@ -10,6 +10,7 @@ import { Tabs, TabsTrigger, TabsList, TabsContent } from "@radix-ui/react-tabs"
 import { useBookingStore } from "@/store/useBookingStore"
 import { findWeekdaysInRange } from "@/utils/Helpers"
 import { LightboxModal } from "./LightboxModal"
+import { RoomType, RoomRate, RoomAmenityResponse } from "@/types"
 
 type RoomRatesCardProps = {
     roomType: RoomType,

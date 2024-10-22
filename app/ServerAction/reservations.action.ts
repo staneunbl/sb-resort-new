@@ -334,7 +334,7 @@ export async function getBillingStatusOptions() {
 
 export async function getReservationSummary() {
   const { data, error } = await supabase
-    .from("ReservationSummary")
+    .from("ReservationSummary2")
     .select('*')
   if (error) {
     console.log(error);
