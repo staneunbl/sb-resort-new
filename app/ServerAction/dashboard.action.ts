@@ -54,7 +54,7 @@ export async function thisMonthSales() {
   return { success: true, res: data };
 }
 export async function todaySales() {
-  const { data, error } = await supabase.from("TodaySales").select().single();
+  const { data, error } = await supabase.from("todaysales").select().single();
   console.log(data);
 
   if (error) {

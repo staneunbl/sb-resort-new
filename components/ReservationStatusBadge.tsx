@@ -14,7 +14,7 @@ export default function ReservationStatusBadge({ status }: { status: string }) {
   }[status];
   return (
     <Badge className={`${badgeColor} hover:${badgeColor}`}>
-      {generali18n.status[`${status}`]}
+      {status}
     </Badge>
   );
 }
