@@ -4,6 +4,7 @@ import { ChevronDownIcon } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnSort,
   SortingState,
   VisibilityState,
   flexRender,
@@ -102,7 +103,7 @@ export default function DetailedDataTable<TData, TValue>({
       columnVisibility: columnVisibility,
       pagination: {
         pageSize: pageSize,
-      },
+      }
     },
     globalFilterFn:  (row, columnId, filterValue) => {
       return columnToSearch.some((col: any) => {

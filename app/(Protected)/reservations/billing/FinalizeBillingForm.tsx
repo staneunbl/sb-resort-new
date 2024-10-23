@@ -162,14 +162,14 @@ export default function FinalizeBillingForm() {
                               selectedBillingData.ExtraAdult > 0 &&
                               <div className="flex justify-between">
                                   <p className="text-black/[.70] ">Adults x{selectedBillingData.ExtraAdult}</p>
-                                  <p className="text-black font-bold">¥{formatCurrencyJP(200)}</p>
+                                  <p className="text-black font-bold">¥{formatCurrencyJP(((selectedBillingData.AdultRate * weekdays) * selectedBillingData.ExtraAdult) + ((selectedBillingData.WEAdultRate * weekends) * selectedBillingData.ExtraAdult))}</p>
                               </div>  
                             }
                             {
                               selectedBillingData.ExtraChild > 0 &&
                               <div className="flex justify-between">
                                   <p className="text-black/[.70] ">Child x{selectedBillingData.ExtraChild}</p>
-                                  <p className="text-black font-bold">¥{formatCurrencyJP(100)}</p>
+                                  <p className="text-black font-bold">¥{formatCurrencyJP(((selectedBillingData.ChildRate * weekdays) * selectedBillingData.ExtraChild) + ((selectedBillingData.WEChildRate * weekends) * selectedBillingData.ExtraChild))}</p>
                               </div>
                             }
                           </div>

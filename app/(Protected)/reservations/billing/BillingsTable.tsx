@@ -160,12 +160,6 @@ export default function BillingsTable() {
           columns={column as ColumnDef<any>[]}
           data={data || []}
           visibility={{ Id: false, FirstName: false, LastName: false }}
-          filterByCol={[
-            {
-              column: "Status",
-              filterValue: selectedBillingStatusFilter,
-            },
-          ]}
           columnToSearch={["ReservationId", "FirstName", "LastName"]}
         />
       </div>
