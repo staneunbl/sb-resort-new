@@ -7,8 +7,9 @@ export default function ReservationStatusBadge({ status }: { status: string }) {
   const badgeColor = {
     Pending: "bg-gray-500",
     "Checked-In": "bg-green-500",
-    Done: "bg-black",
+    Done: "bg-blue-500",
     Cancelled: "bg-red-500",
+    "No-show": "bg-red-500",
     Booked: "bg-orange-500",
     Completed: "bg-blue-500",
   }[status];
