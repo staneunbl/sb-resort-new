@@ -58,7 +58,7 @@ export default function BillingsTable() {
       filterFn: "includesString",
     },
     {
-      accessorKey: "Status",
+      accessorKey: "BillingStatus",
       header: reservationI18n.billingStatus,
     },
     // {

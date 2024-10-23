@@ -72,7 +72,8 @@ export default function SalesController({
   const [toMonth, setToMonth] = useState("december")
   const [toYear, setToYear] = useState(new Date().getFullYear().toString())
   const {
-    setSelectedReportRange
+    setSelectedReportRange,
+    selectedReportRange
   } = useGlobalStore()
 
   return (
@@ -118,6 +119,7 @@ export default function SalesController({
             className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary" 
             onClick={() => {
                 setSelectedReportRange({from: new Date(`${fromMonth} 1 ${fromYear}`), to: new Date(`${toMonth} 1 ${toYear}`)}) 
+                console.log(selectedReportRange)
               }
             }
           >

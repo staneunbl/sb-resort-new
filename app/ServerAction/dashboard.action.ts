@@ -22,7 +22,7 @@ export async function dashboardCheckOut() {
 }
 export async function monthlySales() {
   const { data, error } = await supabase
-    .from("MonthlyReservationCount")
+    .from("MonthlyTotalSales")
     .select();
 
   if (error) {
@@ -32,7 +32,7 @@ export async function monthlySales() {
   return { success: true, res: data };
 }
 export async function monthlyReservations() {
-  const { data, error } = await supabase.from("MonthlyTotalSales").select();
+  const { data, error } = await supabase.from("MonthlyReservationCount").select();
 
   if (error) {
     console.log(error);

@@ -25,6 +25,7 @@ export default function page() {
     queryKey: ["getSalesReport"],
     queryFn: async () => {
       const res = await getSalesReport();
+      console.log(res)
       if (!res.success) {
         throw new Error();
       }

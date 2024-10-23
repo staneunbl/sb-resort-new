@@ -173,8 +173,8 @@ import { Reservation } from "@/types";
             </DialogTitle>
             <DialogDescription>
               {!isEmptyObj(selectedReservationData)
-                ? roomsI18n.dialogDescAddReservation
-                : roomsI18n.dialogDescEditReservation}
+                ? roomsI18n.dialogDescEditReservation
+                : roomsI18n.dialogDescAddReservation}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
