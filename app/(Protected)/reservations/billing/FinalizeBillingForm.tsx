@@ -180,13 +180,13 @@ export default function FinalizeBillingForm() {
                           <div> 
                             <p className="font-bold">Add-Ons</p>
                             <div className="flex flex-col gap-1 ms-4">
-                              <div className="flex justify-between">
+                              <div className="flex flex-col justify-between">
                                 {
                                   selectedBillingData.AddOns.map((addOn: any) =>{
-                                    return <>
+                                    return <div className="flex justify-between">
                                       <p className="text-black/[.70] " onClick={() => console.log(selectedBillingData.AddOns)}>{addOn.AddOnName} x{addOn.Quantity}</p>
                                       <p className="text-black font-bold">¥{formatCurrencyJP(addOn.AddOnPrice * addOn.Quantity)}</p>
-                                    </>
+                                    </div>
                                   })
                                 }
                               </div>
