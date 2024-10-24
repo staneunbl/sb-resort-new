@@ -119,7 +119,7 @@ export default function AvailableRoomTable() {
         searchPlaceholder={roomsI18n.searchRoomType}
         isLoading={isFetchingAvailRoom}
         columns={columns}
-        columnToSearch={["TypeName"]}
+        columnToSearch={["roomtype"]}
         data={availRoomType || []}
       />
     </div>
