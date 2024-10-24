@@ -59,6 +59,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string);
 
   const { data: editValues, isLoading } = useQuery({
+    enabled: !bedLoading,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     queryKey: ["getEditValues", id],
@@ -141,7 +142,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
       roomTypeName: id ? editValues?.RoomType : "",
       adultCount: id ? editValues?.MaxAdult.toString() : "",
       childCount: id ? editValues?.MaxChild.toString() : "",
-      bedType: id ? editValues?.BedTypeId.toString() || "3" : "",
+      bedType: id ? editValues?.BedTypeId.toString() || "" : "",
       /* ============ */
       weekendRoomRate: id ? editValues?.WeekendRoomRate.toString() : "",
       extraChildWeekEndRate: id
@@ -160,8 +161,29 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
     },
   });
 
-  //console.log(editValues?.BedTypeId.toString())
-  //console.log(form.getValues("bedType"))
+  useEffect(() => {
+    console.log("trigger")
+    if (editValues && bedTypeOptions) {
+      form.reset({
+        roomTypeName: editValues.RoomType,
+        adultCount: editValues.MaxAdult.toString(),
+        childCount: editValues.MaxChild.toString(),
+        bedType: editValues.BedTypeId.toString(),
+        weekendRoomRate: editValues.WeekendRoomRate.toString(),
+        extraChildWeekEndRate: editValues.WeekendExtraChildRate.toString(),
+        extraAdultWeekEndRate: editValues.WeekendExtraAdultRate.toString(),
+        baseRoomRate: editValues.BaseRoomRate.toString(),
+        extraChildWeekDayRate: editValues.ExtraChildRate.toString(),
+        extraAdultWeekDayRate: editValues.ExtraAdultRate.toString(),
+        description: editValues.Description.toString() || defaultDescription,
+        image_urls: editValues.Images || [],
+        amenities: editValues.Amenities || [],
+      });
+    }
+  }, [editValues, bedTypeOptions, form]);
+
+  console.log(editValues?.BedTypeId.toString())
+  console.log(form.getValues("bedType"))
 
   const addMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -448,7 +470,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                                 className="w-full"
                                 setState={field.onChange}
                                 state={field.value}
-                                options={bedTypeOptions}
+                                options={bedTypeOptions || []}
                                 placeholder={roomsI18n.selectBedType}
                               />
                             </FormControl>

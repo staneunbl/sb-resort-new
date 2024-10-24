@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -30,13 +30,29 @@ export default function SelectComponent({
   defaultValue?: string;
   required?: boolean;
 }) {
+
+
   // Use the state directly to handle component state instead of relying solely on props
+  // const handleValueChange = (value: string) => {
+    
+  //   if (value !== state) {
+  //     setState?.(value);
+  //   }
+  // };
+
   const handleValueChange = (value: string) => {
-    // Avoid resetting the state if the value hasn't changed
-    if (value !== state) {
-      setState?.(value);
+    console.log("change " ,value)
+    if(value == undefined || value == "") return
+    if (setState) {
+      setState(value);
     }
   };
+
+  if (options.length === 0) {
+    return (
+      <div className={cn("w-[180px] h-10 bg-gray-100 animate-pulse rounded", className)} />
+    );
+  }
 
   return (
     <Select required={required} onValueChange={handleValueChange} value={state} defaultValue={defaultValue}>
