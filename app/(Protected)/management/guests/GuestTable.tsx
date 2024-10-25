@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { BookOpen, Ellipsis, Pencil, Trash } from "lucide-react";
+import { BookOpen, ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis, Pencil, Trash } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -80,6 +80,23 @@ export default function GuestTable() {
   const column = [
     {
       accessorKey: "Id",
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {"Id"} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "FirstName",
@@ -189,6 +206,7 @@ export default function GuestTable() {
           lastName: false,
           id: false,
         }}
+        initialSort={[{id: "Id", desc: true}]}
       />
     </div>
   );

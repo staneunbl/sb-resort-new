@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import AlertConfirmDelete from "@/components/AlertConfirmDelete";
@@ -70,14 +70,21 @@ export default function RoomTable() {
       accessorKey: "RoomNumber",
       header: ({column}: any) => {
         return (
-          <Button 
-            className="p-0 bg-transparent"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {roomsI18n.roomNumber}
-          </Button>
-        );
-      } ,
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomNumber} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       filterFn: "includesString",
     },
     {
@@ -88,14 +95,21 @@ export default function RoomTable() {
       accessorKey: "TypeName",
       header: ({column}: any) => {
         return (
-          <Button 
-            className="p-0 bg-transparent"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {roomsI18n.roomType}
-          </Button>
-        );
-      } ,
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomStatus} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       filterFn: "equalsString",
     },
     {
@@ -107,14 +121,21 @@ export default function RoomTable() {
       filterFn: "equalsString",
       header: ({column}: any) => {
         return (
-          <Button 
-            className="p-0 bg-transparent"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {roomsI18n.roomStatus}
-          </Button>
-        );
-      } ,
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomStatus} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       cell: ({ cell }: any) => {
         let badgeColor;
         const status = cell.getValue();

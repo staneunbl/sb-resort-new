@@ -252,18 +252,18 @@ export default function BillingAddOnForm() {
         </Popover>
         <div>
           <div className="flex items-center border-y bg-black/[.03] py-1">
-            <div className="w-3/6 px-2">
+            <div className="w-2/6 px-2">
               <p className="text-black/[.8] font-semibold text-sm uppercase">
                 {reservationI18n.addOns}
               </p>
             </div>
             <div className="w-2/6 px-2">
-              <p className="text-black/[.8] font-semibold text-sm uppercase">
+              <p className="text-black/[.8] font-semibold text-sm uppercase text-right">
                 {reservationI18n.unitPrice}
               </p>
             </div>
-            <div className="w-1/6 px-2">
-              <p className="text-black/[.8] font-semibold text-sm uppercase">
+            <div className="w-2/6 px-2">
+              <p className="text-black/[.8] font-semibold text-sm uppercase text-right">
                 {reservationI18n.quantity}
               </p>
             </div>
@@ -289,11 +289,11 @@ export default function BillingAddOnForm() {
                 data &&
                 data.map((item: any) => (
                   <div className="flex items-center py-2 border-b text-sm" key={item.Id}>
-                    <label className="w-3/6 px-2 font-semibold">
+                    <label className="w-2/6 px-2 font-semibold">
                       {item.AddOnName}
                     </label>
-                    <p className="w-2/6 px-2 text-black/[.6]">₱{formatCurrencyJP(item.Price)}</p>
-                    <p className="w-1/6 px-2 text-black/[.6]">{item.AddOnCount}</p>
+                    <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
+                    <p className="w-2/6 px-2 text-black/[.6] text-right">{item.AddOnCount}</p>
                     {/* <input
                     {/* <input
                       type="number"
@@ -307,10 +307,10 @@ export default function BillingAddOnForm() {
               )}
               {addedAddOn.map((item) => (
                 <div className="flex items-center py-2 border-b text-sm" key={item.value}>
-                  <label className="w-3/6 px-2 font-semibold">
+                  <label className="w-2/6 px-2 font-semibold">
                       {item.label}
                   </label>
-                  <p className="w-2/6 px-2 text-black/[.6]">₱{formatCurrencyJP(item.Price)}</p>
+                  <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
                   {/* <label className="w-3/6 px-2 ">{item.label}</label>
                   <p className="w-2/6 px-2">₱{formatCurrencyJP(item.Price)}</p> */}
                   <input
@@ -318,7 +318,7 @@ export default function BillingAddOnForm() {
                     name={item.value.toString()}
                     defaultValue="1"
                     minLength={1}
-                    className="input-decoration-none w-1/6 outline-none px-2"
+                    className="input-decoration-none w-2/6 outline-none px-2 text-right"
                     onChange={(e) => {
                       handleQuantityChange(e.target.value, item.value);
                     }}

@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import AlertConfirmDelete from "@/components/AlertConfirmDelete";
@@ -20,6 +20,7 @@ import { deleteRoomRate } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { RoomRate } from "@/types";
+import { formatCurrencyJP } from "@/utils/Helpers";
 
 export default function RoomRatesTable() {
   const { t } = useTranslation();
@@ -68,11 +69,43 @@ export default function RoomRatesTable() {
     },
     {
       accessorKey: "RoomType",
-      header: roomsI18n.roomType,
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomType} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "RateType",
-      header: roomsI18n.rateType,
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.rateType} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "ValidFrom",
@@ -103,53 +136,54 @@ export default function RoomRatesTable() {
       },
     },
     {
-      accessorKey: "ExtraChildRate",
-      header: () => (
-        <div className="text-center">{roomsI18n.extraChildRate}</div>
-      ),
-      cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
-      ),
-    },
-    {
-      accessorKey: "WeekendExtraChildRate",
-      header: () => (
-        <div className="text-center">{roomsI18n.weekendextraChildRate}</div>
-      ),
-      cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
-      ),
-    },
-    {
       accessorKey: "BaseRoomRate",
-      header: () => <div className="text-center">{roomsI18n.weekdayRate}</div>,
+      header: () => <div className="text-right">{roomsI18n.weekdayRate}</div>,
       cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
-      ),
-    },
-    {
-      accessorKey: "WeekendRoomRate",
-      header: () => <div className="text-center">{roomsI18n.weekendRate}</div>,
-      cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
       ),
     },
     {
       accessorKey: "ExtraAdultRate",
       header: () => (
-        <div className="text-center">{roomsI18n.extraAdultRate}</div>
+        <div className="text-right">{roomsI18n.extraAdultRate}</div>
       ),
       cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
+      ),
+    },
+    {
+      accessorKey: "ExtraChildRate",
+      header: () => (
+        <div className="text-right">{roomsI18n.extraChildRate}</div>
+      ),
+      cell: ({ cell }: any) => (
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
+      ),
+    },
+    
+    {
+      accessorKey: "WeekendRoomRate",
+      header: () => <div className="text-right">{roomsI18n.weekendRate}</div>,
+      cell: ({ cell }: any) => (
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
       ),
     },
     {
       accessorKey: "WeekendExtraAdultRate",
       header: () => (
-        <div className="text-center">{roomsI18n.weekendextraAdultRate}</div>
+        <div className="text-right">{roomsI18n.weekendextraAdultRate}</div>
       ),
       cell: ({ cell }: any) => (
-        <div className="text-center">P {cell.getValue()}</div>
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
+      ),
+    },
+    {
+      accessorKey: "WeekendExtraChildRate",
+      header: () => (
+        <div className="text-right">{roomsI18n.weekendextraChildRate}</div>
+      ),
+      cell: ({ cell }: any) => (
+        <div className="text-right">₱ {formatCurrencyJP(cell.getValue())}</div>
       ),
     },
     /* Actionss */
@@ -220,7 +254,7 @@ export default function RoomRatesTable() {
         visibility={{
           Id: false,
         }}
-        pageSize={8}
+        pageSize={10}
       />
     </div>
   );

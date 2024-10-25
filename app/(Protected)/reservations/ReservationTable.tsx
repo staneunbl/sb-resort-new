@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlbumIcon, ChevronDownIcon, ChevronUpIcon, DoorClosedIcon, DoorOpenIcon, Ellipsis, Loader2 } from "lucide-react";
+import { AlbumIcon, ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, DoorClosedIcon, DoorOpenIcon, Ellipsis, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { deleteReservation } from "@/app/ServerAction/reservations.action";
 import { useTranslation } from "next-export-i18n";
@@ -87,18 +87,23 @@ export default function ReservationTable() {
       accessorKey: "Id",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex">
             <Button 
-              className="p-0 bg-transparent font-semibold"
+              className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.bookingReference} {column.getIsSorted() === 'asc' ? "▴" : column.getIsSorted() === 'desc' ? "▾" : ""}
+              {reservationI18n.bookingReference} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
             </Button>
           </div>
         )
       },
       cell: ({ cell }: any) => {
-        return <div className="text-center">{cell.getValue()}</div>;
+        return <div className="">{cell.getValue()}</div>;
       },
       filterFn: "includesString",
     },
@@ -114,12 +119,12 @@ export default function ReservationTable() {
     {
       accessorKey: "GuestData",
       header: () => {
-        return <div className="text-center">{guesti18n.guestName}</div>;
+        return <div className="">{guesti18n.guestName}</div>;
       },
       cell: ({ cell }: any) => {
         const cellData = cell.getValue();
         return (
-          <div className="text-center">
+          <div className="">
             { cellData
               ? `${cellData.FirstName} 
                     ${cellData.LastName} `
@@ -182,19 +187,24 @@ export default function ReservationTable() {
       accessorKey: "CreatedAt",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex">
             <Button 
-              className="p-0 bg-transparent font-semibold"
+              className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              Booking Date {column.getIsSorted() === 'asc' ? "▴" : column.getIsSorted() === 'desc' ? "▾" : ""}
+              Booking Date {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
             </Button>      
           </div>
         )
       },
       cell: ({ cell }: any) => {
         return (
-          <div className="text-center">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
+          <div className="">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
         )
       },
       sortingFn: "datetime",
@@ -204,19 +214,24 @@ export default function ReservationTable() {
       accessorKey: "CheckInDate",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex">
             <Button 
-              className="p-0 bg-transparent font-semibold"
+              className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.checkInDate} {column.getIsSorted() === 'asc' ? "▴" : column.getIsSorted() === 'desc' ? "▾" : ""}
+              {reservationI18n.checkInDate} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
             </Button>      
           </div>
         )
       },
       cell: ({ cell }: any) => {
         return (
-          <div className="text-center">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
+          <div className="">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
         )
       },
       sortingFn: "datetime",
@@ -226,18 +241,23 @@ export default function ReservationTable() {
       accessorKey: "CheckOutDate",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex ">
             <Button 
-              className="p-0 bg-transparent font-semibold"
+              className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.checkOutDate} {column.getIsSorted() === 'asc' ? "▴" : column.getIsSorted() === 'desc' ? "▾" : ""}
+              {reservationI18n.checkOutDate} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
             </Button>      
           </div>
         )
       },
       cell: ({ cell }: any) => {
-        return <div className="text-center">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
+        return <div className="">{format(new Date(cell.getValue()), "MMM dd, yyyy")}</div>
       },
       sortingFn: "datetime",
     },
@@ -285,12 +305,17 @@ export default function ReservationTable() {
       accessorKey: "ReservationStatus",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-center">
+          <div className="flex ">
             <Button 
-              className="p-0 bg-transparent font-semibold"
+              className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.reservationStatus} {column.getIsSorted() === 'asc' ? "▴" : column.getIsSorted() === 'desc' ? "▾" : ""}
+              {reservationI18n.reservationStatus} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
             </Button>      
           </div>
         )
@@ -298,7 +323,7 @@ export default function ReservationTable() {
       cell: ({ cell, row }: any) => {
         const status = cell.getValue() as string;
         return (
-          <div className="flex h-min justify-center">
+          <div className="flex h-min ">
             <ReservationStatusBadge status={status} />
           </div>
         );

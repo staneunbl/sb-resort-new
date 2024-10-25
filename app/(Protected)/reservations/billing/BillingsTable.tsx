@@ -14,11 +14,11 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Cell } from "recharts";
 import { useTranslation } from "next-export-i18n";
-import { Ellipsis } from "lucide-react";
+import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { ColumnDef } from "@tanstack/react-table";
-import { commafy } from "@/utils/Helpers";
+import { commafy, formatCurrencyJP } from "@/utils/Helpers";
 import { ReservationSummaryRecord } from "@/types";
 export default function BillingsTable() {
   const { t } = useTranslation();
@@ -49,18 +49,65 @@ export default function BillingsTable() {
 
   const column = [
     {
+      
       accessorKey: "Id",
       enableHiding: false,
     },
     {
+
       accessorKey: "ReservationId",
-      header: reservationI18n.reservationId,
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {reservationI18n.reservationId} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       filterFn: "includesString",
     },
     {
-      accessorKey: "BillingStatus",
-      header: reservationI18n.billingStatus,
+      header: reservationI18n.guestName,
+      cell: ({ row }: any) => {
+        const firstName = row.getValue("FirstName");
+        const lastName = row.getValue("LastName");
+        const guest = firstName + " " + lastName;
+        return firstName ? guest : "N/A";
+      },
     },
+    {
+      accessorKey: "BillingStatus",
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {reservationI18n.billingStatus} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
+      cell: ({ cell }: any) => {
+        return <span className={`rounded-full py-1 px-2 ${cell.getValue() == "Deposit Paid" ? 'bg-orange-600' : 'bg-green-500'}`}>{cell.getValue()}</span>;
+      },
+    },
+    
     // {
     //   accessorKey: "InitialBill",
     //   header: reservationI18n.initialBill,
@@ -77,20 +124,28 @@ export default function BillingsTable() {
     // },
     {
       accessorKey: "Deposit",
-      header: reservationI18n.deposit,
+      header: ({column}: any) => {
+        return (
+          <div className="flex justify-end">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {reservationI18n.deposit} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       cell: ({ cell }: any) => {
-        return `₱ ${commafy(cell.getValue())}`;
+        return <p className="text-right">{`₱ ${formatCurrencyJP(cell.getValue())}`}</p>;
       },
     },
-    {
-      header: reservationI18n.guestName,
-      cell: ({ row }: any) => {
-        const firstName = row.getValue("FirstName");
-        const lastName = row.getValue("LastName");
-        const guest = firstName + " " + lastName;
-        return firstName ? guest : "N/A";
-      },
-    },
+    
     {
       accessorKey: "FirstName",
       enableHiding: false,
@@ -161,6 +216,7 @@ export default function BillingsTable() {
           data={data || []}
           visibility={{ Id: false, FirstName: false, LastName: false }}
           columnToSearch={["ReservationId", "FirstName", "LastName"]}
+          initialSort={[{id: "ReservationId", desc: true}]}
         />
       </div>
     </>

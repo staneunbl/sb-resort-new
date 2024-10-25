@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { set } from "date-fns";
-import { Ellipsis, PencilIcon, TrashIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis, PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -50,11 +50,43 @@ export function AmenitiesTable() {
     const column = [
         {
             accessorKey: "Id",
-            header: "Amenity Id",
+            header: ({column}: any) => {
+              return (
+                <div className="flex">
+                  <Button 
+                    className="p-0 bg-transparent font-semibold flex gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                  >
+                    {"Amenity ID"} {
+                      column.getIsSorted() === 'asc' ? 
+                      <ChevronUpIcon size={12} /> : 
+                      column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                      <ChevronsUpDownIcon size={12} strokeWidth={2} />
+                    }
+                  </Button>
+                </div>
+              )
+            },
         },
         {
             accessorKey: "Label",
-            header: "Label",
+            header: ({column}: any) => {
+              return (
+                <div className="flex">
+                  <Button 
+                    className="p-0 bg-transparent font-semibold flex gap-1"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                  >
+                    {"Label"} {
+                      column.getIsSorted() === 'asc' ? 
+                      <ChevronUpIcon size={12} /> : 
+                      column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                      <ChevronsUpDownIcon size={12} strokeWidth={2} />
+                    }
+                  </Button>
+                </div>
+              )
+            },
         },
         {
             accessorKey: "Description",
@@ -128,6 +160,7 @@ export function AmenitiesTable() {
                 columns={column}
                 columnToSearch={["Id", "Label", "Description"]}
                 pageSize={20}
+                initialSort={[{ id: "Id", desc: true }]}
             />
         </div>
     );
