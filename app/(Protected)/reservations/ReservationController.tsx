@@ -7,6 +7,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useTranslation } from "next-export-i18n";
 import { useQuery } from "@tanstack/react-query";
 import { getReservationStatusOptions } from "@/app/ServerAction/reservations.action";
+import { MainOptions, Reservation } from "@/types";
 export default function ReservationController() {
   const { t } = useTranslation();
   const reservationI18n = t("ReservationsPage");
@@ -19,6 +20,8 @@ export default function ReservationController() {
     setSelectedReservationData,
     setReservationFilterStatusOpt,
     resetSelectOptState,
+    addReservationModalState,
+    setAddReservationModalState
   } = useGlobalStore();
   const { data: RoomTypeOption } = roomTypeOptionsQuery();
   const { data } = useQuery({
@@ -52,8 +55,7 @@ export default function ReservationController() {
       </div>
       <Button
         onClick={() => {
-          setSelectedReservationData({} as Reservation);
-          setReservationFormModalState(true);
+          setAddReservationModalState(true)
         }}
       >
         <Plus size={20} />

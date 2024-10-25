@@ -38,7 +38,9 @@
       "Pending": "Pending",
       "Cancelled": "Cancelled",
       "Done": "Done"
-    }
+    },
+    "total": "Total",
+    "submit": "Submit"
   },
   "months": {
     "january": "January",

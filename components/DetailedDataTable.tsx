@@ -4,6 +4,7 @@ import { ChevronDownIcon } from "lucide-react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnSort,
   SortingState,
   VisibilityState,
   flexRender,
@@ -34,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "./ui/skeleton";
 import { useEffect } from "react";
 import { useTranslation } from "next-export-i18n";
+import { FilterByCol } from "@/types";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,6 +51,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: boolean;
   isLoading?: boolean;
   filterByCol?: FilterByCol[];
+  initialSort?: ColumnSort[];
   setPage?: (page: number) => void;
 }
 export default function DetailedDataTable<TData, TValue>({
@@ -64,12 +67,13 @@ export default function DetailedDataTable<TData, TValue>({
   pagination = data.length > pageSize,
   isLoading = false,
   filterByCol = [],
+  initialSort = [],
   setPage,
 }: DataTableProps<TData, TValue>) {
   const { t } = useTranslation();
   const generalI18n = t("general");
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>(initialSort);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     ...columnToFilter,
   ]);
@@ -102,6 +106,7 @@ export default function DetailedDataTable<TData, TValue>({
       pagination: {
         pageSize: pageSize,
       },
+      sorting: initialSort
     },
     globalFilterFn:  (row, columnId, filterValue) => {
       return columnToSearch.some((col: any) => {

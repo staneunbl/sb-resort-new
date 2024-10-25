@@ -246,9 +246,13 @@ export default function ReservationDetails({ id }: { id: string }) {
                     Room Number
                   </h1>
                   <p className="w-1/2">{`${
-                    !roomNumLoading && roomNumber ? 
-                    roomNumber.map((room: any) => room.RoomNumber).join(", ") :
-                    <p>Loading...</p>
+                    roomNumLoading ? 
+                    <p>Loading...</p> :
+                    (
+                      (roomNumber == undefined || roomNumber == null || roomNumber.length == 0) ?
+                      "Not Assigned":
+                      roomNumber?.join(', ')
+                    )
                   }`}</p>
                 </div>
                 <div className="flex w-full">
@@ -353,19 +357,19 @@ export default function ReservationDetails({ id }: { id: string }) {
                 <>
                   <div className="flex w-full">
                     <h1 className="w-1/2 font-semibold">{guestI18n.guestName}</h1>
-                    <p className="w-1/2">{`${data?.GuestData?.FirstName} ${data?.GuestData?.LastName}`}</p>
+                    <p className="w-1/2">{`${data?.GuestData?.FirstName || "Anonymous"} ${data?.GuestData?.LastName || "Guest"}`}</p>
                   </div>
                   <div className="flex w-full">
                     <h1 className="w-1/2 font-semibold">
                       {guestI18n.guestEmail}
                     </h1>
-                    <p className="w-1/2">{data?.GuestData?.Email}</p>
+                    <p className="w-1/2">{data?.GuestData?.Email || "N/A"}</p>
                   </div>
                   <div className="flex w-full">
                     <h1 className="w-1/2 font-semibold">
                       {guestI18n.guestPhone}
                     </h1>
-                    <p className="w-1/2">{data?.GuestData?.Contact}</p>
+                    <p className="w-1/2">{data?.GuestData?.Contact || "N/A"}</p>
                   </div>
                   <div className="flex w-full">
                     <h1 className="w-1/2 font-semibold">

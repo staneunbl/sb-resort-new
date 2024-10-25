@@ -52,7 +52,7 @@ const NavBar = memo(function ({
       icon: (
         <AreaChart size={logoStyle.size} strokeWidth={logoStyle.strokeWidth} />
       ),
-      role: [1, 2, 3],
+      role: [2, 3],
       showAtSubNav: false,
       subNav: [],
     },
@@ -69,7 +69,7 @@ const NavBar = memo(function ({
           name: navBari18n.roomTypes,
           url: "/rooms/viewroomtypes",
           icon: <BedDouble />,
-          role: [1, 2, 3],
+          role: [2, 3],
         },
         {
           name: navBari18n.AvailableRooms,
@@ -81,13 +81,13 @@ const NavBar = memo(function ({
           name: navBari18n.roomRates,
           url: "/rooms/roomrates",
           icon: <BedDouble />,
-          role: [1, 2, 3],
+          role: [2, 3],
         },
         {
           name: "Amenities",
           url: "/rooms/amenities",
           icon: <BedDouble />,
-          role: [1, 2, 3],
+          role: [2, 3],
         },
       ],
     },
@@ -117,7 +117,7 @@ const NavBar = memo(function ({
           icon: (
             <Puzzle size={logoStyle.size} strokeWidth={logoStyle.strokeWidth} />
           ),
-          role: [1, 2, 3],
+          role: [2, 3],
         },
       ],
     },
@@ -127,7 +127,7 @@ const NavBar = memo(function ({
       icon: (
         <StickyNote size={logoStyle.size} strokeWidth={logoStyle.strokeWidth} />
       ),
-      role: [1, 2, 3],
+      role: [2, 3],
       showAtSubNav: false,
       subNav: [
         {
@@ -139,7 +139,7 @@ const NavBar = memo(function ({
               strokeWidth={logoStyle.strokeWidth}
             />
           ),
-          role: [1, 2, 3],
+          role: [2, 3],
         },
 
         {
@@ -163,7 +163,7 @@ const NavBar = memo(function ({
               strokeWidth={logoStyle.strokeWidth}
             />
           ),
-          role: [1, 2, 3],
+          role: [2, 3],
         },
       ],
     },

@@ -103,3 +103,10 @@ export async function UpdatePassword(passowrd: string) {
   }
   return { success: true, res: resetData };
 }
+
+export async function PeekUserRole() {
+  const supabase = createClient();
+  const {data} = await supabase.auth.getUser();
+  const userRole = data.user?.user_metadata.roleId;
+  return {success: true, res: userRole};
+}

@@ -36,7 +36,7 @@ export default function ReservationDetailsController({ id }: { id: string }) {
 
   const { mutate: noShowMutate } = useMutation({
     mutationFn: async () => {
-      const res = await editReservationStatus(id, 3);
+      const res = await editReservationStatus(id, 6);
       if (!res.success) throw new Error();
       return;
     },
@@ -47,7 +47,7 @@ export default function ReservationDetailsController({ id }: { id: string }) {
   });
   const { mutate: cancelledMutate } = useMutation({
     mutationFn: async () => {
-      const res = await editReservationStatus(id, 3);
+      const res = await editReservationStatus(id, 5);
       if (!res.success) throw new Error();
       return;
     },

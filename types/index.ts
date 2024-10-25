@@ -1,15 +1,17 @@
+import { BooleanLiteral } from "typescript";
+import { number } from "zod";
 
 
-interface MainOptions {
+export interface MainOptions {
     label: string;
     value: string;
 }
-interface FilterByCol {
+export interface FilterByCol {
     column: string;
     filterValue: any;
 }
 
-interface RoomType {
+export interface RoomType {
     Id: string;
     Name: string;
     Description: string;
@@ -26,7 +28,7 @@ interface RoomType {
     Images: string[]
 }
 
-interface Room {
+export interface Room {
     Id: string;
     RoomNumber: number;
     TypeName: string;
@@ -51,7 +53,7 @@ interface Room {
 //     RateType: string;
 // }
 
-interface RoomRate {
+export interface RoomRate {
     "RateTypeId": number,
     "RoomTypeId": number,
     "RoomType": string,
@@ -69,18 +71,18 @@ interface RoomRate {
     "CreatedAt": Date
 }
 
-interface RoomAmenityResponse {
+export interface RoomAmenityResponse {
     RoomTypeId: number,
     Amenities: RoomAmenity[]
 }
 
-interface RoomAmenity {
+export interface RoomAmenity {
     Id: number,
     Label: string,
     Description: string,
 }
 
-interface Reservation{
+export interface Reservation{
     Id: number;
     RoomCount: number;
     RoomTypeId: number;
@@ -104,10 +106,41 @@ interface Reservation{
     Remarks: string;
 }
 
-interface ImageUploadObject {
+export interface ImageUploadObject {
     name: string,
     url: string,
     size: number,
     file: File,
     isSizeExceeded: boolean
+}
+
+export interface ReservationSummaryRecord {
+    reservationId: number,
+    firstName: string,
+    lastName: string,
+    roomType: string,
+    roomNumber: number,
+    checkInDate: Date,
+    checkOutDate: Date,
+    request: string,
+    addOns: AddOn[],
+    extraAdult: number,
+    extraChild: number,
+    baseRate: number,
+    extraAdultRate: number,
+    extraChildRate: number,
+    WEBaseRate: number,
+    WEAdultRate: number,
+    WEChildRate: number,
+    deposit: number,
+    status: string
+    
+}
+
+export interface AddOn {
+    id: number,
+    name: string,
+    price: number,
+    isDeleted: boolean,
+    addOnTypeId: number
 }

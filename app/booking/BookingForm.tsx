@@ -601,8 +601,11 @@ function SelectRoomRateForm({
     goPrevPage,
     setExtraAdult,
     setExtraChild,
+    adultGuests,
+    childGuests,
     selectedRoom,
     setSelectedRoom,
+    selectedRoomRate,
     setSelectedRoomRate,
     promoCode,
     promoDetails,
@@ -769,8 +772,14 @@ function SelectRoomRateForm({
           form="bookingForm"
           onClick={() => {
             setSelectedRoomRate(roomRates);
-            // setExtraAdult(parseInt(values.extraAdultCount));
-            // setExtraChild(parseInt(values.extraChildCount));
+            if(adultGuests > selectedRoomRate.MaxAdult){
+              setExtraAdult(adultGuests - selectedRoomRate.MaxAdult);
+            }
+            if(childGuests > selectedRoomRate.MaxChild){
+              setExtraChild(childGuests - selectedRoomRate.MaxChild);
+            }
+
+            
             goNextPage();
           }}
         >

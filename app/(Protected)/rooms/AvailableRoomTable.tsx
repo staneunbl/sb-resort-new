@@ -10,6 +10,7 @@ import { enUS, ja } from "date-fns/locale";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { ChevronUpIcon, ChevronDownIcon, ChevronsUpDownIcon } from "lucide-react";
 
 interface AvailableRoom {
   TypeName: string;
@@ -53,7 +54,23 @@ export default function AvailableRoomTable() {
   const columns: ColumnDef<AvailableRoom>[] = [
     {
       accessorKey: "roomtype",
-      header: roomsI18n.roomType,
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomType} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       size: 100
     },
     // ...Array.from({ length: 10 }, (_, index) => {
@@ -73,7 +90,7 @@ export default function AvailableRoomTable() {
       maxSize: 100
     },
     {
-      header: "Rooms",
+      header: "Room Numbers",
 
       cell: ({cell}) => {
         const roomType = cell.row.getValue("roomtype")
@@ -119,7 +136,7 @@ export default function AvailableRoomTable() {
         searchPlaceholder={roomsI18n.searchRoomType}
         isLoading={isFetchingAvailRoom}
         columns={columns}
-        columnToSearch={["TypeName"]}
+        columnToSearch={["roomtype"]}
         data={availRoomType || []}
       />
     </div>

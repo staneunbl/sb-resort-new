@@ -10,6 +10,7 @@ import TipTapToolbar from "./TipTapToolbar";
 import Heading from "@tiptap/extension-heading";
 import OList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
+import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect } from "react";
 
 const Tiptap = ({ value, onChange }: any) => {
@@ -28,6 +29,10 @@ const Tiptap = ({ value, onChange }: any) => {
             class: "list-disc before:content-['•'] flex gap-2 pl-2",
           },
         }),
+        Placeholder.configure({
+          placeholder: "Room description...",
+          emptyEditorClass: "is-editor-empty"
+        })
       ],
 
       content: value,
@@ -38,11 +43,14 @@ const Tiptap = ({ value, onChange }: any) => {
         },
       },
       onUpdate: ({ editor }) => {
-        onChange(editor.getHTML());
+        const html = editor.getHTML();
+        if(html !== value){
+          onChange(editor.getHTML());
+        }
         console.log(editor.getHTML());
       },
     },
-    [value],
+    [],
   );
 
   useEffect(() => {
@@ -56,6 +64,15 @@ const Tiptap = ({ value, onChange }: any) => {
     <div className="flex flex-col gap-2">
       <TipTapToolbar editor={editor} />
       <EditorContent editor={editor} />
+      <style jsx global>{`
+        .is-editor-empty:first-child::before {
+          color: #adb5bd;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
+      `}</style>
     </div>
   );
 };

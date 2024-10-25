@@ -17,6 +17,7 @@ import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
+import { Reservation, MainOptions, Room, RoomRate } from "@/types";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -44,11 +45,11 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
 
   /* Reservation */
   reservationFormModalState: false,
-  setReservationFormModalState: (data) =>
-    set(() => ({ reservationFormModalState: data })),
+  setReservationFormModalState: (data) => set(() => ({ reservationFormModalState: data })),
   selectedReservationData: {} as Reservation,
-  setSelectedReservationData: (data) =>
-    set(() => ({ selectedReservationData: data })),
+  setSelectedReservationData: (data) => set(() => ({ selectedReservationData: data })),
+  addReservationModalState: false,
+  setAddReservationModalState: (data: boolean) => set(() => ({ addReservationModalState: data })),
 
   // Available Rooms
 
@@ -294,6 +295,8 @@ interface GlobalState {
   setReservationFormModalState: (state: boolean) => void;
   selectedReservationData: Reservation;
   setSelectedReservationData: (data: Reservation) => void;
+  addReservationModalState: boolean;
+  setAddReservationModalState: (state: boolean) => void;
 
   /* Billing */
   billingFormModalState: boolean;

@@ -42,6 +42,7 @@
   import { isEmptyObj } from "@/utils/Helpers";
   import { useTranslation } from "next-export-i18n";
   import { Textarea } from "@/components/ui/textarea";
+import { Reservation } from "@/types";
 
   export default function ReservationModal() {
     const {
@@ -172,8 +173,8 @@
             </DialogTitle>
             <DialogDescription>
               {!isEmptyObj(selectedReservationData)
-                ? roomsI18n.dialogDescAddReservation
-                : roomsI18n.dialogDescEditReservation}
+                ? roomsI18n.dialogDescEditReservation
+                : roomsI18n.dialogDescAddReservation}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>

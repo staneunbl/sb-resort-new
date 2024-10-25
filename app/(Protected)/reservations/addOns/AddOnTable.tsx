@@ -12,12 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
+import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
 import { useTranslation } from "next-export-i18n";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { m } from "framer-motion";
 import AlertConfirmDelete from "@/components/AlertConfirmDelete";
 import { toast } from "sonner";
+import { formatCurrencyJP } from "@/utils/Helpers";
 export default function AddOnTable() {
   const { t } = useTranslation();
   const generali18n = t("general");
@@ -53,20 +54,87 @@ export default function AddOnTable() {
   const column = [
     {
       accessorKey: "Id",
-      header: "ID",
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {"Id"} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
       enableHiding: false,
     },
     {
       accessorKey: "AddOnName",
-      header: "Name",
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {"Name"} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "AddOnType",
-      header: "Type",
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {"Type"} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: "Price",
-      header: "Price",
+      header: ({column}: any) => {
+        return (
+          <div className="flex justify-end">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {"Price"} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
+      cell: (({cell}:any) => {
+          return <p className="text-right"> ₱ {formatCurrencyJP(cell.getValue())}</p>
+      })
     },
     {
       accessorKey: "AddOnTypeId",
@@ -132,6 +200,7 @@ export default function AddOnTable() {
           },
         ]}
         data={data}
+        initialSort={[{ id: "Id", desc: true }]}
       />
     </div>
   );

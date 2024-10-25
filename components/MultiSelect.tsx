@@ -63,16 +63,21 @@ const MultiSelector = ({
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
   const onValueChangeHandler = useCallback(
-    (val: string) => {
-      if (value.length < maximumSelectedValues) {
-        if (value.includes(val)) {
-          onValueChange(value.filter((item) => item !== val));
-        } else {
-          onValueChange([...value, val]);
+    (val: string | string[]) => {
+      // Handle both single value toggles and direct array updates
+      if (Array.isArray(val)) {
+        onValueChange(val);
+      } else {
+        if (value.length < maximumSelectedValues) {
+          if (value.includes(val)) {
+            onValueChange(value.filter((item) => item !== val));
+          } else {
+            onValueChange([...value, val]);
+          }
         }
       }
     },
-    [value],
+    [value, maximumSelectedValues, onValueChange]
   );
 
   // TODO : change from else if use to switch case statement
@@ -156,16 +161,75 @@ const MultiSelector = ({
   );
 };
 
+// const MultiSelectorTrigger = forwardRef<
+//   HTMLDivElement,
+//   React.HTMLAttributes<HTMLDivElement>
+// >(({ className, children, ...props }, ref) => {
+//   const { value, onValueChange , activeIndex } = useMultiSelect();
+
+//   const mousePreventDefault = useCallback((e: React.MouseEvent) => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//   }, []);
+
+//   const handleRemove = useCallback((itemToRemove: string, e: React.MouseEvent) => {
+//     e.preventDefault();
+//     e.stopPropagation();
+//     onValueChange(value.filter(item => item !== itemToRemove));
+//   }, [onValueChange, value]);
+
+//   return (
+//     <div
+//       ref={ref}
+//       className={cn(
+//         "flex flex-wrap gap-1 rounded-lg border border-input bg-background p-1 py-2",
+//         className,
+//       )}
+//       {...props}
+//     >
+//       {value.map((item, index) => (
+//         <Badge
+//           key={item}
+//           className={cn(
+//             "flex items-center gap-1 rounded-xl px-1",
+//             activeIndex === index && "ring-2 ring-muted-foreground",
+//           )}
+//           variant={"secondary"}
+//         >
+//           <span className="text-xs">{item}</span>
+//           <button
+//             aria-label={`Remove ${item} option`}
+//             aria-roledescription="button to remove option"
+//             type="button"
+            
+//             onClick={(e) => handleRemove(item, e)}
+//           >
+//             <span className="sr-only">Remove {item} option</span>
+//             <RemoveIcon className="h-4 w-4 hover:stroke-destructive" />
+//           </button>
+//         </Badge>
+//       ))}
+//       {children}
+//     </div>
+//   );
+// });
+
 const MultiSelectorTrigger = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  const { value, onValueChange , activeIndex } = useMultiSelect();
+  const { value, onValueChange, activeIndex } = useMultiSelect();
 
   const mousePreventDefault = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
+
+  const handleRemove = useCallback((itemToRemove: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onValueChange(value.filter(item => item !== itemToRemove));
+  }, [onValueChange, value]);
 
   return (
     <div
@@ -190,8 +254,8 @@ const MultiSelectorTrigger = forwardRef<
             aria-label={`Remove ${item} option`}
             aria-roledescription="button to remove option"
             type="button"
-            
-            onClick={() => onValueChange(item)}
+            onClick={(e) => handleRemove(item, e)}
+            onMouseDown={mousePreventDefault}
           >
             <span className="sr-only">Remove {item} option</span>
             <RemoveIcon className="h-4 w-4 hover:stroke-destructive" />

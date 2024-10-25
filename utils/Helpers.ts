@@ -1,4 +1,5 @@
 import { useBookingStore } from "@/store/useBookingStore";
+import { MainOptions, RoomRate } from "@/types";
 import { format } from "date-fns";
 
 export function capitalizeFirstLetter(word: string) {
@@ -59,6 +60,32 @@ export function calculateInitialBill<Number>(
   );
 }
 
+export function calculateFinalBill(
+  checkIn: Date,
+  checkOut: Date,
+  roomCount: number,
+  weekdayRoomRate: number,
+  weekendRoomRate: number,
+  extraAdultCount: number,
+  weekdayAdultRate: number,
+  weekendAdultRate: number,
+  extraChildCount: number,
+  weekdayChildRate: number,
+  weekendChildRate: number,
+  addOnTotal: number
+): number {
+
+
+  console.log(addOnTotal)
+  const { weekdays, weekends } = findWeekdaysInRange(checkIn, checkOut);
+  
+  const baseRate = (weekdays * weekdayRoomRate) + (weekends * weekendRoomRate);
+  const extraAdultRate = (weekdays * extraAdultCount * weekdayAdultRate) + (weekends * extraAdultCount * weekendAdultRate);
+  const extraChildRate = (weekdays * extraChildCount * weekdayChildRate) + (weekends * extraChildCount * weekendChildRate);
+
+  return baseRate + extraAdultRate + extraChildRate + addOnTotal
+}
+
 export function dateAnalysis(startDate: Date, endDate: Date) {
   // Convert string dates to Date objects
   const start = new Date(startDate);
@@ -92,6 +119,7 @@ export function dateAnalysis(startDate: Date, endDate: Date) {
 }
 
 export function formatCurrencyJP(value: number) {
+  if(!value) return '0.00'
   return value.toLocaleString('ja-JP', {
     minimumFractionDigits: 2
   })
@@ -106,7 +134,8 @@ export function findWeekdaysInRange(startDate: Date, endDate: Date) {
   const weekends: Date[] = [];
 
   let currDate = new Date(startDate);
-  while(currDate <= endDate) {
+  endDate = new Date(endDate);
+  while(currDate <   endDate) {
     if(currDate.getDay() !== 0 && currDate.getDay() !== 6) {
       weekdays.push(currDate);
     } else {

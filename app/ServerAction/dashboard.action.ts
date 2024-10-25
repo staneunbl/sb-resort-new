@@ -22,7 +22,7 @@ export async function dashboardCheckOut() {
 }
 export async function monthlySales() {
   const { data, error } = await supabase
-    .from("MonthlyReservationCount")
+    .from("MonthlyTotalSales")
     .select();
 
   if (error) {
@@ -32,7 +32,7 @@ export async function monthlySales() {
   return { success: true, res: data };
 }
 export async function monthlyReservations() {
-  const { data, error } = await supabase.from("MonthlyTotalSales").select();
+  const { data, error } = await supabase.from("MonthlyReservationCount").select();
 
   if (error) {
     console.log(error);
@@ -42,7 +42,7 @@ export async function monthlyReservations() {
 }
 export async function thisMonthSales() {
   const { data, error } = await supabase
-    .from("ThisMonthSales")
+    .from("thismonthsales")
     .select()
     .single();
   console.log(data);
@@ -54,7 +54,7 @@ export async function thisMonthSales() {
   return { success: true, res: data };
 }
 export async function todaySales() {
-  const { data, error } = await supabase.from("TodaySales").select().single();
+  const { data, error } = await supabase.from("todaysales").select().single();
   console.log(data);
 
   if (error) {

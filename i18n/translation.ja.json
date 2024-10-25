@@ -39,7 +39,9 @@
       "Pending": "保留中",
       "Cancelled": "キャンセル済み",
       "Done": "完了"
-    }
+    },
+    "total": "合計",
+    "submit": "送信"
   },
   "months": {
     "january": "1月",

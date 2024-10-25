@@ -5,6 +5,7 @@ import {
   import { BedDoubleIcon, CircleUserRoundIcon, BabyIcon, ChevronLeft, ChevronRight } from "lucide-react"
   import { useState, useEffect, useRef } from "react"
   import { useBookingStore } from "@/store/useBookingStore"
+import { RoomType } from "@/types";
   
   interface LightboxModalProps {
     images: string[];

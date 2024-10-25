@@ -332,6 +332,17 @@ export async function getBillingStatusOptions() {
   return { success: true, res: data };
 }
 
+export async function getReservationSummary() {
+  const { data, error } = await supabase
+    .from("reservationsummary")
+    .select('*')
+  if (error) {
+    console.log(error);
+    return { res: error.message };
+  }
+  return { res: data };
+}
+
 /* Public */
 export async function addOnlineReservation(
   firstname: string,
