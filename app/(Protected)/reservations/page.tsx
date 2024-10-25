@@ -5,7 +5,7 @@ import ReservationModal from "./ReservationModal";
 import AddReservationModal from "./AddReservationModal";
 export default function page() {
     return (
-        <div>
+        <div >
             <AddReservationModal></AddReservationModal>
             <ReservationModal />
             <BillingFormModal />
