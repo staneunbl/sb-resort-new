@@ -20,6 +20,8 @@ export default function ReservationController() {
     setSelectedReservationData,
     setReservationFilterStatusOpt,
     resetSelectOptState,
+    addReservationModalState,
+    setAddReservationModalState
   } = useGlobalStore();
   const { data: RoomTypeOption } = roomTypeOptionsQuery();
   const { data } = useQuery({
@@ -53,8 +55,7 @@ export default function ReservationController() {
       </div>
       <Button
         onClick={() => {
-          setSelectedReservationData({} as Reservation);
-          setReservationFormModalState(true);
+          setAddReservationModalState(true)
         }}
       >
         <Plus size={20} />

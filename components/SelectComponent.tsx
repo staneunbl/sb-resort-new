@@ -48,16 +48,16 @@ export default function SelectComponent({
     }
   };
 
-  if (options.length === 0) {
-    return (
-      <div className={cn("w-[180px] h-10 bg-gray-100 animate-pulse rounded", className)} />
-    );
-  }
+  // if (options.length === 0) {
+  //   return (
+  //     <div className={cn("w-[180px] h-10 bg-gray-100 animate-pulse rounded", className)} />
+  //   );
+  // }
 
   return (
     <Select required={required} onValueChange={handleValueChange} value={state} defaultValue={defaultValue}>
       <SelectTrigger
-        className={cn("w-[180px] border-cstm-secondary", className)}
+        className={cn("w-[180px]", className)}
       >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
