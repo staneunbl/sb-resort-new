@@ -195,7 +195,7 @@ export default function AddReservationModal() {
             setDays({weekends: 0, weekdays: 0});
         }}
       >
-        <DialogContent className="sm:max-w-[825px]">
+        <DialogContent className="sm:max-w-[950px] sm:max-h-[600px] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Add Reservation</DialogTitle>
             <DialogDescription>
@@ -205,7 +205,7 @@ export default function AddReservationModal() {
           <div className="">
             <Form {...form}>
                 <form className="flex gap-12">
-                    <div className="flex flex-col w-1/2 gap-4">
+                    <div className="flex flex-col w-1/2 gap-4 max-h-[500px] overflow-scroll px-4">
                         <FormField
                             name="dateRange"
                             render={({ field }) => (
@@ -545,7 +545,7 @@ export default function AddReservationModal() {
                             )
                         }
                     </div>
-                    <div className="flex flex-col w-1/2">
+                    <div className="flex flex-col w-1/2 h-fit p-4 bg-white border-gray-200 border shadow-lg rounded">
                         <p className="text-lg font-bold" onClick={() => {console.log(roomRate)}}>Booking Summary</p>
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-4 text-sm">
