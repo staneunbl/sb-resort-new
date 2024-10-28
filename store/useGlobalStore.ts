@@ -8,6 +8,7 @@ import {
   getRooms,
   getRoomStatusOptions,
   getRoomTypeOptions,
+  getRoomTypes
 } from "@/app/ServerAction/rooms.action";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
@@ -144,6 +145,13 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   amenityFormModalState: false,
   setAmenityFormModalState: (state: boolean) => set(() => ({ amenityFormModalState: state })), 
 
+  roomTypesQuery: () => {
+    return useQuery({
+      queryKey: ["GetRoomTypes"],
+      queryFn: async () => (await getRoomTypes()).res,
+    })
+  },
+
   usersQuery: () => {
     return useQuery({
       queryKey: ["getUsers"],
@@ -187,7 +195,12 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   roomRatesQuery: () => {
     return useQuery<RoomRate[]>({
       queryKey: ["GetRoomRates"],
-      queryFn: async () => (await getRoomRates()).res as RoomRate[],
+      queryFn: async () => {
+        const data = await getRoomRates();
+        console.log(data)
+        return data.res as RoomRate[]
+        //return (await getRoomRates()).res as RoomRate[],
+      }
     });
   },
   reservationQuery: () => {
@@ -249,6 +262,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     return useQuery({
       queryKey: ["GetAvailableRooms"],
       queryFn: async () => {
+        console.log(to, from)
         return (await getAvailableRoomsRPC(to,from)).res as any
       }
     })
@@ -348,6 +362,7 @@ interface GlobalState {
   promosQuery: () => any;
   deviceReservationQuery: () => any;
   availableRoomsQuery:(to: Date, from: Date)  => any;
+  roomTypesQuery: () => any;
 
   /* Filters */
   selectedRoomTypeOpt: string;

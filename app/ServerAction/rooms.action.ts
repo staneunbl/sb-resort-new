@@ -286,6 +286,7 @@ export async function getRoomRates() {
   if (error) {
     return { success: false, res: data, error: error.message };
   }
+  console.log(data)
   return { success: true, res: data };
 }
 export async function addRoomRate(values: any) {
