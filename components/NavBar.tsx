@@ -14,6 +14,7 @@ import {
   DoorOpen,
   MonitorSpeaker,
   Puzzle,
+  SettingsIcon,
   StickyNote,
   Users,
 } from "lucide-react";
@@ -208,6 +209,19 @@ const NavBar = memo(function ({
       url: "/promos",
       icon: (
         <BadgePercent
+          size={logoStyle.size}
+          strokeWidth={logoStyle.strokeWidth}
+        />
+      ),
+      role: [1, 2, 3],
+      showAtSubNav: false,
+      subNav: [],
+    },
+    {
+      name: navBari18n.settings,
+      url: "/settings",
+      icon: (
+        <SettingsIcon
           size={logoStyle.size}
           strokeWidth={logoStyle.strokeWidth}
         />
