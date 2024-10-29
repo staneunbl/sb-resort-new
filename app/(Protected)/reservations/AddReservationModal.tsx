@@ -20,7 +20,7 @@ Popover,
 PopoverTrigger,
 PopoverContent,
 } from "@/components/ui/popover";
-import { addDays, format } from "date-fns";
+import { add, addDays, format } from "date-fns";
 import {
 Dialog,
 DialogClose,
@@ -33,8 +33,9 @@ DialogTitle,
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+    addOnlineReservation,
 addReservationsLobby,
 editReservations,
 } from "@/app/ServerAction/reservations.action";
@@ -42,20 +43,22 @@ import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "next-export-i18n";
 import { Textarea } from "@/components/ui/textarea";
-import { computeInitialBooking, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
+import { capitalizeFirstLetter, computeInitialBooking, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
 import { countries } from "@/data/countries";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { RoomRate } from "@/types";
+import { DatePicker } from "@/components/ui/calendar2";
 
 export default function AddReservationModal() {
 
-    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery } = useGlobalStore();
+    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery } = useGlobalStore();
     const [childCapacity, setChildCapacity] = useState(0);
     const [adultCapacity, setAdultCapacity] = useState(0);
     const [extraChild, setExtraChild] = useState(0);
     const [extraAdult, setExtraAdult] = useState(0);
     const [days, setDays] = useState<{weekends: number, weekdays: number}>({weekends: 0, weekdays: 0});
     const [roomRate, setRoomRate] = useState<RoomRate>({} as RoomRate);
+    const [submissionLoading, setSubmissionLoading] = useState(false);
 
     const formSchema = z.object({
         dateRange: z.object({
@@ -68,18 +71,19 @@ export default function AddReservationModal() {
             default({from: new Date(), to: addDays(new Date(), 1)}).
             refine((data) => data.from < data.to, {
                 path: ["dateRange"],
-                message: "From date must be before to date",
+                message: "Check-In date must be before Check-Out date",
             }),
-        roomType: z.number().min(1, {message: "Please select a room type."}),
-        adultGuests: z.number().min(1),
-        childGuests: z.number().min(0),
-        extraAdult: z.number().min(0),
-        extraChild: z.number().min(0),
+        roomType: z.string().min(1, {message: "Please select a room type."}),
+        adultGuests: z.coerce.number().min(1, {message: "Adults must be at least 1."}),
+        childGuests: z.coerce.number().min(0),
+        extraAdult: z.coerce.number().min(0),
+        extraChild: z.coerce.number().min(0),
         request: z.string().optional(),
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        email: z.string().email().min(1),
-        phoneNumber: z.string().min(9).max(11),
+        firstName: z.string().min(1, {message: "First name must contain at least 1 character."}),
+        lastName: z.string().min(1, {message: "First name must contain at least 1 character."}),
+        birthday: z.date(),
+        email: z.string().email().min(1, {message: "Invalid email format."}),
+        phoneNumber: z.string().min(9, {message: "Phone number must contain at least 9 digits."}).max(11, {message: "Phone number must contain at most 11 digits."}),
         country: z.string(),
     
     })
@@ -96,6 +100,7 @@ export default function AddReservationModal() {
             request: "",
             firstName: "",
             lastName: "",
+            birthday: new Date("1990-01-01"),
             email: "",
             phoneNumber: "",
             country: "Philippines",
@@ -105,6 +110,7 @@ export default function AddReservationModal() {
     const { data, isLoading, refetch } = availableRoomsQuery(form.getValues("dateRange").from, form.getValues("dateRange").to);
     const { data: roomTypeData, isLoading: roomTypeLoading, refetch: roomTypeRefetch } = roomTypesQuery()
     const { data: roomRateData, isLoading: roomRateLoading, refetch: roomRateRefetch } = roomRatesQuery();
+    const { refetch: reservationRefetch } = reservationQuery();
 
     useEffect(() => {
         refetch()
@@ -154,7 +160,7 @@ export default function AddReservationModal() {
             "MaxChild": 0,
             "Description": "",
             "BedTypeId": 0,
-            "RoomRateID": 0,
+            "Id": 0,
             "BaseRoomRate": 0,
             "ExtraAdultRate": 0,
             "ExtraChildRate": 0,
@@ -165,6 +171,53 @@ export default function AddReservationModal() {
         });
     }, [])
 
+    const addMutation = useMutation({
+        mutationFn: async (values: z.infer<typeof formSchema>) => {
+            setSubmissionLoading(true)
+            const res = await addOnlineReservation(
+                        capitalizeFirstLetter(values.firstName),
+                        capitalizeFirstLetter(values.lastName),
+                        values.birthday,
+                        values.email,
+                        values.phoneNumber,
+                        "",
+                        1,
+                        roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
+                        values.dateRange.from,
+                        values.dateRange.to,
+                        values.extraAdult,
+                        values.extraChild,
+                        roomRate.Id,
+                        1,
+                        values.country,
+                        values.request || ""
+            )
+            if(!res.success) throw new Error(res.res)
+            return res.res
+        },
+        onSuccess(data, variables, context) {
+            setSubmissionLoading(false)
+            form.reset();
+            setAddReservationModalState(false);
+            reservationRefetch();
+            toast.success("Success", {
+                description: "Reservation added successfully.",
+            })
+        },
+        onError(error, variables, context) {
+            setSubmissionLoading(false)
+            console.log(error)
+            toast.error("Oops!", {
+                description: "Something went wrong. Please try again later.",
+            });
+        }
+    })
+
+    function onSubmit(values: z.infer<typeof formSchema>) {
+        addMutation.mutate(values)
+        console.log(values)
+    }
+
     return (
         <Dialog
         open={addReservationModalState}
@@ -174,7 +227,7 @@ export default function AddReservationModal() {
             setAdultCapacity(0);
             setChildCapacity(0);
             setExtraAdult(0);
-            setExtraChild(0);
+            setExtraChild(0); 
             setRoomRate({
                 "RateTypeId": 0,
                 "RoomTypeId": 0,
@@ -183,7 +236,7 @@ export default function AddReservationModal() {
                 "MaxChild": 0,
                 "Description": "",
                 "BedTypeId": 0,
-                "RoomRateID": 0,
+                "Id": 0,
                 "BaseRoomRate": 0,
                 "ExtraAdultRate": 0,
                 "ExtraChildRate": 0,
@@ -204,8 +257,8 @@ export default function AddReservationModal() {
           </DialogHeader>
           <div className="">
             <Form {...form}>
-                <form className="flex gap-12">
-                    <div className="flex flex-col w-1/2 gap-4 max-h-[500px] overflow-scroll px-4">
+                <form className="flex" onSubmit={form.handleSubmit(onSubmit)}>
+                    <div className="flex flex-col w-1/2 gap-4 max-h-[500px] overflow-y-scroll px-8 border-r">
                         <FormField
                             name="dateRange"
                             render={({ field }) => (
@@ -328,7 +381,7 @@ export default function AddReservationModal() {
                                                         <FormItem>
                                                             <FormLabel>Adult Guests</FormLabel>
                                                             <FormControl className=" ">
-                                                                <Input {...field} />
+                                                                <Input {...field} type="number" />
                                                             </FormControl>
                                                             <FormDescription>
                                                                 {
@@ -366,7 +419,7 @@ export default function AddReservationModal() {
                                                         <FormItem>
                                                             <FormLabel>Child Guests</FormLabel>
                                                             <FormControl className=" ">
-                                                                <Input {...field} />
+                                                                <Input {...field} type="number" />
                                                             </FormControl>
                                                             <FormDescription>
                                                                 {
@@ -497,6 +550,23 @@ export default function AddReservationModal() {
                                                     )}
                                                 /> 
                                             </div>
+                                            <div>
+                                                <FormField
+                                                    name="birthDate"
+                                                    render={({ field }) => (
+                                                        <FormItem className={cn("col-span-4")}>
+                                                        <div className="flex items-center gap-2">
+                                                            <FormLabel>Birth Date</FormLabel>
+                                                            <FormMessage className="text-xs" />
+                                                        </div>
+                                                        <FormControl>
+                                                            <DatePicker date={field.value} setDate={field.onChange} />
+                                                            
+                                                        </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
                                             <div className="">
                                                 <FormField
                                                     name="email"
@@ -545,74 +615,79 @@ export default function AddReservationModal() {
                             )
                         }
                     </div>
-                    <div className="flex flex-col w-1/2 h-fit p-4 bg-white border-gray-200 border shadow-lg rounded">
-                        <p className="text-lg font-bold" onClick={() => {console.log(roomRate)}}>Booking Summary</p>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-4 text-sm">
-                                <div>
-                                    <p className="font-bold">Room</p>
-                                    <div className="flex flex-col gap-2 ms-4">
-                                        {
-                                            days?.weekdays > 0 &&
-                                            <div className="flex justify-between">
-                                                <p className="text-black/[.70] ">{days.weekdays} Weekday(s)</p>
-                                                <p className="text-black font-bold">¥{formatCurrencyJP(roomRate?.BaseRoomRate * days.weekdays)}</p>
-                                            </div>  
-                                        }
-                                        {
-                                            days?.weekends > 0 && 
-                                            <div className="flex justify-between">
-                                                <p className="text-black/[.70] ">{days.weekends} Weekend(s)</p>
-                                                <p className="text-black font-bold">¥{formatCurrencyJP(roomRate?.WeekendRoomRate * days.weekends)}</p>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                                {
-                                    ((extraAdult > 0 || extraChild > 0 ) && (form.getValues("roomType"))) &&
+                    <div className="flex flex-col justify-between w-1/2 px-8">
+                        <div className="flex flex-col w-full h-fit p-4 bg-white border-gray-200 border shadow-lg rounded">
+                            <p className="text-lg font-bold" onClick={() => {console.log(roomRate)}}>Booking Summary</p>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-4 text-sm">
                                     <div>
-                                        <div>
-                                            <p className="font-bold">Extra Guests</p>
-                                            <div className="flex flex-col gap-2 ms-4">
+                                        <p className="font-bold">Room</p>
+                                        <div className="flex flex-col gap-2 ms-4">
+                                            {
+                                                days?.weekdays > 0 &&
                                                 <div className="flex justify-between">
-                                                    <p className="text-black/[.70] ">Adults x{extraAdult}</p>
-                                                    <p className="text-black font-bold">¥{formatCurrencyJP((roomRate?.WeekendExtraAdultRate * extraAdult * days.weekends) + (roomRate?.ExtraAdultRate * extraAdult * days.weekdays))}</p>
-                                                </div> 
+                                                    <p className="text-black/[.70] ">{days.weekdays} Weekday(s)</p>
+                                                    <p className="text-black font-bold">¥{formatCurrencyJP(roomRate?.BaseRoomRate * days.weekdays)}</p>
+                                                </div>  
+                                            }
+                                            {
+                                                days?.weekends > 0 && 
                                                 <div className="flex justify-between">
-                                                    <p className="text-black/[.70] ">Child x{extraChild}</p>
-                                                    <p className="text-black font-bold">¥{formatCurrencyJP((roomRate.ExtraChildRate * extraChild * days.weekdays) + (roomRate.WeekendExtraChildRate * extraChild * days.weekends) )}</p>
+                                                    <p className="text-black/[.70] ">{days.weekends} Weekend(s)</p>
+                                                    <p className="text-black font-bold">¥{formatCurrencyJP(roomRate?.WeekendRoomRate * days.weekends)}</p>
                                                 </div>
-                                                
-                                            </div>
+                                            }
                                         </div>
                                     </div>
-                                }
-                            <hr></hr>
-                            <div className="flex justify-between">
-                                <p className="text-black/[.70] ">Subtotal</p>
-                                <p className="text-black font-bold">¥{formatCurrencyJP(computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))}</p>
-                            </div>
-                            <div className="flex justify-between">
-                                <p className="text-black/[.70] ">VAT <span className="text-black/[.50] text-sm ">(12%)</span></p>
-                                <p className="text-black font-bold">¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12))}</p>
-                            </div>
-                            <div className="border-t-2 p-t-2">
-                            {/* <span>Total Bill</span>
-                            <span className="font-bold">
-                                {`₱ ${commafy(
-                                selectedBillingData?.TotalPerAddOn +
-                                    selectedBillingData?.InitialBill -
-                                    selectedBillingData?.Deposit,
-                                )}`}
-                            </span> */}
-                            <div className="flex justify-between bg-cstm-secondary p-4 rounded-md mt-2 items-start">
-                                <p className="text-white/[.70] ">TOTAL</p>
-                                <p className="text-white text-3xl font-bold">
-                                    ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) )}
-                                </p>
+                                    {
+                                        ((extraAdult > 0 || extraChild > 0 ) && (form.getValues("roomType"))) &&
+                                        <div>
+                                            <div>
+                                                <p className="font-bold">Extra Guests</p>
+                                                <div className="flex flex-col gap-2 ms-4">
+                                                    <div className="flex justify-between">
+                                                        <p className="text-black/[.70] ">Adults x{extraAdult}</p>
+                                                        <p className="text-black font-bold">¥{formatCurrencyJP((roomRate?.WeekendExtraAdultRate * extraAdult * days.weekends) + (roomRate?.ExtraAdultRate * extraAdult * days.weekdays))}</p>
+                                                    </div> 
+                                                    <div className="flex justify-between">
+                                                        <p className="text-black/[.70] ">Child x{extraChild}</p>
+                                                        <p className="text-black font-bold">¥{formatCurrencyJP((roomRate.ExtraChildRate * extraChild * days.weekdays) + (roomRate.WeekendExtraChildRate * extraChild * days.weekends) )}</p>
+                                                    </div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                <hr></hr>
+                                <div className="flex justify-between">
+                                    <p className="text-black/[.70] ">Subtotal</p>
+                                    <p className="text-black font-bold">¥{formatCurrencyJP(computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))}</p>
+                                </div>
+                                <div className="flex justify-between">
+                                    <p className="text-black/[.70] ">VAT <span className="text-black/[.50] text-sm ">(12%)</span></p>
+                                    <p className="text-black font-bold">¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12))}</p>
+                                </div>
+                                <div className="border-t-2 p-t-2">
+                                {/* <span>Total Bill</span>
+                                <span className="font-bold">
+                                    {`₱ ${commafy(
+                                    selectedBillingData?.TotalPerAddOn +
+                                        selectedBillingData?.InitialBill -
+                                        selectedBillingData?.Deposit,
+                                    )}`}
+                                </span> */}
+                                <div className="flex justify-between bg-cstm-secondary p-4 rounded-md mt-2 items-start">
+                                    <p className="text-white/[.70] ">TOTAL</p>
+                                    <p className="text-white text-3xl font-bold">
+                                        ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) )}
+                                    </p>
+                                </div>
+                                </div>
                             </div>
                             </div>
                         </div>
+                        <div className="flex justify-end">
+                            <Button type="submit" className="w-full text-white" disabled={isLoading || submissionLoading}>{submissionLoading ? <Loader2 size={16} color="currentColor" className="animate-spin" /> : "Submit"}</Button>
                         </div>
                     </div>
                 </form>
