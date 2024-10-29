@@ -23,6 +23,7 @@ export default function FinalizeBillingForm() {
     finilizeBillingModalState,
     setFinilizeBillingModalState,
     selectedBillingData,
+    reservationSummaryQuery
   } = useGlobalStore();
 
   const {
@@ -44,6 +45,8 @@ export default function FinalizeBillingForm() {
     selectedBillingData.TotalPerAddOn
   )
 
+  const { refetch } = reservationSummaryQuery()
+
   useEffect(() => {
     console.log(selectedBillingData)
   }, [selectedBillingData])
@@ -56,6 +59,7 @@ export default function FinalizeBillingForm() {
       return res;
     },
     onSuccess: () => {
+      refetch();
       setFinilizeBillingModalState(false);
       toast.success("Success", {
         description: "Billing Finalized Successfully",

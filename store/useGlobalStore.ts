@@ -13,12 +13,12 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { enUS, ja, Locale } from "date-fns/locale";
-import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations } from "@/app/ServerAction/reservations.action";
+import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary } from "@/app/ServerAction/reservations.action";
 import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
-import { Reservation, MainOptions, Room, RoomRate } from "@/types";
+import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -275,6 +275,15 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await getAmenities()).res as any
       }
     })
+  },
+
+  reservationSummaryQuery: () => {
+    return useQuery({
+      queryKey: ["GetReservationSummary"],
+      queryFn: async () => {
+        return (await getReservationSummary()).res as ReservationSummaryRecord[]
+      }
+    })
   }
 }));
 
@@ -322,6 +331,7 @@ interface GlobalState {
   finilizeBillingModalState: boolean;
   setFinilizeBillingModalState: (data: boolean) => void;
 
+
   /* Add On */
   addOnModalState: boolean;
   setAddOnModalState: (data: boolean) => void;
@@ -363,6 +373,7 @@ interface GlobalState {
   deviceReservationQuery: () => any;
   availableRoomsQuery:(to: Date, from: Date)  => any;
   roomTypesQuery: () => any;
+  reservationSummaryQuery: () => any;
 
   /* Filters */
   selectedRoomTypeOpt: string;
