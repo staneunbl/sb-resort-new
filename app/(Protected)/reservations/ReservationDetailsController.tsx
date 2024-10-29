@@ -10,8 +10,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import ReservationStatusBadge from "@/components/ReservationStatusBadge";
-import { useMutation } from "@tanstack/react-query";
-import { editReservationStatus } from "@/app/ServerAction/reservations.action";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { editReservationStatus, getReservation } from "@/app/ServerAction/reservations.action";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -33,6 +33,16 @@ export default function ReservationDetailsController({ id }: { id: string }) {
   const generali18n = t("general");
   const locale = t("locale");
   const router = useRouter();
+
+  const { data, isFetching, isLoading, refetch } = useQuery({
+    queryKey: ["ReservationDetails", id],
+    queryFn: async () => {
+      const res = await getReservation(id);
+      console.log(res)
+      if (!res.success) throw new Error();
+      return res.res;
+    },
+  });
 
   const { mutate: noShowMutate } = useMutation({
     mutationFn: async () => {
@@ -75,84 +85,87 @@ export default function ReservationDetailsController({ id }: { id: string }) {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between bg-cstm-primary/50 px-4 py-1">
-        <div className="flex items-center gap-1">
-          <h1 className="pr-3 font-semibold">{generali18n.updateStatus}:</h1>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="h-min rounded bg-red-500 p-1" size="sm">
-                {generali18n.cancel}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {reservationI18n.updateCancelled}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {reservationI18n.areyousureCancel}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{generali18n.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={() => cancelledMutate()}>
-                  {generali18n.continue}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          {/* ============================ */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button className="h-min rounded bg-gray-500 p-1" size="sm">
-                {reservationI18n.noShow}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {reservationI18n.updateNoShow}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {reservationI18n.areyousureNoShow}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{generali18n.cancel}</AlertDialogCancel>
-                <AlertDialogAction onClick={() => noShowMutate()}>
-                  {generali18n.continue}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+      {
+        !(data?.ReservationStatus == "Done") &&
+        <div className="flex items-center justify-between bg-cstm-primary/50 px-4 py-1">
+          <div className="flex items-center gap-1">
+            <h1 className="pr-3 font-semibold">{generali18n.updateStatus}:</h1>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="h-min rounded bg-red-500 p-1" size="sm">
+                  {generali18n.cancel}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {reservationI18n.updateCancelled}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {reservationI18n.areyousureCancel}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{generali18n.cancel}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => cancelledMutate()}>
+                    {generali18n.continue}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            {/* ============================ */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button className="h-min rounded bg-gray-500 p-1" size="sm">
+                  {reservationI18n.noShow}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {reservationI18n.updateNoShow}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {reservationI18n.areyousureNoShow}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{generali18n.cancel}</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => noShowMutate()}>
+                    {generali18n.continue}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+          {/* <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" className="h-min rounded bg-black p-1">
+                  <Mail size="20" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Resend Email</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" className="h-min rounded bg-gray-500 p-1">
+                  <Printer size="20" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Print Document</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" className="h-min rounded bg-green-500 p-1">
+                  <Download size="20" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Download Document</TooltipContent>
+            </Tooltip>
+          </div> */}
         </div>
-        {/* <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" className="h-min rounded bg-black p-1">
-                <Mail size="20" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Resend Email</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" className="h-min rounded bg-gray-500 p-1">
-                <Printer size="20" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Print Document</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" className="h-min rounded bg-green-500 p-1">
-                <Download size="20" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Download Document</TooltipContent>
-          </Tooltip>
-        </div> */}
-      </div>
+      }
     </div>
   );
 }

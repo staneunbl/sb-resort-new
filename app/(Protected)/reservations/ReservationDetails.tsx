@@ -251,7 +251,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                     (
                       (roomNumber == undefined || roomNumber == null || roomNumber.length == 0) ?
                       "Not Assigned":
-                      roomNumber?.join(', ')
+                      roomNumber[0]?.RoomNumber
                     )
                   }`}</p>
                 </div>
