@@ -13,7 +13,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { enUS, ja, Locale } from "date-fns/locale";
-import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary } from "@/app/ServerAction/reservations.action";
+import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary, updateCheckInTime, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
@@ -284,7 +284,27 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await getReservationSummary()).res as ReservationSummaryRecord[]
       }
     })
+  },
+
+  updateCheckInTimeQuery: (reservationId: number, time: Date) => {
+    return useQuery({
+      queryKey: ["updateCheckInTime"],
+      queryFn: async () => {
+        return (await updateCheckInTime(reservationId, time)).res
+      }
+    })
+  },
+
+  updateCheckOutTimeQuery: (reservationId: number, time: Date) => {
+    return useQuery({
+      queryKey: ["updateCheckOutTime"],
+      queryFn: async () => {
+        return (await updateCheckOutTime(reservationId, time)).res
+      }
+    })
   }
+
+
 }));
 
 interface GlobalState {

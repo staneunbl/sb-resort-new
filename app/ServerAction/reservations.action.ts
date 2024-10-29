@@ -222,10 +222,11 @@ export async function addBillings(values: any) {
     deposit: values.Deposit,
   });
 
-  if (error) {
+  if (error ) {
     console.log(error);
     return { success: false, res: error.message };
   }
+
   return { success: true, res: data };
 }
 export async function processBillingAddOns(values: any, billingId: number) {
@@ -398,3 +399,27 @@ export async function getAssignedRoom(reservationId: number){
   }
   return {success: true, res: data}
 } 
+
+export async function updateCheckInTime(reservationId: number, time: Date){
+  const {data, error} = await supabase
+    .from('Reservations')
+    .update({CheckInActual: time})
+    .eq('Id', reservationId)
+  if(error){
+    console.log(error)
+    return {success: false, res: []}
+  }
+  return {success: true, res: data}
+}
+
+export async function updateCheckOutTime(reservationId: number, time: Date){
+  const {data, error} = await supabase
+    .from('Reservations')
+    .update({CheckOutActual: time})
+    .eq('Id', reservationId)
+  if(error){
+    console.log(error)
+    return {success: false, res: []}
+  }
+  return {success: true, res: data}
+}

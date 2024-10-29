@@ -49,6 +49,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   addBillings,
   getRoomOptions,
+  updateCheckInTime,
 } from "@/app/ServerAction/reservations.action";
 import { getCurrentRoomTypesRate } from "@/app/ServerAction/rooms.action";
 import {
@@ -79,7 +80,9 @@ export default function BillingFormModal() {
     mutationKey: ["AddBilling"],
     mutationFn: async (values: any) => {
       const res = await addBillings(values);
+      const res2 = await updateCheckInTime(values.ReservationId, new Date())
       if (!res.success) throw new Error();
+      if (!res2.success) throw new Error();
       return res;
     },
     onSuccess: () => {

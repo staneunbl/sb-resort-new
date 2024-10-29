@@ -13,7 +13,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 
 import { calculateFinalBill, calculateInitialBill, commafy, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
-import { finalizeBill } from "@/app/ServerAction/reservations.action";
+import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
 import { format } from "date-fns";
@@ -55,7 +55,9 @@ export default function FinalizeBillingForm() {
     mutationKey: ["FinalizeBill"],
     mutationFn: async (value: number) => {
       const res = await finalizeBill(value);
+      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date());
       if (!res.success) throw new Error();
+      if (!res2.success) throw new Error();
       return res;
     },
     onSuccess: () => {

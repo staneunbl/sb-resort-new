@@ -243,6 +243,34 @@ export default function ReservationDetails({ id }: { id: string }) {
                 </div>
                 <div className="flex w-full">
                   <h1 className="w-1/2 font-semibold">
+                    Check-In Time
+                  </h1>
+                  <p className="w-1/2">
+                    {
+                      data.CheckInActual ?
+                      format(new Date(data.CheckInActual), "MMM dd, yyyy - h:mm a", {
+                        locale: localeFns[locale],
+                      }) :
+                      "N/A"
+                  }
+                  </p>
+                </div>
+                <div className="flex w-full">
+                  <h1 className="w-1/2 font-semibold">
+                    Check-Out Time
+                  </h1>
+                  <p className="w-1/2">
+                    {
+                      data.CheckOutActual ?
+                      format(new Date(data.CheckOutActual), "MMM dd, yyyy - h:mm a", {
+                        locale: localeFns[locale],
+                      }) :
+                      "N/A"
+                  }
+                  </p>
+                </div>
+                <div className="flex w-full">
+                  <h1 className="w-1/2 font-semibold">
                     Room Number
                   </h1>
                   <p className="w-1/2">{`${
