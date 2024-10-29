@@ -122,14 +122,18 @@ export default function FinalizeBillingForm() {
                       <p className="text-black/[.65]">{selectedBillingData.Request ? selectedBillingData.Request : "None"}</p>
                     </div>
                     {
-                      !(selectedBillingData.AddOns == undefined || selectedBillingData.AddOns.length == 0) &&
+                      
                       <div className="flex flex-col mt-4">
                         <p className="text-black/[.70] font-bold">Add-Ons</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2  gap-4 list-inside">
-                          {selectedBillingData.AddOns.map((addOn: any) => {
-                            return <p className="text-black/[.70]">• {addOn.Quantity} {addOn.AddOnName}</p>
-                          })}
-                        </div>
+                        {
+                          !(selectedBillingData.AddOns == undefined || selectedBillingData.AddOns.length == 0) ?
+                          <div className="grid grid-cols-1 sm:grid-cols-2  gap-4 list-inside">
+                            {selectedBillingData.AddOns.map((addOn: any) => {
+                              return <p className="text-black/[.70]">• {addOn.Quantity} {addOn.AddOnName}</p>
+                            })}
+                          </div> :
+                          <p className="text-black[/.50]">No add-ons.</p>
+                        }
                       </div>
                     }
                   </div>
