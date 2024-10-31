@@ -19,6 +19,7 @@ import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
+import { getConfig } from "@/app/ServerAction/config.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -302,7 +303,18 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await updateCheckOutTime(reservationId, time)).res
       }
     })
+  },
+
+  getConfigQuery: () => {
+    return useQuery({
+      queryKey: ["GetConfig"],
+      queryFn: async () => {
+        return (await getConfig()).res
+      }
+    })
   }
+
+
 
 
 }));
@@ -428,7 +440,10 @@ interface GlobalState {
   setSelectedAmenity: (data: any) => void;
   amenityFormModalState: boolean;
   setAmenityFormModalState: (state: boolean) => void;
-  amenityQuery: () => any
+  amenityQuery: () => any;
+
+  // Config
+  getConfigQuery: () => any;
 }
 
 

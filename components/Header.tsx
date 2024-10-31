@@ -43,6 +43,10 @@ export default function Header({
           name: "Available Rooms",
           url: "/rooms/availability",
         },
+        {
+          name: "Amenities",
+          url: "/rooms/amenities"
+        }
       ],
     },
     {
@@ -101,6 +105,10 @@ export default function Header({
       name: "Promos",
       url: "/promos",
     },
+    {
+      name: "Settings",
+      url: "/settings"
+    }
   ];
   return (
     <div className="h-1/12 w-full bg-cstm-secondary">
