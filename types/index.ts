@@ -61,7 +61,7 @@ export interface RoomRate {
     "MaxChild": number,
     "Description": string,
     "BedTypeId": number,
-    "RoomRateID": number,
+    "Id": number,
     "BaseRoomRate": number,
     "ExtraAdultRate": number,
     "ExtraChildRate": number,

@@ -220,6 +220,7 @@
     "guests": "Guests",
     "promos": "Promos",
     "logout": "Logout",
-    "addOns": "Add-ons"
+    "addOns": "Add-ons",
+    "settings": "Settings"
   }
 }

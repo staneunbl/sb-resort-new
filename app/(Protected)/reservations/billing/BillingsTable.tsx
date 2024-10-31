@@ -36,14 +36,12 @@ export default function BillingsTable() {
     setFinilizeBillingModalState,
     selectedBillingStatusFilter,
     resetSelectOptState,
+    reservationSummaryQuery
   } = useGlobalStore();
 
   const { data: billings } = billingsQuery();
 
-  const {data, isLoading, error} = useQuery({
-    queryKey: ["reservationSummary"],
-    queryFn: async () => (await getReservationSummary()).res as ReservationSummaryRecord[],
-  })
+  const {data, isLoading, error } = reservationSummaryQuery()
 
   console.log(selectedBillingData)
 

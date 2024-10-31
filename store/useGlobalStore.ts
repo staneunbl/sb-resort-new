@@ -8,16 +8,18 @@ import {
   getRooms,
   getRoomStatusOptions,
   getRoomTypeOptions,
+  getRoomTypes
 } from "@/app/ServerAction/rooms.action";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { enUS, ja, Locale } from "date-fns/locale";
-import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations } from "@/app/ServerAction/reservations.action";
+import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary, updateCheckInTime, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
-import { Reservation, MainOptions, Room, RoomRate } from "@/types";
+import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
+import { getConfig } from "@/app/ServerAction/config.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -144,6 +146,13 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   amenityFormModalState: false,
   setAmenityFormModalState: (state: boolean) => set(() => ({ amenityFormModalState: state })), 
 
+  roomTypesQuery: () => {
+    return useQuery({
+      queryKey: ["GetRoomTypes"],
+      queryFn: async () => (await getRoomTypes()).res,
+    })
+  },
+
   usersQuery: () => {
     return useQuery({
       queryKey: ["getUsers"],
@@ -187,7 +196,12 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   roomRatesQuery: () => {
     return useQuery<RoomRate[]>({
       queryKey: ["GetRoomRates"],
-      queryFn: async () => (await getRoomRates()).res as RoomRate[],
+      queryFn: async () => {
+        const data = await getRoomRates();
+        console.log(data)
+        return data.res as RoomRate[]
+        //return (await getRoomRates()).res as RoomRate[],
+      }
     });
   },
   reservationQuery: () => {
@@ -249,6 +263,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     return useQuery({
       queryKey: ["GetAvailableRooms"],
       queryFn: async () => {
+        console.log(to, from)
         return (await getAvailableRoomsRPC(to,from)).res as any
       }
     })
@@ -261,7 +276,47 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await getAmenities()).res as any
       }
     })
+  },
+
+  reservationSummaryQuery: () => {
+    return useQuery({
+      queryKey: ["GetReservationSummary"],
+      queryFn: async () => {
+        return (await getReservationSummary()).res as ReservationSummaryRecord[]
+      }
+    })
+  },
+
+  updateCheckInTimeQuery: (reservationId: number, time: Date) => {
+    return useQuery({
+      queryKey: ["updateCheckInTime"],
+      queryFn: async () => {
+        return (await updateCheckInTime(reservationId, time)).res
+      }
+    })
+  },
+
+  updateCheckOutTimeQuery: (reservationId: number, time: Date) => {
+    return useQuery({
+      queryKey: ["updateCheckOutTime"],
+      queryFn: async () => {
+        return (await updateCheckOutTime(reservationId, time)).res
+      }
+    })
+  },
+
+  getConfigQuery: () => {
+    return useQuery({
+      queryKey: ["GetConfig"],
+      queryFn: async () => {
+        return (await getConfig()).res
+      }
+    })
   }
+
+
+
+
 }));
 
 interface GlobalState {
@@ -308,6 +363,7 @@ interface GlobalState {
   finilizeBillingModalState: boolean;
   setFinilizeBillingModalState: (data: boolean) => void;
 
+
   /* Add On */
   addOnModalState: boolean;
   setAddOnModalState: (data: boolean) => void;
@@ -348,6 +404,8 @@ interface GlobalState {
   promosQuery: () => any;
   deviceReservationQuery: () => any;
   availableRoomsQuery:(to: Date, from: Date)  => any;
+  roomTypesQuery: () => any;
+  reservationSummaryQuery: () => any;
 
   /* Filters */
   selectedRoomTypeOpt: string;
@@ -382,7 +440,10 @@ interface GlobalState {
   setSelectedAmenity: (data: any) => void;
   amenityFormModalState: boolean;
   setAmenityFormModalState: (state: boolean) => void;
-  amenityQuery: () => any
+  amenityQuery: () => any;
+
+  // Config
+  getConfigQuery: () => any;
 }
 
 

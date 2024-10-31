@@ -834,9 +834,6 @@ function CustomerDetailsForm({
       birthDate: z.date().refine((data) => data < new Date(), {
         message: "Please enter a valid date",
       }),
-      nationality: z
-        .string()
-        .min(1, { message: "Please enter your nationality" }),
       country: z.string().min(1, { message: "Please enter your country" }),
       email: z.string().email({ message: "Please enter a valid email" }),
       confirmEmail: z.string().email({ message: "Please enter a valid email" }),
@@ -864,7 +861,6 @@ function CustomerDetailsForm({
       firstName: firstName,
       lastName: lastName,
       birthDate: birthDate,
-      nationality: nationality,
       country: country,
       request: request,
       email: email,
@@ -881,7 +877,7 @@ function CustomerDetailsForm({
     setFirstName(values.firstName);
     setLastName(values.lastName);
     setBirthDate(values.birthDate);
-    setNationality(values.nationality);
+    setNationality("");
     setEmail(values.email);
     setContactNumber(values.contactNumber);
     setCountry(values.country);
@@ -991,7 +987,7 @@ function CustomerDetailsForm({
                     </FormItem>
                   )}
                 />
-                <FormField
+                {/* <FormField
                   name="nationality"
                   render={({ field }) => (
                     <FormItem className={cn("col-span-4", "sm:col-span-2")}>
@@ -1004,11 +1000,11 @@ function CustomerDetailsForm({
                       </FormControl>
                     </FormItem>
                   )}
-                />
+                /> */}
                 <FormField
                   name="country"
                   render={({ field }) => (
-                    <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                    <FormItem className={cn("col-span-4", "sm:col-span-4")}>
                       <div className="flex items-center gap-2">
                         <FormLabel>Country</FormLabel>
                         <FormMessage className="text-xs" />
@@ -1327,7 +1323,6 @@ function ConfirmForm({
     checkOutDate: z.date(),
     extraAdult: z.number(),
     extraChild: z.number(),
-    nationality: z.string(),
     contactNumber: z.string(),
     roomRateId: z.number(),
     country: z.string(),
@@ -1348,7 +1343,6 @@ function ConfirmForm({
       checkOutDate: checkInRange.to,
       extraAdult,
       extraChild,
-      nationality,
       contactNumber,
       roomRateId: selectedRoomRate.RoomRateID,
       country,
@@ -1394,7 +1388,7 @@ function ConfirmForm({
       values.birthDate,
       values.email,
       values.contactNumber,
-      capitalizeFirstLetter(values.nationality),
+      "",
       values.numberOfRooms,
       values.roomTypeId,
       values.checkInDate,

@@ -302,6 +302,26 @@ export default function ReservationTable() {
     //   },
     // },
     {
+      accessorKey: "RoomType",
+      header: ({column}: any) => {
+        return (
+          <div className="flex ">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              {roomsI18n.roomType} {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>      
+          </div>
+        )
+      },
+    },
+    {
       accessorKey: "ReservationStatus",
       header: ({column}: any) => {
         return (
@@ -350,19 +370,7 @@ export default function ReservationTable() {
     //     return <div className="flex h-min justify-center">{reservationI18n.type[cell.getValue()]}</div>;
     //   },
     // },
-    // {
-    //   accessorKey: "RoomType",
-    //   header: ({column}: any) => {
-    //     return (
-    //           <Button 
-    //             className="p-0 bg-transparent"
-    //             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-    //           >
-    //             {reservationI18n.roomType}
-    //           </Button>
-    //     )
-    //   },
-    // },
+    
     {
       id: "actions",
       enableHiding: false,
@@ -495,7 +503,7 @@ export default function ReservationTable() {
         isLoading={isLoading}
         data={reservations || []}
         pageSize={10}
-        columnToSearch={["Id", "ReservationStatus", "ReservationType", "GuestFName", "GuestLName", "CheckInDate", "CheckOutDate"]}
+        columnToSearch={["Id", "ReservationStatus", "ReservationType", "GuestFName", "GuestLName", "CheckInDate", "CheckOutDate", "RoomType"]}
         searchPlaceholder={reservationI18n.searchReservation}
         filterByCol={[
           {

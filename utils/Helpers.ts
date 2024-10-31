@@ -152,12 +152,12 @@ export function findWeekdaysInRange(startDate: Date, endDate: Date) {
 
 export function computeInitialBooking(rates: RoomRate, weekends: number, weekdays: number, extraAdult: number, extraChildren: number): number {
 
-  const result = (weekdays * rates.BaseRoomRate) + 
-                  (weekends * rates.WeekendRoomRate) + 
-                  ((extraAdult * rates.ExtraAdultRate) * weekdays) +
-                  ((extraAdult * rates.WeekendExtraAdultRate) * weekends) + 
-                  ((extraChildren * rates.ExtraChildRate) * weekdays) +
-                  ((extraChildren * rates.WeekendExtraAdultRate) * weekends);
+  const result = (weekdays * rates?.BaseRoomRate) + 
+                  (weekends * rates?.WeekendRoomRate) + 
+                  ((extraAdult * rates?.ExtraAdultRate) * weekdays) +
+                  ((extraAdult * rates?.WeekendExtraAdultRate) * weekends) + 
+                  ((extraChildren * rates?.ExtraChildRate) * weekdays) +
+                  ((extraChildren * rates?.WeekendExtraAdultRate) * weekends);
   return result
         }
 

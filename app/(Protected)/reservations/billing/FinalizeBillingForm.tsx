@@ -13,7 +13,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 
 import { calculateFinalBill, calculateInitialBill, commafy, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
-import { finalizeBill } from "@/app/ServerAction/reservations.action";
+import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
 import { format } from "date-fns";
@@ -23,6 +23,7 @@ export default function FinalizeBillingForm() {
     finilizeBillingModalState,
     setFinilizeBillingModalState,
     selectedBillingData,
+    reservationSummaryQuery
   } = useGlobalStore();
 
   const {
@@ -44,6 +45,8 @@ export default function FinalizeBillingForm() {
     selectedBillingData.TotalPerAddOn
   )
 
+  const { refetch } = reservationSummaryQuery()
+
   useEffect(() => {
     console.log(selectedBillingData)
   }, [selectedBillingData])
@@ -52,10 +55,13 @@ export default function FinalizeBillingForm() {
     mutationKey: ["FinalizeBill"],
     mutationFn: async (value: number) => {
       const res = await finalizeBill(value);
+      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date());
       if (!res.success) throw new Error();
+      if (!res2.success) throw new Error();
       return res;
     },
     onSuccess: () => {
+      refetch();
       setFinilizeBillingModalState(false);
       toast.success("Success", {
         description: "Billing Finalized Successfully",
@@ -118,14 +124,18 @@ export default function FinalizeBillingForm() {
                       <p className="text-black/[.65]">{selectedBillingData.Request ? selectedBillingData.Request : "None"}</p>
                     </div>
                     {
-                      !(selectedBillingData.AddOns == undefined || selectedBillingData.AddOns.length == 0) &&
+                      
                       <div className="flex flex-col mt-4">
                         <p className="text-black/[.70] font-bold">Add-Ons</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2  gap-4 list-inside">
-                          {selectedBillingData.AddOns.map((addOn: any) => {
-                            return <p className="text-black/[.70]">• {addOn.Quantity} {addOn.AddOnName}</p>
-                          })}
-                        </div>
+                        {
+                          !(selectedBillingData.AddOns == undefined || selectedBillingData.AddOns.length == 0) ?
+                          <div className="grid grid-cols-1 sm:grid-cols-2  gap-4 list-inside">
+                            {selectedBillingData.AddOns.map((addOn: any) => {
+                              return <p className="text-black/[.70]">• {addOn.Quantity} {addOn.AddOnName}</p>
+                            })}
+                          </div> :
+                          <p className="text-black[/.50]">No add-ons.</p>
+                        }
                       </div>
                     }
                   </div>
