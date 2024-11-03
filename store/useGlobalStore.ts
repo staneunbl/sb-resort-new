@@ -19,7 +19,7 @@ import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
-import { getConfig } from "@/app/ServerAction/config.action";
+import { getConfig, transformConfig } from "@/app/ServerAction/config.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -308,9 +308,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   getConfigQuery: () => {
     return useQuery({
       queryKey: ["GetConfig"],
-      queryFn: async () => {
-        return (await getConfig()).res
-      }
+      queryFn: async () => transformConfig(),
+      staleTime: Infinity
     })
   }
 

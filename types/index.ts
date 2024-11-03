@@ -144,3 +144,16 @@ export interface AddOn {
     isDeleted: boolean,
     addOnTypeId: number
 }
+
+export interface Config {
+    CompanyName: string,
+    CompanyLogo: string,
+    CompanyContact: string,
+    CompanyAddress: string,
+    CompanyEmail: string,
+    FacebookUrl: string,
+    InstagramUrl: string,
+    TiktokUrl: string,
+    YoutubeUrl: string,
+    XUrl: string,
+}

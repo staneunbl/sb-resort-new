@@ -1,15 +1,31 @@
 'use server';
 
 import { createClient } from "@/utils/supabase/server";
+import { useQuery } from "@tanstack/react-query";
 const supabase = createClient()
 
-export async function getConfig() {
+export async function transformConfig() {
     const { data, error } = await supabase.from('Configuration').select('*')
     if(error){
         console.log(error)
         return {success: false, res: []}
-      }
-    return {success: true, res: data}
+    }
+    // return {success: true, res: data}
+    const config = data.reduce((acc: any, item: any) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {}); 
+    
+    console.log("Configuration Transform ",config)
+
+    return config;
+}
+
+export async function getConfig() {
+    return useQuery({
+        queryKey: ["GetConfig"],
+        queryFn: async() => transformConfig()
+    })
 }
 
 export async function updateConfig(companyName: string, companyLogo: string, companyContact: string, companyEmail: string, companyAddress: string, facebookUrl: string, instagramUrl: string, tiktokUrl: string, youtubeUrl: string, xUrl: string){
