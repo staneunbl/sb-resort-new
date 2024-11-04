@@ -65,6 +65,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookingSuccess } from "./BookingSuccess";
 import { countries } from "@/data/countries";
 import { useConfig } from "@/utils/ConfigProvider";
+import { SiAmericanexpress, SiMastercard, SiVisa } from "@icons-pack/react-simple-icons";
 
 export default function MainBookingForm() {
   const config = useConfig()
@@ -640,6 +641,16 @@ function SelectRoomRateForm({
     },
   });
 
+  const { data: originalRate, isLoading: originalRateLoading, error: originalRateError} = useQuery({
+    enabled: promoCode.length > 0,
+    queryKey: ["originalRate", selectedRoom.Id],
+    queryFn: async () => {
+      const { success, res } = await getCurrentRoomTypeRate(selectedRoom.Id);
+      if (!success) throw new Error();
+      return res;
+    },
+  })
+
   const {data: roomAmenities, isLoading: roomAmenitiesLoading, error, isError} = useQuery({
     queryKey: ["roomAmenities", selectedRoom.Id],
     queryFn: async () => {
@@ -649,6 +660,7 @@ function SelectRoomRateForm({
       return data;
     },
   })
+
 
   const formSchema = z.object({
     extraAdultCount: z.string().default("0"),
@@ -754,8 +766,8 @@ function SelectRoomRateForm({
           />
         </div>
       </Card> */}
-      {!isFetching && !roomAmenitiesLoading && roomAmenities ? (
-        <RoomRatesCard roomType={selectedRoom} roomRate={roomRates} roomAmenities={roomAmenities}></RoomRatesCard>
+      {!isFetching && !roomAmenitiesLoading && !originalRateLoading && roomAmenities ? (
+        <RoomRatesCard roomType={selectedRoom} roomRate={roomRates} roomAmenities={roomAmenities} roomRateOrig={originalRate}></RoomRatesCard>
       ) : (
         <Loader2 size={40} className="animate-spin mx-auto" color="gray" />
       ) }
@@ -1200,6 +1212,11 @@ function CustomerDetailsForm({
                             <p className="text-white font-bold text-2xl">¥{formatCurrencyJP(initialBill + (initialBill * 0.12))}</p>
                             <p className="text-sm italic text-white/[.70]">Including taxes and fees.</p>
                         </div>
+                    </div>
+                    <div className="flex gap-4 rounded bg-white justify-center p-1">
+                        <SiMastercard color="default"></SiMastercard>
+                        <SiVisa color="default"></SiVisa>
+                        <SiAmericanexpress color="default"></SiAmericanexpress>
                     </div>
                 </div>
                 <div className="flex flex-col gap-2">

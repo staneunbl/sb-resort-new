@@ -17,6 +17,7 @@ import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservation
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
 import { format } from "date-fns";
+import { SiMastercard, SiVisa, SiAmericanexpress } from "@icons-pack/react-simple-icons";
 
 export default function FinalizeBillingForm() {
   const {
@@ -238,6 +239,11 @@ export default function FinalizeBillingForm() {
                         <p className="text-white text-3xl font-bold">
                           ¥{formatCurrencyJP((subtotal + (subtotal * 0.12) - selectedBillingData.Deposit))}
                         </p>
+                    </div>
+                    <div className="flex gap-4 rounded bg-white p-1 justify-end">
+                        <SiMastercard color="default"></SiMastercard>
+                        <SiVisa color="default"></SiVisa>
+                        <SiAmericanexpress color="default"></SiAmericanexpress>
                     </div>
                     </div>
                   </div>

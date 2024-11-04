@@ -69,6 +69,8 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
     }
 
     useEffect(() => {
+        
+    console.log("Rate Orig", roomRateOrig)
         setInitialBill(computeInitialBooking(
             roomRate, 
             weekends, 
@@ -293,8 +295,15 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                                         }
                                         {weekdays > 0 && (
                                             <div className="flex justify-between">
-                                                <p className="text-white/[.70]">Weekdays x {weekdays}</p>
-                                                <p className="text-white">¥{formatCurrencyJP(roomRate.BaseRoomRate * weekdays)}</p>
+                                                <p className="text-white/[.70]" onClick={() => console.log(roomRateOrig)}>Weekdays x {weekdays}</p>
+                                                <p className="text-white">
+                                                    {
+                                                        promoCode && (
+                                                            <span className="line-through text-white/[.60]">¥{formatCurrencyJP((roomRateOrig?.BaseRoomRate || 0) * weekdays)}</span>
+                                                        )
+                                                    }
+                                                    ¥{formatCurrencyJP(roomRate.BaseRoomRate * weekdays)}
+                                                </p>
                                             </div>
                                         )}
                                         {weekends > 0 && (
