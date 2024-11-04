@@ -335,9 +335,8 @@ export async function getBillingStatusOptions() {
 
 export async function getReservationSummary() {
   const { data, error } = await supabase
-    .from("reservationsummary1")
+    .from("reservationsummary3")
     .select('*')
-    .neq("StatusId", 4)
   if (error) {
     console.log(error);
     return { res: error.message };
