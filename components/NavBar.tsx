@@ -154,7 +154,7 @@ const NavBar = memo(function ({
               strokeWidth={logoStyle.strokeWidth}
             />
           ),
-          role: [3],
+          role: [2, 3],
         },
 
         {
@@ -228,7 +228,7 @@ const NavBar = memo(function ({
           strokeWidth={logoStyle.strokeWidth}
         />
       ),
-      role: [1, 2, 3],
+      role: [3],
       showAtSubNav: false,
       subNav: [],
     },

@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { exportCSV, printCSV } from "@/utils/Helpers";
 import { format } from "date-fns";
+import { useConfig } from "@/utils/ConfigProvider";
 
 const SalesChart = dynamic(() => import("./SalesChart"), {
   loading: () => <Skeleton className="w-1/2 h-80"/>,
@@ -37,6 +38,8 @@ export default function page() {
     selectedReportRange,
     companyName
   } = useGlobalStore()
+
+  const config = useConfig()
 
   const parseBillingMonth = (billingMonth: string) => {
     const [month, year] = billingMonth.split(' ').filter(Boolean)
@@ -82,7 +85,7 @@ export default function page() {
           onClick={() => printCSV(filteredSales, {
             filename: "",
             title: `Sales Report (${format(new Date(selectedReportRange.from), 'MMMM yyyy')} to ${format(new Date(selectedReportRange.to), 'MMMM yyyy')})`,
-            companyName: companyName,
+            companyName: config.CompanyName,
             currencyColumns: ["Sales"]
           })}
           >Print</Button>

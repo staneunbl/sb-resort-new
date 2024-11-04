@@ -64,8 +64,10 @@ import { DatePicker } from "@/components/ui/calendar2";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingSuccess } from "./BookingSuccess";
 import { countries } from "@/data/countries";
+import { useConfig } from "@/utils/ConfigProvider";
 
 export default function MainBookingForm() {
+  const config = useConfig()
   const formRef = useRef<HTMLFormElement>(null);
   const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState } = useBookingStore();
 
@@ -117,6 +119,7 @@ function BookingDateForm({
 }: {
   formRef: React.RefObject<HTMLFormElement>;
 }) {
+  const config = useConfig()
   const {
     pageState,
     goNextPage,
@@ -341,15 +344,21 @@ function BookingDateForm({
 
         <div className="p-3 flex flex-col bg-cstm-primary rounded-lg justify-center self-end mt-4 text-sm">
             <p className="text-white font-bold">Questions?</p>
-            <p className="text-white/[.70]">You may reach us through our contact numbers and email below:</p>
-            <div className="flex gap-4 mt-4"> 
+            <p className="text-white/[.70]">You may reach us through our channels below:</p>
+            {
+              config.CompanyContact &&
+              <div className="flex gap-4 mt-4"> 
                 <PhoneIcon size={16} className="text-white"/>
-                <p className="text-white/[.70]">(123) 456-7890</p>
-            </div>
-            <div className="flex gap-4"> 
+                <p className="text-white/[.70]">{config.CompanyContact}</p>
+              </div>
+            }
+            {
+              config.CompanyEmail &&
+              <div className="flex gap-4"> 
                 <AtSignIcon size={16} className="text-white"/>
-                <p className="text-white/[.70] text-wrap">service@abchotel.com</p>
-            </div>
+                <p className="text-white/[.70] text-wrap">{config.CompanyEmail}</p>
+              </div>
+            }
         </div>
         
       </Card>
@@ -1284,6 +1293,7 @@ function ConfirmForm({
   formRef: React.RefObject<HTMLFormElement>;
 }) {
   const router = useRouter();
+  const config = useConfig();
   const {
     goPrevPage,
     selectedRoomRate,
@@ -1596,14 +1606,30 @@ function ConfirmForm({
                     <div className="p-3 flex flex-col bg-cstm-primary rounded-lg justify-center self-end mt-4">
                         <p className="text-white font-bold">Questions?</p>
                         <p className="text-white/[.70]">You may reach us through our contact numbers and email below:</p>
-                        <div className="flex gap-4 mt-4"> 
+                        <>
+                        {
+                          config.CompanyContact &&
+                          <div className="flex gap-4 mt-4"> 
+                            <PhoneIcon size={16} className="text-white"/>
+                            <p className="text-white/[.70]">{config.CompanyContact}</p>
+                          </div>
+                        }
+                        {
+                          config.CompanyEmail &&
+                          <div className="flex gap-4"> 
+                            <AtSignIcon size={16} className="text-white"/>
+                            <p className="text-white/[.70] text-wrap">{config.CompanyEmail}</p>
+                          </div>
+                        }
+                        </>
+                        {/* <div className="flex gap-4 mt-4"> 
                             <PhoneIcon size={16} className="text-white"/>
                             <p className="text-white/[.70]">(123) 456-7890</p>
                         </div>
                         <div className="flex gap-4"> 
                             <AtSignIcon size={16} className="text-white"/>
                             <p className="text-white/[.70] text-wrap">service@abchotel.com</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
