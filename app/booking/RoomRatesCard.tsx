@@ -76,6 +76,14 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
             (adultGuests - roomType.MaxAdult > 0 ? adultGuests - roomType.MaxAdult : 0),
             (childGuests - roomType.MaxChild > 0 ? childGuests - roomType.MaxChild : 0)
         ))
+        
+        if (adultGuests - roomType.MaxAdult > 0) {
+            setExtraAdult(adultGuests - roomType.MaxAdult)
+        }
+
+        if (childGuests - roomType.MaxChild > 0) {
+            setExtraChild(childGuests - roomType.MaxChild)
+        }
     }, [adultGuests, childGuests])
 
     return (

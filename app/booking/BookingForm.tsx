@@ -846,9 +846,7 @@ function CustomerDetailsForm({
       country: z.string().min(1, { message: "Please enter your country" }),
       email: z.string().email({ message: "Please enter a valid email" }),
       confirmEmail: z.string().email({ message: "Please enter a valid email" }),
-      contactNumber: z.string().min(1, {
-        message: "Please enter your contact number",
-      }),
+      contactNumber: z.coerce.string().regex(/^\d+$/, { message: "Number can only contain digits." }).min(6, {message: "Number must contain at least 6 numbers."}).max(11, {message: "Number must contain at most 11 numbers."}),
       request: z.string(),
       termsAndCondition: z.boolean().default(false).refine((val) => val, {
         message: "Please accept the terms and conditions",
@@ -926,7 +924,7 @@ function CustomerDetailsForm({
                   render={({ field }) => (
                     <FormItem className={cn("col-span-4", "sm:col-span-2")}>
                       <div className="flex items-center gap-2">
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>First Name</FormLabel>
                         <FormMessage className="text-xs" />
                       </div>
                       <FormControl>
@@ -1111,7 +1109,7 @@ function CustomerDetailsForm({
                         <FormMessage className="text-xs" />
                       </div>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} type="number"/>
                       </FormControl>
                     </FormItem>
                   )}
