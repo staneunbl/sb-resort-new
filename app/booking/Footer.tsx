@@ -1,5 +1,6 @@
 import { useConfig } from "@/utils/ConfigProvider";
 import { AtSignIcon, MapPinIcon, PhoneIcon, PinIcon, WavesIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export function BookingFooter() {
@@ -9,9 +10,14 @@ export function BookingFooter() {
             <div className="flex flex-col md:flex-row gap-8  items-center justify-between p-8">
                 <div className="flex flex-col w-1/3">
                     <Link href="/">
-                        <div className="flex justify-start">
+                        <div className="flex justify-start items-end">
 
-                            <WavesIcon size={24} color="white" />
+                            {/* <WavesIcon size={24} color="white" /> */}
+                            <img
+                                src={config.CompanyLogo}
+                                alt={config.CompanyName}
+                                className="h-[24px]"
+                            />
                             <p className="text-white font-bold ml-2">{config.CompanyName}</p>
                         </div>
                     </Link>
