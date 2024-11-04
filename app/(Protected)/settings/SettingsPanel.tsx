@@ -19,8 +19,34 @@ import { SiFacebook, SiInstagram, SiYoutube, SiX, SiTiktok } from '@icons-pack/r
 import { useMutation } from "@tanstack/react-query";
 import { updateConfig } from "@/app/ServerAction/config.action";
 import { toast } from "sonner";
+import { useState } from "react";
+import { ImageIcon, X } from "lucide-react";
+import { uploadImage } from "@/app/ServerAction/rooms.action";
+import { createClient } from "@supabase/supabase-js";
 
 export default function SettingsPanel() {
+
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL as string, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string);
+    async function uploadImage(file: File) {
+        let path =  `${file.name}`
+        
+        const { data, error } = await supabase.storage
+          .from("images")
+          .upload(path, file, {
+            cacheControl: "3600",
+            upsert: false
+          })
+    
+        if (error) {
+          console.log(error)
+        }
+    
+        const { data: publicUrl } = await supabase.storage
+          .from("images")
+          .getPublicUrl(path)
+      
+        return publicUrl
+      }
 
     const { getConfigQuery } = useGlobalStore()
 
@@ -58,12 +84,12 @@ export default function SettingsPanel() {
                 companyContact: configData?.CompanyContact,
                 companyAddress: configData?.CompanyAddress,
                 companyEmail: configData?.CompanyEmail ,
-                companyLogo: configData?.CompanyLogo || 'sample',
-                facebookUrl: configData?.FacebookUrl,
-                instagramUrl: configData?.InstagramUrl,
-                tiktokUrl: configData?.TiktokUrl,
-                youtubeUrl: configData?.YoutubeUrl,
-                xUrl: configData?.XUrl
+                companyLogo: configData?.CompanyLogo || undefined,
+                facebookUrl: configData?.FacebookUrl || undefined,
+                instagramUrl: configData?.InstagramUrl || undefined,
+                tiktokUrl: configData?.TiktokUrl || undefined,
+                youtubeUrl: configData?.YoutubeUrl || undefined,
+                xUrl: configData?.XUrl || undefined
             }
     })
 
@@ -99,10 +125,45 @@ export default function SettingsPanel() {
         }
     })
     
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+
+        const publicUrl = await uploadImage(logoUpload as File)
+
+        values.companyLogo = publicUrl?.publicUrl || ''
+
         console.log(values)
         editConfigMutation.mutate(values);
     }
+
+    const [preview, setPreview] = useState(configData?.CompanyLogo || "");
+    const [logoUpload, setLogoUpload] = useState({});
+
+    const handleFileChange = (e: any) => {
+        const file = e.target.files?.[0];
+        if (file) {
+        if (!file.type.startsWith('image/')) {
+            form.setError('companyLogo', {
+            type: 'manual',
+            message: 'Please upload an image file.'
+            });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const url = URL.createObjectURL(file)
+            form.setValue('companyLogo', url, { shouldValidate: true });
+            setLogoUpload(file);
+            setPreview(url);
+        };
+        reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        form.setValue('companyLogo', '', { shouldValidate: true });
+        setPreview('');
+    };
 
     return   (
         <>
@@ -115,6 +176,56 @@ export default function SettingsPanel() {
                             </CardHeader>
                             <div className="flex w-full">
                                 <div className="flex flex-col p-4 gap-4 w-full">
+                                    <FormField
+                                        control={form.control}
+                                        name="companyLogo"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-4">
+                                            <FormLabel>Company Logo</FormLabel>
+                                            <div className="flex gap-4 items-start">
+                                                <div className="flex-1">
+                                                    <div className="relative w-32 h-32 border rounded-lg flex items-center justify-center overflow-hidden bg-muted">
+                                                        {preview ? (
+                                                            <>
+                                                            <div className="absolute right-1 top-1 m-1">
+                                                                <Button
+                                                                type="button"
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={handleRemoveImage}
+                                                                className="aspect-square rounded-full"
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                            <img
+                                                                src={preview}
+                                                                alt="Company logo preview"
+                                                                className="w-full h-full object-contain"
+                                                            />
+                                                            </>
+                                                        ) : (
+                                                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                                                        )}
+                                                    </div>
+                                                    <FormControl>
+                                                        <div className="flex flex-col gap-2 mt-2">
+                                                        <Input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleFileChange}
+                                                            className="cursor-pointer"
+                                                        />
+                                                        </div>
+                                                    </FormControl>
+                                                    
+                                                </div>
+                                                
+                                            </div>
+                                            <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                     <FormField
                                         control={form.control}
                                         name="companyName"
