@@ -119,6 +119,7 @@ export default function PromosTable() {
       header:"Expired At",
       cell: ({ row, cell }: any) => {
         const date = new Date(cell.getValue() || 0);
+      if(date < new Date()) return <span className="text-red-500">{format(date, "MMM yyyy")}</span>;
         return format(date, "MMM yyyy");
       },
     },
