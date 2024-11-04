@@ -179,6 +179,7 @@
     "unitPrice": "Unit Price",
     "quantity": "Quantity",
     "addOnTotal": "Add-On Total",
+    "promoCode": "Promo Code",
     "toast": {
       "addReservation": "Reservation added successfully",
       "editReservation": "Reservation edited successfully",

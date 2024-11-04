@@ -3,6 +3,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  checkPromoCode,
   editReservationRemark,
   getAssignedRoom,
   getReservation,
@@ -56,6 +57,15 @@ export default function ReservationDetails({ id }: { id: string }) {
       const res = await getAssignedRoom(parseInt(id));
       if (!res.success) throw new Error();
       return res.res;
+    }
+  })
+
+  const { data: promoCode, isLoading: promoLoading } = useQuery({
+    queryKey: ["PromoCode", id],
+    queryFn: async () => {
+      const res = await checkPromoCode(data?.RoomRateId)
+      if (!res.success) throw new Error();
+      return res.res
     }
   })
   
@@ -208,9 +218,19 @@ export default function ReservationDetails({ id }: { id: string }) {
                     {reservationI18n.reservationDate}
                   </h1>
                   <p className="w-1/2">
-                    {format(new Date(data.CreatedAt), "MMM dd, yyyy - h:mm a", {
+                    {format(new Date(data?.CreatedAt), "MMM dd, yyyy - h:mm a", {
                       locale: localeFns[locale],
                     })}
+                  </p>
+                </div>
+                <div className="flex w-full">
+                  <p className="w-1/2 font-semibold">
+                    {reservationI18n.promoCode}
+                  </p>
+                  <p className="w-1/2">
+                    {
+                      promoLoading ? "Loading..." : <span className={`${promoCode && "p-1 bg-cstm-primary text-white rounded text-sm"}`}>{promoCode?.PromoCode || "N/A"}</span>
+                    }
                   </p>
                 </div>
                 <div className="flex w-full">

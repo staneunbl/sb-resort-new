@@ -118,6 +118,20 @@ export async function addReservationsLobby(values: any) {
   }
   return { success: true, res: data };
 }
+
+export async function checkPromoCode(rate: string) {
+  console.log(rate)
+  const { data, error } = await supabase
+    .from("Promos")
+    .select("*")
+    .eq("PromoDetailId", rate)
+    .single()
+  
+  if(error) {
+    return { success: false, res: error.message }
+  }
+  return { success: true, res: data };
+}
 export async function deleteReservation(values: any) {
   const { data, error } = await supabase
     .from("Reservations")
@@ -335,7 +349,7 @@ export async function getBillingStatusOptions() {
 
 export async function getReservationSummary() {
   const { data, error } = await supabase
-    .from("reservationsummary3")
+    .from("reservationsummary")
     .select('*')
   if (error) {
     console.log(error);

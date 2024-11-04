@@ -180,6 +180,7 @@
     "unitPrice": "単価",
     "quantity": "数量",
     "addOnTotal": "追加料金合計",
+    "promoCode": "プロモコード",
     "toast": {
       "addReservation": "予約を追加しました",
       "editReservation": " 予約を編集しました",
