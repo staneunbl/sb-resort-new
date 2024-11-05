@@ -24,6 +24,7 @@ import { ImageIcon, X } from "lucide-react";
 import { uploadImage } from "@/app/ServerAction/rooms.action";
 import { createClient } from "@supabase/supabase-js";
 import  sendEmail  from "@/app/ServerAction/email.action";
+import { emailStringConfirmBooking } from "@/utils/Helpers";
 
 export default function SettingsPanel() {
 
@@ -167,7 +168,7 @@ export default function SettingsPanel() {
     };
 
     const sendEmails = async () => {
-        sendEmail("wendell.ravago@linoflaptech.com", "Hello", "This is a test email.")
+        sendEmail("wendell.ravago@linoflaptech.com", "Hello", emailStringConfirmBooking(configData))
     }
 
     return   (

@@ -21,7 +21,7 @@ export default async function sendEmail(recipientEmail: string, subject: string,
       from: process.env.GMAIL_EMAIL,
       to: recipientEmail,
       subject,
-      text: message,
+      html: message,
     });
 
     return { message: 'Email sent successfully' };
