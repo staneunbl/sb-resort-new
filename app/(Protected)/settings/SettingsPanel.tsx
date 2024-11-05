@@ -25,6 +25,7 @@ import { uploadImage } from "@/app/ServerAction/rooms.action";
 import { createClient } from "@supabase/supabase-js";
 import  sendEmail  from "@/app/ServerAction/email.action";
 import { emailStringConfirmBooking } from "@/utils/Helpers";
+import { addOnlineReservation } from "@/app/ServerAction/reservations.action";
 
 export default function SettingsPanel() {
 
@@ -168,6 +169,25 @@ export default function SettingsPanel() {
     };
 
     const sendEmails = async () => {
+        const data = await addOnlineReservation(
+            "Wendell",
+            "Ravago",
+            new Date(),
+            "wendell.ravago@linoflaptech.com",
+            "1234567890",
+            "UK",
+            1,
+            1,
+            new Date(),
+            new Date(),
+            0,
+            0,
+            1,
+            1,
+            "",
+            ""
+        )
+        console.log(data)
         sendEmail("wendell.ravago@linoflaptech.com", "Hello", emailStringConfirmBooking(configData))
     }
 

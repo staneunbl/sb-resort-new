@@ -377,13 +377,14 @@ export async function addOnlineReservation(
   country: string,
   request: string
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation",
+  const { data, error } = await supabase.rpc("create_client_reservation_1",
     { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request })
 
   if (error) {
     console.log(error);
     return { success: false, res: error.message };
   }
+  console.log(data)
   return { success: true, res: data };
 
 }
