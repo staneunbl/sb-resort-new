@@ -23,6 +23,7 @@ import { useState } from "react";
 import { ImageIcon, X } from "lucide-react";
 import { uploadImage } from "@/app/ServerAction/rooms.action";
 import { createClient } from "@supabase/supabase-js";
+import  sendEmail  from "@/app/ServerAction/email.action";
 
 export default function SettingsPanel() {
 
@@ -165,8 +166,13 @@ export default function SettingsPanel() {
         setPreview('');
     };
 
+    const sendEmails = async () => {
+        sendEmail("wendell.ravago@linoflaptech.com", "Hello", "This is a test email.")
+    }
+
     return   (
         <>
+            <Button onClick={() => sendEmails()}>Email</Button>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="flex gap-4">
