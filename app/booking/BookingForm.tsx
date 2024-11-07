@@ -1445,7 +1445,7 @@ function ConfirmForm({
         promoCodeValue: ""
       }
 
-      sendEmail(values.email, config.CompanyName, "Booking Confirmation", emailStringConfirmBooking(config, details));
+      sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
       resetStore();
     }
