@@ -398,7 +398,7 @@ export async function checkReservation(id: number) {
 
   console.log(data)
 
-  if (error) return {success: false, res: error.message};
+  if (error) throw new Error(error.message);
 
   return { success: true, res: data };
 }

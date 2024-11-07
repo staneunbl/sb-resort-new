@@ -168,52 +168,8 @@ export default function SettingsPanel() {
         setPreview('');
     };
 
-    const sendEmails = async () => {
-        const data = await addOnlineReservation(
-            "Wendell",
-            "Ravago",
-            new Date(),
-            "wendell.ravago@linoflaptech.com",
-            "1234567890",
-            "UK",
-            1,
-            1,
-            new Date(),
-            new Date(),
-            0,
-            0,
-            1,
-            1,
-            "",
-            ""
-        )
-        console.log(data.res)
-        
-        const details = {
-            reservationId: "1",
-            bookingDate: new Date("11-01-2024"),
-            checkIn: new Date("11-01-2024"),
-            checkOut: new Date("11-01-2024"),
-            roomType: "Deluxe",
-            guestName: {
-                firstName: "John",
-                lastName: "Doe"
-            },
-            roomBill: 1000,
-            promoCode: "",
-            promoCodeValue: ""
-        }
-
-        
-        const reservationData = await checkReservation(78)
-        console.log(reservationData.res)
-        
-        sendEmail("wendell.ravago@linoflaptech.com", configData.CompanyName ,"Hello", emailStringConfirmBooking(configData, details))
-    }
-
     return   (
         <>
-            <Button onClick={() => sendEmails()}>Email</Button>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="flex gap-4">

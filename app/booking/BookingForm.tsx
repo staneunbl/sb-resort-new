@@ -53,8 +53,8 @@ import {
   getRoomTypeRates,
 } from "../ServerAction/rooms.action";
 import parse from "html-react-parser";
-import { capitalizeFirstLetter, commafy, dateAnalysis, formatCurrencyJP, generateReferenceNumber } from "@/utils/Helpers";
-import { addOnlineReservation, checkReferenceNumber, peekLastReservation } from "../ServerAction/reservations.action";
+import { capitalizeFirstLetter, commafy, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber } from "@/utils/Helpers";
+import { addOnlineReservation, checkReferenceNumber, checkReservation, peekLastReservation } from "../ServerAction/reservations.action";
 import { useRouter } from "next/navigation";
 import { getPromo } from "../ServerAction/promos.action";
 import { RoomCard } from "@/app/booking/room-card";
@@ -66,6 +66,7 @@ import { BookingSuccess } from "./BookingSuccess";
 import { countries } from "@/data/countries";
 import { useConfig } from "@/utils/ConfigProvider";
 import { SiAmericanexpress, SiMastercard, SiVisa } from "@icons-pack/react-simple-icons";
+import sendEmail from "../ServerAction/email.action";
 
 export default function MainBookingForm() {
   const config = useConfig()
@@ -1427,6 +1428,24 @@ function ConfirmForm({
     );
 
     if(success) {
+      const reservationData = await checkReservation(res.Id);
+
+      const details = {
+        reservationId: res.Id,
+        bookingDate: new Date(reservationData.res.CreatedAt),
+        checkIn: new Date(values.checkInDate),
+        checkOut: new Date(values.checkOutDate),
+        roomType: reservationData.res.TypeName,
+        guestName: {
+            firstName: capitalizeFirstLetter(values.firstName),
+            lastName: capitalizeFirstLetter(values.lastName)
+        },
+        roomBill: initialBill,
+        promoCode: "",
+        promoCodeValue: ""
+      }
+
+      sendEmail(values.email, config.CompanyName, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
       resetStore();
     }
@@ -1593,10 +1612,6 @@ function ConfirmForm({
                 <div className="w-full md:w-2/3 p-5 rounded-lg bg-cstm-secondary">
                     <p className="text-white font-bold text-xl mb-8">Reservation Details</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-12">
-                        <div className="flex flex-col">
-                            <p className="text-cstm-primary font-bold">{referenceNumber}</p>
-                            <p className="text-white/[.70]">Reference Number</p>
-                        </div>
                         <div className="flex flex-col">
                             <p className="text-cstm-primary font-bold">{new Date().toLocaleDateString()}</p>
                             <p className="text-white/[.70]">Transaction Date</p>
