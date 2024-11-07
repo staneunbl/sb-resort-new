@@ -21,8 +21,6 @@ export const ConfigProvider: React.FC<{children: React.ReactNode}> = ({children}
     const { getConfigQuery } = useGlobalStore();
     const { data } = getConfigQuery()
 
-    console.log(data)
-
     if(!data) return (
         <div className="w-full h-screen flex flex-col items-center justify-center">
             <Loader2 className="animate-spin" />

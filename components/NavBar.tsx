@@ -11,6 +11,7 @@ import {
   BriefcaseBusiness,
   ChevronRight,
   CircleUserRound,
+  CoinsIcon,
   DoorOpen,
   MonitorSpeaker,
   Puzzle,
@@ -216,6 +217,19 @@ const NavBar = memo(function ({
         />
       ),
       role: [1, 2, 3],
+      showAtSubNav: false,
+      subNav: [],
+    },
+    {
+      name: navBari18n.discounts,
+      url: "/discounts",
+      icon: (
+        <CoinsIcon 
+          size={logoStyle.size}
+          strokeWidth={logoStyle.strokeWidth}
+        />
+      ),
+      role: [1,2,3],
       showAtSubNav: false,
       subNav: [],
     },
