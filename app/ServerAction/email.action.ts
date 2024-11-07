@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export default async function sendEmail(recipientEmail: string, subject: string, message: string) {
+export default async function sendEmail(recipientEmail: string, sendingName: string, subject: string, message: string) {
   if (!recipientEmail || !subject || !message) {
     throw new Error("Please provide all required fields.");
   }
@@ -18,7 +18,7 @@ export default async function sendEmail(recipientEmail: string, subject: string,
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_EMAIL,
+      from: sendingName,
       to: recipientEmail,
       subject,
       html: message,

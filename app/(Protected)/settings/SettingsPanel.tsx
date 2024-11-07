@@ -25,7 +25,7 @@ import { uploadImage } from "@/app/ServerAction/rooms.action";
 import { createClient } from "@supabase/supabase-js";
 import  sendEmail  from "@/app/ServerAction/email.action";
 import { emailStringConfirmBooking } from "@/utils/Helpers";
-import { addOnlineReservation } from "@/app/ServerAction/reservations.action";
+import { addOnlineReservation, checkReservation } from "@/app/ServerAction/reservations.action";
 
 export default function SettingsPanel() {
 
@@ -51,7 +51,7 @@ export default function SettingsPanel() {
         return publicUrl
       }
 
-    const { getConfigQuery } = useGlobalStore()
+    const { getConfigQuery, checkReservationQuery } = useGlobalStore()
 
     const { data: configData, isLoading: configLoading, error: configErr, refetch: configRefetch } = getConfigQuery();
 
@@ -187,8 +187,28 @@ export default function SettingsPanel() {
             "",
             ""
         )
-        console.log(data)
-        sendEmail("wendell.ravago@linoflaptech.com", "Hello", emailStringConfirmBooking(configData))
+        console.log(data.res)
+        
+        const details = {
+            reservationId: "1",
+            bookingDate: new Date("11-01-2024"),
+            checkIn: new Date("11-01-2024"),
+            checkOut: new Date("11-01-2024"),
+            roomType: "Deluxe",
+            guestName: {
+                firstName: "John",
+                lastName: "Doe"
+            },
+            roomBill: 1000,
+            promoCode: "",
+            promoCodeValue: ""
+        }
+
+        
+        const reservationData = await checkReservation(78)
+        console.log(reservationData.res)
+        
+        sendEmail("wendell.ravago@linoflaptech.com", configData.CompanyName ,"Hello", emailStringConfirmBooking(configData, details))
     }
 
     return   (

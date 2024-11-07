@@ -389,6 +389,20 @@ export async function addOnlineReservation(
 
 }
 
+export async function checkReservation(id: number) {
+  const { data, error } = await supabase
+    .from("Reservations")
+    .select("CreatedAt, CheckInDate, CheckOutDate, ...GuestData(FirstName, LastName),...RoomTypes(TypeName)")
+    .eq("Id", id)
+    .single()
+
+  console.log(data)
+
+  if (error) return {success: false, res: error.message};
+
+  return { success: true, res: data };
+}
+
 export async function peekLastReservation() {
   const { data, error } = await supabase
     .from("Reservations")
