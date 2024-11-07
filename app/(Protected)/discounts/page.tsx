@@ -4,7 +4,7 @@ import { DiscountsTable } from "./DiscountsTable";
 
 export default function Page() {
     return (
-        <div>
+        <div className="">
             <DiscountsModal></DiscountsModal>
             <DiscountsController></DiscountsController>
             <DiscountsTable></DiscountsTable>

@@ -6,7 +6,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import SelectComponent from "@/components/SelectComponent";
 
 export function DiscountsController() {
-    const { setSelectedDiscountsFilter, selectedDiscountsFilter, roomTypeOptionsQuery, resetSelectOptState } = useGlobalStore()
+    const { setSelectedDiscountsFilter, selectedDiscountsFilter, roomTypeOptionsQuery, resetSelectOptState, setDiscountFormModalState, discountFormModalState } = useGlobalStore()
     const { data: RoomTypeOption } = roomTypeOptionsQuery()
     return (
         <div>
@@ -29,7 +29,7 @@ export function DiscountsController() {
                     <Button
                     className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary"
                     onClick={() => {
-                       
+                        setDiscountFormModalState(true)
                     }}
                     >
                     <Plus />

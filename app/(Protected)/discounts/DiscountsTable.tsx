@@ -242,7 +242,7 @@ export function DiscountsTable() {
     ]
 
     return (
-        <div>
+        <div className="p-4">
             <DetailedDataTable
                 isLoading={isLoading}
                 title={"Discounts"}
