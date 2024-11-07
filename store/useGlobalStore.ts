@@ -138,6 +138,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
       addOnFilterType: "",
       userRoleFilterOpt: "",
       selectedBillingStatusFilter: "",
+      selectedDiscountsFilter: ""
     });
   },
 
@@ -154,7 +155,6 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedDiscountData: (data: any) => set(() => ({ selectedDiscountData: data })),
   selectedDiscountsFilter: "",
   setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
-
   roomTypesQuery: () => {
     return useQuery({
       queryKey: ["GetRoomTypes"],
@@ -477,7 +477,7 @@ interface GlobalState {
   discountFormModalState: any;
   setDiscountFormModalState: (state: boolean) => any; 
   selectedDiscountsFilter: any;
-  setSelectedDiscountsFilter: (data: any) => any
+  setSelectedDiscountsFilter: (data: any) => any;
 }
 
 
