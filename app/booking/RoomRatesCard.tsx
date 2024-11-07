@@ -238,7 +238,7 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                             <p className="text-xl font-bold text-cstm-secondary">Number of Guests</p>
                             <div className="flex-wrap gap-8 flex md:gap-16 mt-3">
                                 <div>
-                                    <p className="text-md font-bold">Adults</p>
+                                    <p className="text-md font-bold mb-4">Adults</p>
                                     <div className="flex gap-2">
                                         <button className="p-3 bg-cstm-secondary rounded-md text-white w-10" onClick={() => setAdultGuests(adultGuests > 0? adultGuests - 1 : 0)}>-</button>
                                         <input type="number" className="text-center font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-3"  value={adultGuests} min={1} max={5} onChange={(e) => setAdultGuests(parseInt(e.target.value))} />
@@ -246,7 +246,7 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-md font-bold">Children</p>
+                                    <p className="text-md font-bold mb-4">Children</p>
                                     <div className="flex gap-2">
                                         <button className="p-3 bg-cstm-secondary rounded-md text-white w-10" onClick={() => setChildGuests(childGuests > 0 ? childGuests - 1 : 0)}>-</button>
                                         <input type="number" className="text-center font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-3" value={childGuests} min={1} max={5} onChange={(e) => setChildGuests(parseInt(e.target.value))} /> 

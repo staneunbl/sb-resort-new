@@ -386,7 +386,7 @@ function BookingDateForm({
           {pageStateLoading ? (
             <Loader className="h-4 w-4 animate-spin" color="white" />
           ): (
-            <p>Next</p>
+            <p>Check Availability</p>
           )}
         </Button>
       </div>
@@ -531,7 +531,7 @@ function SelectRoomForm({
             </div>
             <p className="text-black/[.70]">Select your preferred room type before proceeding.</p>
             <p className="text-sm text-black/[.60]">Room Availability is subject to change due to various factors, such as new bookings, updates to room inventory, and customer cancellations.</p>
-            <div className="flex gap-4 flex-wrap justify-center">
+            <div className="flex gap-8 flex-wrap justify-center">
             {roomTypes?.map((roomType: any, i: number) => {
 
                   if(roomType.Rooms[0].count > 0) {
