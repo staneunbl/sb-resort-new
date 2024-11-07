@@ -2,10 +2,14 @@
 import { createClient } from "@/utils/supabase/server";
 
 const supabase = createClient();
+
 export async function getDiscounts() {
     const { data, error } = await supabase
     .from("Discounts")
     .select("*")
+    .eq("IsDeleted", false)
+
+    console.log(data)
 
     if (error) { 
         console.log(error) 

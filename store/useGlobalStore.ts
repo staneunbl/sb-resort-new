@@ -20,6 +20,7 @@ import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
 import { getConfig, transformConfig } from "@/app/ServerAction/config.action";
+import { getDiscounts } from "@/app/ServerAction/discounts.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -145,6 +146,14 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedAmenity: (amenity: any) => set(() => ({ selectedAmenity: amenity })),
   amenityFormModalState: false,
   setAmenityFormModalState: (state: boolean) => set(() => ({ amenityFormModalState: state })), 
+
+  // Discounts
+  discountFormModalState: false,
+  setDiscountFormModalState: (state: boolean) => set(() => ({ discountFormModalState: state })),
+  selectedDiscountData: {},
+  setSelectedDiscountData: (data: any) => set(() => ({ selectedDiscountData: data })),
+  selectedDiscountsFilter: "",
+  setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
 
   roomTypesQuery: () => {
     return useQuery({
@@ -318,6 +327,15 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
       queryKey: ["CheckReservation", id],
       queryFn: async () => checkReservation(id)
     })
+  },
+
+  getDiscountsQuery: () => {
+    return useQuery({
+      queryKey: ["GetDiscounts"],
+      queryFn: async () => {  
+        return (await getDiscounts()).res as any
+      }
+    })
   }
 
 
@@ -451,6 +469,15 @@ interface GlobalState {
 
   // Config
   getConfigQuery: () => any;
+
+  // Discounts
+  getDiscountsQuery: () => any;
+  selectedDiscountData: any;
+  setSelectedDiscountData: (data: any) => any;
+  discountFormModalState: any;
+  setDiscountFormModalState: (state: boolean) => any; 
+  selectedDiscountsFilter: any;
+  setSelectedDiscountsFilter: (data: any) => any
 }
 
 

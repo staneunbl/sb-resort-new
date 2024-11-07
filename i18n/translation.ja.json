@@ -197,6 +197,16 @@
     "guestName": "ガスト名",
     "guestPhone": "ガスト電話"
   },
+  "Discounts": {
+    "discountId": "割引ID",
+    "discountCode": "割引コード",
+    "discountName": "割引名",
+    "discountType": "割引タイプ",
+    "discountValue": "割引値",
+    "isActive": "有効",
+    "startDate": "開始日",
+    "endDate": "終了日" 
+  },
   "LoginPage": {
     "title": "ログイン",
     "email": "メールアドレス",
