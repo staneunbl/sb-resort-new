@@ -179,6 +179,7 @@
     "unitPrice": "Unit Price",
     "quantity": "Quantity",
     "addOnTotal": "Add-On Total",
+    "promoCode": "Promo Code",
     "toast": {
       "addReservation": "Reservation added successfully",
       "editReservation": "Reservation edited successfully",
@@ -194,6 +195,16 @@
     "guestEmail": "Guest Email",
     "guestName": "Guest Name",
     "guestPhone": "Guest Phone"
+  },
+  "Discounts": {
+    "discountId": "Discount ID",
+    "discountCode": "Discount Code",
+    "discountName": "Discount Name",
+    "discountType": "Discount Type",
+    "discountValue": "Discount Value",
+    "isActive": "Is Active",
+    "startDate": "Start Date",
+    "endDate": "End Date"
   },
   "LoginPage": {
     "title": "Login",
@@ -219,6 +230,7 @@
     "users": "Users",
     "guests": "Guests",
     "promos": "Promos",
+    "discounts": "Discounts",
     "logout": "Logout",
     "addOns": "Add-ons",
     "settings": "Settings"

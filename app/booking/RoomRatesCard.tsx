@@ -69,6 +69,8 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
     }
 
     useEffect(() => {
+        
+    console.log("Rate Orig", roomRateOrig)
         setInitialBill(computeInitialBooking(
             roomRate, 
             weekends, 
@@ -76,6 +78,14 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
             (adultGuests - roomType.MaxAdult > 0 ? adultGuests - roomType.MaxAdult : 0),
             (childGuests - roomType.MaxChild > 0 ? childGuests - roomType.MaxChild : 0)
         ))
+        
+        if (adultGuests - roomType.MaxAdult > 0) {
+            setExtraAdult(adultGuests - roomType.MaxAdult)
+        }
+
+        if (childGuests - roomType.MaxChild > 0) {
+            setExtraChild(childGuests - roomType.MaxChild)
+        }
     }, [adultGuests, childGuests])
 
     return (
@@ -228,7 +238,7 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                             <p className="text-xl font-bold text-cstm-secondary">Number of Guests</p>
                             <div className="flex-wrap gap-8 flex md:gap-16 mt-3">
                                 <div>
-                                    <p className="text-md font-bold">Adults</p>
+                                    <p className="text-md font-bold mb-4">Adults</p>
                                     <div className="flex gap-2">
                                         <button className="p-3 bg-cstm-secondary rounded-md text-white w-10" onClick={() => setAdultGuests(adultGuests > 0? adultGuests - 1 : 0)}>-</button>
                                         <input type="number" className="text-center font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-3"  value={adultGuests} min={1} max={5} onChange={(e) => setAdultGuests(parseInt(e.target.value))} />
@@ -236,7 +246,7 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                                     </div>
                                 </div>
                                 <div>
-                                    <p className="text-md font-bold">Children</p>
+                                    <p className="text-md font-bold mb-4">Children</p>
                                     <div className="flex gap-2">
                                         <button className="p-3 bg-cstm-secondary rounded-md text-white w-10" onClick={() => setChildGuests(childGuests > 0 ? childGuests - 1 : 0)}>-</button>
                                         <input type="number" className="text-center font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-3" value={childGuests} min={1} max={5} onChange={(e) => setChildGuests(parseInt(e.target.value))} /> 
@@ -285,8 +295,15 @@ export function RoomRatesCard({roomType, roomRate, roomAmenities, roomRateOrig}:
                                         }
                                         {weekdays > 0 && (
                                             <div className="flex justify-between">
-                                                <p className="text-white/[.70]">Weekdays x {weekdays}</p>
-                                                <p className="text-white">¥{formatCurrencyJP(roomRate.BaseRoomRate * weekdays)}</p>
+                                                <p className="text-white/[.70]" onClick={() => console.log(roomRateOrig)}>Weekdays x {weekdays}</p>
+                                                <p className="text-white">
+                                                    {
+                                                        promoCode && (
+                                                            <span className="line-through text-white/[.60]">¥{formatCurrencyJP((roomRateOrig?.BaseRoomRate || 0) * weekdays)}</span>
+                                                        )
+                                                    }
+                                                    ¥{formatCurrencyJP(roomRate.BaseRoomRate * weekdays)}
+                                                </p>
                                             </div>
                                         )}
                                         {weekends > 0 && (

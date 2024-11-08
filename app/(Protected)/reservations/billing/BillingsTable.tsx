@@ -20,6 +20,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { ColumnDef } from "@tanstack/react-table";
 import { commafy, formatCurrencyJP } from "@/utils/Helpers";
 import { ReservationSummaryRecord } from "@/types";
+import ReservationStatusBadge from "@/components/ReservationStatusBadge";
 export default function BillingsTable() {
   const { t } = useTranslation();
   const { locale } = t("locale");
@@ -121,15 +122,15 @@ export default function BillingsTable() {
     //   },
     // },
     {
-      accessorKey: "Deposit",
+      accessorKey: "ReservationStatus",
       header: ({column}: any) => {
         return (
-          <div className="flex justify-end">
+          <div className="flex">
             <Button 
               className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.deposit} {
+              {reservationI18n.reservationStatus} {
                 column.getIsSorted() === 'asc' ? 
                 <ChevronUpIcon size={12} /> : 
                 column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
@@ -139,8 +140,16 @@ export default function BillingsTable() {
           </div>
         )
       },
-      cell: ({ cell }: any) => {
-        return <p className="text-right">{`₱ ${formatCurrencyJP(cell.getValue())}`}</p>;
+      // cell: ({ cell }: any) => {
+      //   return <p className="text-right">{`₱ ${formatCurrencyJP(cell.getValue())}`}</p>;
+      // },
+      cell: ({ cell, row }: any) => {
+        const status = cell.getValue() as string;
+        return (
+          <div className="flex h-min ">
+            <ReservationStatusBadge status={status} />
+          </div>
+        );
       },
     },
     

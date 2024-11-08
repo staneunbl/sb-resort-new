@@ -11,6 +11,7 @@ import {
   BriefcaseBusiness,
   ChevronRight,
   CircleUserRound,
+  CoinsIcon,
   DoorOpen,
   MonitorSpeaker,
   Puzzle,
@@ -22,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { memo } from "react";
 import { useTranslation } from "next-export-i18n";
 import { LinkWithLocale as Link } from "next-export-i18n";
+import { useConfig } from "@/utils/ConfigProvider";
 
 type NavigationItem = {
   name: string;
@@ -38,6 +40,7 @@ const NavBar = memo(function ({
   className?: string;
   role: number;
 }) {
+  const config = useConfig();
   const currentPath = usePathname();
   const { t } = useTranslation();
   const navBari18n = t("NavBar");
@@ -152,7 +155,7 @@ const NavBar = memo(function ({
               strokeWidth={logoStyle.strokeWidth}
             />
           ),
-          role: [3],
+          role: [2, 3],
         },
 
         {
@@ -218,6 +221,19 @@ const NavBar = memo(function ({
       subNav: [],
     },
     {
+      name: navBari18n.discounts,
+      url: "/discounts",
+      icon: (
+        <CoinsIcon 
+          size={logoStyle.size}
+          strokeWidth={logoStyle.strokeWidth}
+        />
+      ),
+      role: [1,2,3],
+      showAtSubNav: false,
+      subNav: [],
+    },
+    {
       name: navBari18n.settings,
       url: "/settings",
       icon: (
@@ -226,7 +242,7 @@ const NavBar = memo(function ({
           strokeWidth={logoStyle.strokeWidth}
         />
       ),
-      role: [1, 2, 3],
+      role: [3],
       showAtSubNav: false,
       subNav: [],
     },
@@ -258,7 +274,8 @@ const NavBar = memo(function ({
     >
       <div className="space-y-10">
         <h1 className="w-full bg-cstm-secondary p-4 text-center text-4xl font-semibold text-cstm-tertiary">
-          {t("NavBar.beachName")}
+          {/* {t("NavBar.beachName")} */}
+          {config.CompanyName}
         </h1>
         <div className="flex flex-col gap-4">
           {navigationItems.map((item, index) => {

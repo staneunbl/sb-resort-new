@@ -53,8 +53,8 @@ import {
   getRoomTypeRates,
 } from "../ServerAction/rooms.action";
 import parse from "html-react-parser";
-import { capitalizeFirstLetter, commafy, dateAnalysis, formatCurrencyJP, generateReferenceNumber } from "@/utils/Helpers";
-import { addOnlineReservation, checkReferenceNumber, peekLastReservation } from "../ServerAction/reservations.action";
+import { capitalizeFirstLetter, commafy, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber } from "@/utils/Helpers";
+import { addOnlineReservation, checkReferenceNumber, checkReservation, peekLastReservation } from "../ServerAction/reservations.action";
 import { useRouter } from "next/navigation";
 import { getPromo } from "../ServerAction/promos.action";
 import { RoomCard } from "@/app/booking/room-card";
@@ -64,8 +64,12 @@ import { DatePicker } from "@/components/ui/calendar2";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingSuccess } from "./BookingSuccess";
 import { countries } from "@/data/countries";
+import { useConfig } from "@/utils/ConfigProvider";
+import { SiAmericanexpress, SiMastercard, SiVisa } from "@icons-pack/react-simple-icons";
+import sendEmail from "../ServerAction/email.action";
 
 export default function MainBookingForm() {
+  const config = useConfig()
   const formRef = useRef<HTMLFormElement>(null);
   const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState } = useBookingStore();
 
@@ -117,6 +121,7 @@ function BookingDateForm({
 }: {
   formRef: React.RefObject<HTMLFormElement>;
 }) {
+  const config = useConfig()
   const {
     pageState,
     goNextPage,
@@ -341,15 +346,21 @@ function BookingDateForm({
 
         <div className="p-3 flex flex-col bg-cstm-primary rounded-lg justify-center self-end mt-4 text-sm">
             <p className="text-white font-bold">Questions?</p>
-            <p className="text-white/[.70]">You may reach us through our contact numbers and email below:</p>
-            <div className="flex gap-4 mt-4"> 
+            <p className="text-white/[.70]">You may reach us through our channels below:</p>
+            {
+              config.CompanyContact &&
+              <div className="flex gap-4 mt-4"> 
                 <PhoneIcon size={16} className="text-white"/>
-                <p className="text-white/[.70]">(123) 456-7890</p>
-            </div>
-            <div className="flex gap-4"> 
+                <p className="text-white/[.70]">{config.CompanyContact}</p>
+              </div>
+            }
+            {
+              config.CompanyEmail &&
+              <div className="flex gap-4"> 
                 <AtSignIcon size={16} className="text-white"/>
-                <p className="text-white/[.70] text-wrap">service@abchotel.com</p>
-            </div>
+                <p className="text-white/[.70] text-wrap">{config.CompanyEmail}</p>
+              </div>
+            }
         </div>
         
       </Card>
@@ -375,7 +386,7 @@ function BookingDateForm({
           {pageStateLoading ? (
             <Loader className="h-4 w-4 animate-spin" color="white" />
           ): (
-            <p>Next</p>
+            <p>Check Availability</p>
           )}
         </Button>
       </div>
@@ -520,7 +531,7 @@ function SelectRoomForm({
             </div>
             <p className="text-black/[.70]">Select your preferred room type before proceeding.</p>
             <p className="text-sm text-black/[.60]">Room Availability is subject to change due to various factors, such as new bookings, updates to room inventory, and customer cancellations.</p>
-            <div className="flex gap-4 flex-wrap justify-center">
+            <div className="flex gap-8 flex-wrap justify-center">
             {roomTypes?.map((roomType: any, i: number) => {
 
                   if(roomType.Rooms[0].count > 0) {
@@ -631,6 +642,16 @@ function SelectRoomRateForm({
     },
   });
 
+  const { data: originalRate, isLoading: originalRateLoading, error: originalRateError} = useQuery({
+    enabled: promoCode.length > 0,
+    queryKey: ["originalRate", selectedRoom.Id],
+    queryFn: async () => {
+      const { success, res } = await getCurrentRoomTypeRate(selectedRoom.Id);
+      if (!success) throw new Error();
+      return res;
+    },
+  })
+
   const {data: roomAmenities, isLoading: roomAmenitiesLoading, error, isError} = useQuery({
     queryKey: ["roomAmenities", selectedRoom.Id],
     queryFn: async () => {
@@ -640,6 +661,7 @@ function SelectRoomRateForm({
       return data;
     },
   })
+
 
   const formSchema = z.object({
     extraAdultCount: z.string().default("0"),
@@ -745,8 +767,8 @@ function SelectRoomRateForm({
           />
         </div>
       </Card> */}
-      {!isFetching && !roomAmenitiesLoading && roomAmenities ? (
-        <RoomRatesCard roomType={selectedRoom} roomRate={roomRates} roomAmenities={roomAmenities}></RoomRatesCard>
+      {!isFetching && !roomAmenitiesLoading && !originalRateLoading && roomAmenities ? (
+        <RoomRatesCard roomType={selectedRoom} roomRate={roomRates} roomAmenities={roomAmenities} roomRateOrig={originalRate}></RoomRatesCard>
       ) : (
         <Loader2 size={40} className="animate-spin mx-auto" color="gray" />
       ) }
@@ -837,9 +859,7 @@ function CustomerDetailsForm({
       country: z.string().min(1, { message: "Please enter your country" }),
       email: z.string().email({ message: "Please enter a valid email" }),
       confirmEmail: z.string().email({ message: "Please enter a valid email" }),
-      contactNumber: z.string().min(1, {
-        message: "Please enter your contact number",
-      }),
+      contactNumber: z.coerce.string().regex(/^\d+$/, { message: "Number can only contain digits." }).min(6, {message: "Number must contain at least 6 numbers."}).max(11, {message: "Number must contain at most 11 numbers."}),
       request: z.string(),
       termsAndCondition: z.boolean().default(false).refine((val) => val, {
         message: "Please accept the terms and conditions",
@@ -917,7 +937,7 @@ function CustomerDetailsForm({
                   render={({ field }) => (
                     <FormItem className={cn("col-span-4", "sm:col-span-2")}>
                       <div className="flex items-center gap-2">
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>First Name</FormLabel>
                         <FormMessage className="text-xs" />
                       </div>
                       <FormControl>
@@ -1102,7 +1122,7 @@ function CustomerDetailsForm({
                         <FormMessage className="text-xs" />
                       </div>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} type="number"/>
                       </FormControl>
                     </FormItem>
                   )}
@@ -1194,6 +1214,11 @@ function CustomerDetailsForm({
                             <p className="text-sm italic text-white/[.70]">Including taxes and fees.</p>
                         </div>
                     </div>
+                    <div className="flex gap-4 rounded bg-white justify-center p-1">
+                        <SiMastercard color="default"></SiMastercard>
+                        <SiVisa color="default"></SiVisa>
+                        <SiAmericanexpress color="default"></SiAmericanexpress>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <FormField
@@ -1284,6 +1309,7 @@ function ConfirmForm({
   formRef: React.RefObject<HTMLFormElement>;
 }) {
   const router = useRouter();
+  const config = useConfig();
   const {
     goPrevPage,
     selectedRoomRate,
@@ -1402,6 +1428,24 @@ function ConfirmForm({
     );
 
     if(success) {
+      const reservationData = await checkReservation(res.Id);
+
+      const details = {
+        reservationId: res.Id,
+        bookingDate: new Date(reservationData.res.CreatedAt),
+        checkIn: new Date(values.checkInDate),
+        checkOut: new Date(values.checkOutDate),
+        roomType: reservationData.res.TypeName,
+        guestName: {
+            firstName: capitalizeFirstLetter(values.firstName),
+            lastName: capitalizeFirstLetter(values.lastName)
+        },
+        roomBill: initialBill,
+        promoCode: "",
+        promoCodeValue: ""
+      }
+
+      sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
       resetStore();
     }
@@ -1569,10 +1613,6 @@ function ConfirmForm({
                     <p className="text-white font-bold text-xl mb-8">Reservation Details</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-12">
                         <div className="flex flex-col">
-                            <p className="text-cstm-primary font-bold">{referenceNumber}</p>
-                            <p className="text-white/[.70]">Reference Number</p>
-                        </div>
-                        <div className="flex flex-col">
                             <p className="text-cstm-primary font-bold">{new Date().toLocaleDateString()}</p>
                             <p className="text-white/[.70]">Transaction Date</p>
                         </div>
@@ -1596,14 +1636,30 @@ function ConfirmForm({
                     <div className="p-3 flex flex-col bg-cstm-primary rounded-lg justify-center self-end mt-4">
                         <p className="text-white font-bold">Questions?</p>
                         <p className="text-white/[.70]">You may reach us through our contact numbers and email below:</p>
-                        <div className="flex gap-4 mt-4"> 
+                        <>
+                        {
+                          config.CompanyContact &&
+                          <div className="flex gap-4 mt-4"> 
+                            <PhoneIcon size={16} className="text-white"/>
+                            <p className="text-white/[.70]">{config.CompanyContact}</p>
+                          </div>
+                        }
+                        {
+                          config.CompanyEmail &&
+                          <div className="flex gap-4"> 
+                            <AtSignIcon size={16} className="text-white"/>
+                            <p className="text-white/[.70] text-wrap">{config.CompanyEmail}</p>
+                          </div>
+                        }
+                        </>
+                        {/* <div className="flex gap-4 mt-4"> 
                             <PhoneIcon size={16} className="text-white"/>
                             <p className="text-white/[.70]">(123) 456-7890</p>
                         </div>
                         <div className="flex gap-4"> 
                             <AtSignIcon size={16} className="text-white"/>
                             <p className="text-white/[.70] text-wrap">service@abchotel.com</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

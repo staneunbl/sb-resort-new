@@ -180,6 +180,7 @@
     "unitPrice": "単価",
     "quantity": "数量",
     "addOnTotal": "追加料金合計",
+    "promoCode": "プロモコード",
     "toast": {
       "addReservation": "予約を追加しました",
       "editReservation": " 予約を編集しました",
@@ -195,6 +196,16 @@
     "guestEmail": "ガストメール",
     "guestName": "ガスト名",
     "guestPhone": "ガスト電話"
+  },
+  "Discounts": {
+    "discountId": "割引ID",
+    "discountCode": "割引コード",
+    "discountName": "割引名",
+    "discountType": "割引タイプ",
+    "discountValue": "割引値",
+    "isActive": "有効",
+    "startDate": "開始日",
+    "endDate": "終了日" 
   },
   "LoginPage": {
     "title": "ログイン",
@@ -220,6 +231,7 @@
     "users": "ユーザ",
     "guests": "ガスト",
     "promos": "プロモ",
+    "discounts": "デス",
     "logout": "ログアウト",
     "addOns": "アド",
     "settings": "設定"

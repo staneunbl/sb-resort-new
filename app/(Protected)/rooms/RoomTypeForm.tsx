@@ -369,7 +369,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
               >
                 {generalI18n.cancel}
               </Button>
-              <Button className="bg-cstm-secondary">
+              <Button className="bg-cstm-secondary" type="submit" >
                 {roomsI18n.saveNewRoomType}
               </Button>
             </div>
@@ -377,7 +377,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
           <div className="flex items-start gap-4">
             <div className="flex w-1/2 flex-col gap-4">
               <Card className="bg-cstm-secondary">
-                <CardHeader className="flex rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white">
+                <CardHeader className="flex rounded-t-md bg-cstm-primary p-3 pl-5 text-xl font-semibold text-white" onClick={() => console.log(form.formState.errors)}>
                   {roomsI18n.roomDetails}
                 </CardHeader>
                 <div className="flex space-x-4 p-4">

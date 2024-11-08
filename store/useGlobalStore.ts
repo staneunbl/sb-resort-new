@@ -13,13 +13,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
 import { enUS, ja, Locale } from "date-fns/locale";
-import { getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary, updateCheckInTime, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
+import { checkReservation, getAddOns, getAddOnsTypeOpt, getBillings, getReservations, getReservationSummary, updateCheckInTime, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { getGuests, getUsers } from "@/app/ServerAction/manage.action";
 import { getPromos } from "@/app/ServerAction/promos.action";
 import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
-import { getConfig } from "@/app/ServerAction/config.action";
+import { getConfig, transformConfig } from "@/app/ServerAction/config.action";
+import { getDiscounts } from "@/app/ServerAction/discounts.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -137,6 +138,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
       addOnFilterType: "",
       userRoleFilterOpt: "",
       selectedBillingStatusFilter: "",
+      selectedDiscountsFilter: ""
     });
   },
 
@@ -146,6 +148,13 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   amenityFormModalState: false,
   setAmenityFormModalState: (state: boolean) => set(() => ({ amenityFormModalState: state })), 
 
+  // Discounts
+  discountFormModalState: false,
+  setDiscountFormModalState: (state: boolean) => set(() => ({ discountFormModalState: state })),
+  selectedDiscountData: {},
+  setSelectedDiscountData: (data: any) => set(() => ({ selectedDiscountData: data })),
+  selectedDiscountsFilter: "",
+  setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
   roomTypesQuery: () => {
     return useQuery({
       queryKey: ["GetRoomTypes"],
@@ -308,8 +317,23 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   getConfigQuery: () => {
     return useQuery({
       queryKey: ["GetConfig"],
-      queryFn: async () => {
-        return (await getConfig()).res
+      queryFn: async () => transformConfig(),
+      staleTime: Infinity
+    })
+  },
+
+  checkReservationQuery: (id: number) => {
+    return useQuery({
+      queryKey: ["CheckReservation", id],
+      queryFn: async () => checkReservation(id)
+    })
+  },
+
+  getDiscountsQuery: () => {
+    return useQuery({
+      queryKey: ["GetDiscounts"],
+      queryFn: async () => {  
+        return (await getDiscounts()).res as any
       }
     })
   }
@@ -406,6 +430,7 @@ interface GlobalState {
   availableRoomsQuery:(to: Date, from: Date)  => any;
   roomTypesQuery: () => any;
   reservationSummaryQuery: () => any;
+  checkReservationQuery: (id: number) => any;
 
   /* Filters */
   selectedRoomTypeOpt: string;
@@ -444,6 +469,15 @@ interface GlobalState {
 
   // Config
   getConfigQuery: () => any;
+
+  // Discounts
+  getDiscountsQuery: () => any;
+  selectedDiscountData: any;
+  setSelectedDiscountData: (data: any) => any;
+  discountFormModalState: any;
+  setDiscountFormModalState: (state: boolean) => any; 
+  selectedDiscountsFilter: any;
+  setSelectedDiscountsFilter: (data: any) => any;
 }
 
 

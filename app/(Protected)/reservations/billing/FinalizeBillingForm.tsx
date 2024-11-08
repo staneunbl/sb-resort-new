@@ -17,6 +17,7 @@ import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservation
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
 import { format } from "date-fns";
+import { SiMastercard, SiVisa, SiAmericanexpress } from "@icons-pack/react-simple-icons";
 
 export default function FinalizeBillingForm() {
   const {
@@ -144,6 +145,13 @@ export default function FinalizeBillingForm() {
                   <p className="text-sm font-bold text-black/[.50]">BILLING DETAILS</p>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-4">
+                      {
+                        selectedBillingData.PromoCode &&
+                        <div className="flex justify-between">
+                            <p className="text-black font-bold ">Promo Code</p>
+                            <p className=""><span className="text-white p-1 rounded bg-cstm-secondary">{selectedBillingData.PromoCode}</span></p>
+                        </div>  
+                      }
                       <div>
                         <p className="font-bold">Room</p>
                         <div className="flex flex-col gap-4 ms-4">
@@ -231,6 +239,11 @@ export default function FinalizeBillingForm() {
                         <p className="text-white text-3xl font-bold">
                           ¥{formatCurrencyJP((subtotal + (subtotal * 0.12) - selectedBillingData.Deposit))}
                         </p>
+                    </div>
+                    <div className="flex gap-4 rounded bg-white p-1 justify-end">
+                        <SiMastercard color="default"></SiMastercard>
+                        <SiVisa color="default"></SiVisa>
+                        <SiAmericanexpress color="default"></SiAmericanexpress>
                     </div>
                     </div>
                   </div>

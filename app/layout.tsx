@@ -3,6 +3,7 @@ import "./globals.css";
 import Provider from "@/utils/Provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { ConfigProvider } from "@/utils/ConfigProvider";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 const defaultUrl = process.env.VERCEL_URL
@@ -24,10 +25,12 @@ export default function RootLayout({
         <html lang="en" className={cn("scroll-smooth", montserrat.className)}>
             <body>
                 <Provider>
-                    <main className="flex flex-1 flex-col overflow-hidden">
-                        {children}
-                    </main>
-                    <Toaster />
+                    <ConfigProvider>    
+                        <main className="flex flex-1 flex-col overflow-hidden">
+                            {children}
+                        </main>
+                        <Toaster />
+                    </ConfigProvider>
                 </Provider>
             </body>
         </html>

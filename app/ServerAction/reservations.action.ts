@@ -118,6 +118,20 @@ export async function addReservationsLobby(values: any) {
   }
   return { success: true, res: data };
 }
+
+export async function checkPromoCode(rate: string) {
+  console.log(rate)
+  const { data, error } = await supabase
+    .from("Promos")
+    .select("*")
+    .eq("PromoDetailId", rate)
+    .single()
+  
+  if(error) {
+    return { success: false, res: error.message }
+  }
+  return { success: true, res: data };
+}
 export async function deleteReservation(values: any) {
   const { data, error } = await supabase
     .from("Reservations")
@@ -335,9 +349,8 @@ export async function getBillingStatusOptions() {
 
 export async function getReservationSummary() {
   const { data, error } = await supabase
-    .from("reservationsummary1")
+    .from("reservationsummary")
     .select('*')
-    .neq("StatusId", 4)
   if (error) {
     console.log(error);
     return { res: error.message };
@@ -364,15 +377,30 @@ export async function addOnlineReservation(
   country: string,
   request: string
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation",
+  const { data, error } = await supabase.rpc("create_client_reservation_1",
     { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request })
 
   if (error) {
     console.log(error);
     return { success: false, res: error.message };
   }
+  console.log(data)
   return { success: true, res: data };
 
+}
+
+export async function checkReservation(id: number) {
+  const { data, error } = await supabase
+    .from("Reservations")
+    .select("CreatedAt, CheckInDate, CheckOutDate, ...GuestData(FirstName, LastName),...RoomTypes(TypeName)")
+    .eq("Id", id)
+    .single()
+
+  console.log(data)
+
+  if (error) throw new Error(error.message);
+
+  return { success: true, res: data };
 }
 
 export async function peekLastReservation() {
