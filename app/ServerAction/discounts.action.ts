@@ -89,7 +89,7 @@ export async function addDiscount(data: {
 
 export async function addDiscountToRoomType(discountId: number, roomTypeId: number){
     const { data, error } = await supabase
-        .from("DiscountRoomType")
+        .from("DiscountRoomTypes")
         .insert({ DiscountId: discountId, RoomTypeId: roomTypeId })
         .select()
         .single()
