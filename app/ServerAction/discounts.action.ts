@@ -68,10 +68,11 @@ export async function addDiscount(data: {
     .select()
     .single()
 
+    console.log(discount)
     const discountId = discount?.Id;
 
     const promises = roomIds.map((roomId) =>
-       removeDiscountFromRoomType(discountId, roomId)
+       addDiscountToRoomType(discountId, roomId)
     )
 
     const results = await Promise.all(promises);
