@@ -49,16 +49,18 @@ export async function deleteDiscount(id: number) {
 }
 
 export async function addDiscount(data: {
-    discountName: string,
-    discountCode: string,
-    discountType: "Flat" | "Percentage",
-    discountValue: number,
-    startDate: Date,
-    endDate: Date,
-    isActive: boolean,
-    isDeleted: boolean,
-    minNights: number,
-    minAmount: number,
+    DiscountName: string,
+    DiscountCode: string,
+    DiscountType: string,
+    DiscountValue: number,
+    StartDate: Date | null,
+    EndDate: Date | null,
+    IsActive: boolean,
+    MinNight: number,
+    MaxNight: number,
+    MinAmount: number,
+    MaxAmount: number,
+    MaxUsage: number
 }, roomIds: number[]) {
     const { data: discount, error } = await supabase
     .from("Discounts")
@@ -76,12 +78,13 @@ export async function addDiscount(data: {
 
     const hasError = results.some(result => result.success === false);
 
-    if (hasError) {
+    if (hasError || error) {
+        console.log(error || hasError); 
         return { success: false, res: [] };
     }
 
     // Return the successful results
-    return { success: true, res: results.map(result => result.success === true) };
+    return {success: true, res: results.map(result => result.res)};
 }
 
 export async function addDiscountToRoomType(discountId: number, roomTypeId: number){

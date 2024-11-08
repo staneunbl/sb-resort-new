@@ -124,7 +124,7 @@ export function DiscountsTable() {
             },
             cell: ({ row, cell }: any) => {
                 const type = row.original.DiscountType;
-                const value = type === "Flat" ? "₱" + cell.getValue().toString() : cell.getValue().toString() + "%";
+                const value = type === "flat" ? "₱" + cell.getValue().toString() : cell.getValue().toString() + "%";
                 return value
             },
         },
@@ -168,7 +168,9 @@ export function DiscountsTable() {
                 )
             },
             cell: ({ row, cell }: any) => {
-                const date = new Date(cell.getValue() || 0);
+                if(cell.getValue() === null) return "None"
+                const date = new Date(cell.getValue());
+                if(!date) return "None"
                 return format(date, "MMM dd, yyyy");
             },
         },
@@ -177,22 +179,23 @@ export function DiscountsTable() {
             header: ({column}: any) => {
                 return (
                     <div className="flex">
-                    <Button 
-                        className="p-0 bg-transparent font-semibold flex gap-1"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    >
-                        {discountI18n.endDate} {
-                        column.getIsSorted() === 'asc' ? 
-                        <ChevronUpIcon size={12} /> : 
-                        column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
-                        <ChevronsUpDownIcon size={12} strokeWidth={2} />
-                        }
-                    </Button>
+                        <Button 
+                            className="p-0 bg-transparent font-semibold flex gap-1"
+                            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                        >
+                            {discountI18n.endDate} {
+                                column.getIsSorted() === 'asc' ? 
+                                <ChevronUpIcon size={12} /> : 
+                                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+                            }
+                        </Button>
                     </div>
                 )
             },
             cell: ({ row, cell }: any) => {
-                const date = new Date(cell.getValue() || 0);
+                if(cell.getValue() === null) return "None"
+                const date = new Date(cell.getValue());
                 if(date < new Date()) return <span className="text-red-500">{format(date, "MMM dd, yyyy")}</span>;
                 return format(date, "MMM dd, yyyy");
             },
