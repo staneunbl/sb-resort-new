@@ -204,7 +204,10 @@
     "discountValue": "Discount Value",
     "isActive": "Is Active",
     "startDate": "Start Date",
-    "endDate": "End Date"
+    "endDate": "End Date",
+    "discountStatus": "Discount Status",
+    "discountUpdateSuccess": "Discount updated successfully.",
+    "discountUpdateFailed": "Discount update failed."
   },
   "LoginPage": {
     "title": "Login",

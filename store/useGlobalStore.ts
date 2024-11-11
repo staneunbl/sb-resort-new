@@ -20,7 +20,7 @@ import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
 import { getConfig, transformConfig } from "@/app/ServerAction/config.action";
-import { getDiscounts } from "@/app/ServerAction/discounts.action";
+import { getDiscounts, toggleDiscountStatus, updateDiscount } from "@/app/ServerAction/discounts.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -336,7 +336,16 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
         return (await getDiscounts()).res as any
       }
     })
-  }
+  },
+
+  // updateDiscountStatusQuery: (id: number, state: boolean) => {
+  //   return useQuery({
+  //     queryKey: ["UpdateDiscountStatus"],
+  //     queryFn: async () => {
+  //       return (await toggleDiscountStatus(id, state)).res
+  //     }
+  //   })
+  // },
 
 
 
@@ -472,12 +481,14 @@ interface GlobalState {
 
   // Discounts
   getDiscountsQuery: () => any;
+  // updateDiscountStatusQuery: () => any;
   selectedDiscountData: any;
   setSelectedDiscountData: (data: any) => any;
   discountFormModalState: any;
   setDiscountFormModalState: (state: boolean) => any; 
   selectedDiscountsFilter: any;
   setSelectedDiscountsFilter: (data: any) => any;
+
 }
 
 

@@ -111,6 +111,7 @@ export async function updateDiscount(data: {
     isDeleted: boolean,
     minNights: number,
     minAmount: number,
+    id: number
 }) {
     const { data: discountEdit, error } = await supabase
         .from("Discounts")
@@ -126,6 +127,7 @@ export async function updateDiscount(data: {
             "MinNights": data.minNights,
             "MinAmount": data.minAmount
         })
+        .eq("Id", data.id)
         .select()
         .single()
     
@@ -133,6 +135,22 @@ export async function updateDiscount(data: {
 
     return { success: true, res: discountEdit };
 } 
+
+export async function toggleDiscountStatus(discountId: number, status: boolean){
+    console.log(`Performing Status Toggle on Id ${discountId} with status ${status}`)
+    const { data: discountEdit, error } = await supabase
+        .from("Discounts")
+        .update({
+            "IsActive": status
+        })
+        .eq("Id", discountId)
+        .select()
+        .single()
+    
+    if (error) throw new Error(error.message);
+    
+    return { success: true, res: discountEdit };
+}
 
 export async function removeDiscountFromRoomType(discountId: number, roomTypeId: number){
     const { data, error } = await supabase
