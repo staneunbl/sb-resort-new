@@ -55,7 +55,6 @@ export async function addDiscount(data: {
     DiscountValue: number,
     StartDate: Date | null,
     EndDate: Date | null,
-    IsActive: boolean,
     MinNight: number,
     MaxNight: number,
     MinAmount: number,

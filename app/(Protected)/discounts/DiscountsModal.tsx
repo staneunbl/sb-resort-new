@@ -28,7 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { addWeeks, format } from "date-fns";
+import { addWeeks, format, set } from "date-fns";
 import { cn } from "@/lib/utils";
 
 import { CalendarIcon } from "lucide-react";
@@ -49,11 +49,18 @@ import { addPromos, updatePromos } from "@/app/ServerAction/promos.action";
 import { DatePicker } from "@/components/ui/calendar2";
 import { useEffect } from "react";
 import { addDiscount } from "@/app/ServerAction/discounts.action";
+import { createDropdownMenuScope } from "@radix-ui/react-dropdown-menu";
 export function DiscountsModal() {
 
-    const { discountFormModalState, setDiscountFormModalState, selectedDiscountData, roomTypeOptionsQuery, getDiscountsQuery } = useGlobalStore();
+    const { discountFormModalState, setDiscountFormModalState, selectedDiscountData, roomTypeOptionsQuery, getDiscountsQuery, setSelectedDiscountData } = useGlobalStore();
 
-    const isEditMode = isEmptyObj(selectedDiscountData) ? false : true;
+
+    useEffect(() => {
+        console.log(selectedDiscountData)
+        console.log(form.getValues())
+    }, [])
+
+    const isEditMode = selectedDiscountData ? false : true;
     const { data: RoomTypeOption } = roomTypeOptionsQuery();
     const { refetch } = getDiscountsQuery();
     const formSchema = z.object({
@@ -61,15 +68,14 @@ export function DiscountsModal() {
         discountCode: z.string().min(1, {message: "Please enter a discount code."}),
         discountType: z.string().min(1, {message: "Please select a discount type."}),
         discountValue: z.coerce.number().min(1, {message: "Please enter a discount value."}),
-        discountStartDate: z.date().optional(),
-        discountEndDate: z.date().optional(),
+        discountStartDate: z.date().nullable(),
+        discountEndDate: z.date().nullable(),
         minimumStay: z.coerce.number().optional(),
         maximumStay: z.coerce.number().optional(),
         minimumTotal: z.coerce.number().optional(),
         maximumTotal: z.coerce.number().optional(),
         maxUsage: z.coerce.number().optional(),
         roomTypes: z.array(z.number()).optional(),
-        enabled: z.boolean().optional(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -78,31 +84,29 @@ export function DiscountsModal() {
             discountName: "",
             discountCode: "",
             discountType: "",
-            discountValue: undefined,
-            discountStartDate: undefined,
-            discountEndDate: undefined,
-            minimumStay: undefined,
-            maximumStay: undefined,
-            minimumTotal: undefined,
-            maximumTotal: undefined,
-            maxUsage: undefined,
-            roomTypes: undefined,
-            enabled: undefined
+            discountValue: 0,
+            discountStartDate: null,
+            discountEndDate: null,
+            minimumStay: 0,
+            maximumStay: 0,
+            minimumTotal: 0,
+            maximumTotal: 0,
+            maxUsage: 0,
+            roomTypes: [],
         },
         values: {
-            discountName: selectedDiscountData ? selectedDiscountData.discountName : "",
-            discountCode: selectedDiscountData ? selectedDiscountData.discountCode : "",
-            discountType: selectedDiscountData ? selectedDiscountData.discountType : "",
-            discountValue: selectedDiscountData ? selectedDiscountData.discountValue : undefined,
-            discountStartDate: selectedDiscountData ? selectedDiscountData.discountStartDate : undefined,
-            discountEndDate: selectedDiscountData ? selectedDiscountData.discountEndDate : undefined,
-            minimumStay: selectedDiscountData ? selectedDiscountData.minimumStay : undefined,
-            maximumStay: selectedDiscountData ? selectedDiscountData.maximumStay : undefined,            
-            minimumTotal: selectedDiscountData ? selectedDiscountData.minimumTotal : undefined,
-            maximumTotal: selectedDiscountData ? selectedDiscountData.maximumTotal : undefined,
-            maxUsage: selectedDiscountData ? selectedDiscountData.maxUsage : undefined,
-            roomTypes: selectedDiscountData ? selectedDiscountData.roomTypes : undefined,
-            enabled: selectedDiscountData ? selectedDiscountData.enabled : undefined
+            discountName: selectedDiscountData && selectedDiscountData.DiscountName ? selectedDiscountData.DiscountName : "",
+            discountCode: selectedDiscountData && selectedDiscountData.DiscountCode ? selectedDiscountData.DiscountCode : "",
+            discountType: selectedDiscountData && selectedDiscountData.DiscountType ? selectedDiscountData.DiscountType : "",
+            discountValue: selectedDiscountData && selectedDiscountData.DiscountValue ? selectedDiscountData.DiscountValue : 0,
+            discountStartDate: selectedDiscountData && selectedDiscountData.StartDate ? new Date(selectedDiscountData.StartDate) : null,
+            discountEndDate: selectedDiscountData && selectedDiscountData.EndDate ? new Date(selectedDiscountData.EndDate) : null,
+            minimumStay: selectedDiscountData && selectedDiscountData.MinNight ? selectedDiscountData.MinNight : 0,
+            maximumStay: selectedDiscountData  && selectedDiscountData.MaxNight? selectedDiscountData.MaxNight : 0,            
+            minimumTotal: selectedDiscountData && selectedDiscountData.MinAmount ? selectedDiscountData.MinAmount: 0,
+            maximumTotal: selectedDiscountData && selectedDiscountData.MaxAmount ? selectedDiscountData.MaxAmount : 0,
+            maxUsage: selectedDiscountData && selectedDiscountData.MaxUsage ? selectedDiscountData.MaxUsage : 0,
+            roomTypes: selectedDiscountData && selectedDiscountData.RoomTypes ? selectedDiscountData.roomTypes : [],
         }
     })
 
@@ -115,7 +119,6 @@ export function DiscountsModal() {
                 DiscountValue: data.discountValue,
                 StartDate: data.discountStartDate || null,
                 EndDate: data.discountEndDate || null,
-                IsActive: data.enabled || false ,
                 MinNight: data.minimumStay || 0,
                 MaxNight: data.maximumStay || 0,
                 MinAmount: data.minimumTotal || 0,
@@ -149,7 +152,6 @@ export function DiscountsModal() {
                 DiscountValue: data.discountValue,
                 StartDate: data.discountStartDate || null,
                 EndDate: data.discountEndDate || null,
-                IsActive: data.enabled,
                 MinNight: data.minimumStay || 0,
                 MaxNight: data.maximumStay || 0,
                 MinAmount: data.minimumTotal || 0,
@@ -181,17 +183,33 @@ export function DiscountsModal() {
         <Dialog
             open={discountFormModalState}
             onOpenChange={(open) => {
+                form.reset();
+                setSelectedDiscountData({} as any);
                 setDiscountFormModalState(open);
             }}
         >
             <DialogContent className="sm:max-w-[800px] max-h-[1200px]">
                 <DialogHeader>
-                    <DialogTitle>{"Add Discount"}</DialogTitle>
+                    <DialogTitle>{isEditMode ? "Edit Discount" :"Add Discount"}</DialogTitle>
                     <DialogDescription>
                         {"Please fill up the form to add a new discount."}
                     </DialogDescription>
                 </DialogHeader>
-                
+                <Button onClick={
+                    () => {
+                        console.log(selectedDiscountData)
+                        console.log(form.getValues())
+                    }
+                }>
+                    Console
+                </Button>
+                <Button onClick={
+                    () => {
+                        form.reset()
+                    }
+                }>
+                    Reset
+                </Button>
                 <div>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -296,7 +314,7 @@ export function DiscountsModal() {
                                                         <FormItem className="w-1/2">
                                                             <FormLabel>Start Date</FormLabel>
                                                             <FormControl>
-                                                                <DatePicker date={field.value} setDate={field.onChange} />
+                                                                <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
                                                                 Date when the discount becomes available.
@@ -312,7 +330,7 @@ export function DiscountsModal() {
                                                         <FormItem className="w-1/2">
                                                             <FormLabel>End Date</FormLabel>
                                                             <FormControl>
-                                                                <DatePicker date={field.value} setDate={field.onChange} />
+                                                                <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
                                                                 Date when the discount expires.
@@ -489,10 +507,21 @@ export function DiscountsModal() {
                                 </div>
                             </div>
                             <div className="mt-4 pt-4 border-t flex gap-4 justify-end">
-                                <Button variant="outline">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    onClick={() => {
+                                            setDiscountFormModalState(false);
+                                            setSelectedDiscountData({});
+                                            form.reset();
+                                            console.log(selectedDiscountData)
+                                            console.log(form)
+                                        }
+                                    }
+                                >
                                     Cancel
                                 </Button>
-                                <Button>
+                                <Button type="submit">
                                     Add Discount
                                 </Button>
                             </div>

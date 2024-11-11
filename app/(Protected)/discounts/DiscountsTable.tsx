@@ -41,7 +41,6 @@ export function DiscountsTable() {
     const updateDiscount = useMutation({
         mutationFn: async (values: {id: number, state: boolean}) => {
             
-            console.log(values)
             toast.loading("Updating discount...", {
                 id: toastId,
                 description: null
@@ -369,14 +368,11 @@ export function DiscountsTable() {
 
                       }}
                     >
-                        <div className="flex justify-between w-full items-center">
-                          <p>{record.IsActive ? "Disable" : "Enable"}</p>
-                          <Switch checked={record.IsActive}/>  
-                        </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-
+                            setSelectedDiscountData(record);
+                            setDiscountFormModalState(true);
                       }}
                     >
                         <div className="flex justify-between w-full items-center">
@@ -386,7 +382,6 @@ export function DiscountsTable() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
-                        
                       }}
                       className="font-medium text-red-500"
                     >

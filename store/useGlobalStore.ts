@@ -483,11 +483,11 @@ interface GlobalState {
   getDiscountsQuery: () => any;
   // updateDiscountStatusQuery: () => any;
   selectedDiscountData: any;
-  setSelectedDiscountData: (data: any) => any;
+  setSelectedDiscountData: (data: any) => void;
   discountFormModalState: any;
-  setDiscountFormModalState: (state: boolean) => any; 
+  setDiscountFormModalState: (state: boolean) => void; 
   selectedDiscountsFilter: any;
-  setSelectedDiscountsFilter: (data: any) => any;
+  setSelectedDiscountsFilter: (data: any) => void;
 
 }
 
