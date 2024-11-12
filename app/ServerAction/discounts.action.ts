@@ -1,4 +1,5 @@
 "use server";
+import { middleware } from "@/middleware";
 import { createClient } from "@/utils/supabase/server";
 
 const supabase = createClient();
@@ -34,6 +35,19 @@ export async function getDiscount(id: number) {
     return {success: true, res: data}
 }
 
+export async function getAllDiscountRoomTypes() {
+    const {data, error} = await supabase
+        .from("DiscountRoomTypes")
+        .select("*")
+    
+    if(error){
+        console.log(error)
+        throw new Error(error.message)
+    }
+
+    return {sucess: true, res: data}
+}
+
 export async function deleteDiscount(id: number) {
     const { data, error } = await supabase
     .from("Discounts")
@@ -53,13 +67,13 @@ export async function addDiscount(data: {
     DiscountCode: string,
     DiscountType: string,
     DiscountValue: number,
-    StartDate: Date | null,
-    EndDate: Date | null,
-    MinNight: number,
-    MaxNight: number,
-    MinAmount: number,
-    MaxAmount: number,
-    MaxUsage: number
+    StartDate: string | null,
+    EndDate: string | null,
+    MinNight: number | null,
+    MaxNight: number | null,
+    MinAmount: number | null,
+    MaxAmount: number | null,
+    MaxUsage: number | null
 }, roomIds: number[]) {
     const { data: discount, error } = await supabase
     .from("Discounts")
@@ -102,16 +116,17 @@ export async function addDiscountToRoomType(discountId: number, roomTypeId: numb
 export async function updateDiscount(data: {
     discountName: string,
     discountCode: string,
-    discountType: "Flat" | "Percentage",
+    discountType: string,
     discountValue: number,
-    startDate: Date,
-    endDate: Date,
-    isActive: boolean,
-    isDeleted: boolean,
-    minNights: number,
-    minAmount: number,
+    startDate: Date | null,
+    endDate: Date | null,
+    minNight: number | null,
+    maxNight: number | null, 
+    minAmount: number | null,
+    maxAmount: number | null,
+    maxUsage: number | null,
     id: number
-}) {
+}, rooms: {old: number[], new: number[]}) {
     const { data: discountEdit, error } = await supabase
         .from("Discounts")
         .update({
@@ -119,18 +134,44 @@ export async function updateDiscount(data: {
             "DiscountCode": data.discountCode,
             "DiscountType": data.discountType,
             "DiscountValue": data.discountValue,
-            "StartDate": data.startDate,
-            "EndDate": data.endDate,
-            "IsActive": data.isActive,
-            "IsDeleted": data.isDeleted,
-            "MinNights": data.minNights,
-            "MinAmount": data.minAmount
+            "StartDate": data.startDate || null,
+            "EndDate": data.endDate || null,
+            "MinNight": data.minNight || null,
+            "MinAmount": data.minAmount || null,
+            "MaxNight": data.maxNight || null,
+            "MaxUsage": data.maxUsage || null,
+            "MaxAmount": data.maxAmount || null
         })
         .eq("Id", data.id)
         .select()
         .single()
     
     if (error) throw new Error(error.message);
+
+    if(!(rooms.new == rooms.old)){
+        const newRooms = rooms.new.filter((room: any) => !rooms.old.includes(room));
+        const removedRooms = rooms.old.filter((room: any) => !rooms.new.includes(room));
+
+        if(newRooms.length > 0 ){
+            const { data: addRoom, error: addRoomError } = await supabase
+                .from("DiscountRoomTypes")
+                .insert(
+                    newRooms.map((room: any) => ({RoomTypeId: room, DiscountId: data.id}))
+                )
+            if (addRoomError) throw new Error(addRoomError.message);
+        }
+
+        if(removedRooms.length > 0) {
+            const { data: removeRoom, error: removeRoomError } = await supabase
+                .from("DiscountRoomTypes")
+                .delete()
+                .eq("DiscountId", data.id)
+                .in("RoomTypeId", removedRooms)
+            if (removeRoomError) throw new Error(removeRoomError.message);
+        }
+
+        return { success: true, res: discountEdit };
+    }
 
     return { success: true, res: discountEdit };
 } 

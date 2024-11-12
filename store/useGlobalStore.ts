@@ -20,7 +20,7 @@ import { getDeviceReservation } from "@/app/ServerAction/reports.action";
 import { DateRange } from "react-day-picker";
 import { Reservation, MainOptions, Room, RoomRate, ReservationSummaryRecord } from "@/types";
 import { getConfig, transformConfig } from "@/app/ServerAction/config.action";
-import { getDiscounts, toggleDiscountStatus, updateDiscount } from "@/app/ServerAction/discounts.action";
+import { getAllDiscountRoomTypes, getDiscounts, toggleDiscountStatus, updateDiscount } from "@/app/ServerAction/discounts.action";
 
 export const useGlobalStore = create<GlobalState>()((set) => ({
 
@@ -155,6 +155,9 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedDiscountData: (data: any) => set(() => ({ selectedDiscountData: data })),
   selectedDiscountsFilter: "",
   setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
+  selectedDiscountRoomType: [],
+  setSelectedDiscountRoomType: (data: any) => set(() => ({ selectedDiscountRoomType: data })),
+
   roomTypesQuery: () => {
     return useQuery({
       queryKey: ["GetRoomTypes"],
@@ -338,6 +341,15 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     })
   },
 
+  getAllDiscountRoomTypeQuery: () => {
+    return useQuery({
+      queryKey: ["GetDiscountRoomTypes"],
+      queryFn: async () => {
+        return (await getAllDiscountRoomTypes()).res as any
+      }
+    })
+  }
+
   // updateDiscountStatusQuery: (id: number, state: boolean) => {
   //   return useQuery({
   //     queryKey: ["UpdateDiscountStatus"],
@@ -482,13 +494,15 @@ interface GlobalState {
   // Discounts
   getDiscountsQuery: () => any;
   // updateDiscountStatusQuery: () => any;
+  getAllDiscountRoomTypeQuery: () => any;
   selectedDiscountData: any;
   setSelectedDiscountData: (data: any) => void;
   discountFormModalState: any;
   setDiscountFormModalState: (state: boolean) => void; 
   selectedDiscountsFilter: any;
   setSelectedDiscountsFilter: (data: any) => void;
-
+  selectedDiscountRoomType: any
+  setSelectedDiscountRoomType: (data: any) => void;
 }
 
 

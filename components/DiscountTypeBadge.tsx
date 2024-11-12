@@ -6,8 +6,8 @@ export default function ReservationStatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const generali18n = t("general");
   const badgeColor = {
-    percentage: "bg-orange-500",
-    flat: "bg-blue-500",
+    percentage: "bg-yellow-700",
+    flat: "bg-cyan-600",
   }[status];
   return (
     <Badge className={`${badgeColor} hover:${badgeColor}`}>

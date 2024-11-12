@@ -15,9 +15,11 @@ import {
 import { formatCurrencyJP } from "@/utils/Helpers"
 import { Switch } from "@/components/ui/switch"
 import { useMutation } from "@tanstack/react-query"
-import { toggleDiscountStatus } from "@/app/ServerAction/discounts.action"
+import { removeDiscount, toggleDiscountStatus } from "@/app/ServerAction/discounts.action"
 import { toast } from "sonner"
 import { useEffect, useRef, useState } from "react"
+import AlertConfirmDelete from "@/components/AlertConfirmDelete"
+import { de } from "date-fns/locale"
 
 export function DiscountsTable() {
 
@@ -27,16 +29,29 @@ export function DiscountsTable() {
         selectedDiscountData,
         discountFormModalState,
         setDiscountFormModalState,
+        setSelectedDiscountRoomType,
+        selectedDiscountRoomType,
+        getAllDiscountRoomTypeQuery,
+
     } = useGlobalStore()
     
     const { t } = useTranslation();
     const generalI18n = t("general");
     const discountI18n = t("Discounts");
     const { data, isLoading, refetch } = getDiscountsQuery()
+    const { data: roomsDiscount, isLoading: roomDiscountLoading, refetch: roomDiscountRefetch} = getAllDiscountRoomTypeQuery()
     const [updateLoading, setUpdateLoading] = useState(false);
-    const [test, setTest] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const toastId = "toast";
+
+    const filterRoomTypes = (id: number) => {
+        if(!roomDiscountLoading) {
+            return roomsDiscount.filter((discount: any) => discount.DiscountId === id).map((discount: any) => discount.RoomTypeId)
+        }
+
+        return []
+    }
     
     const updateDiscount = useMutation({
         mutationFn: async (values: {id: number, state: boolean}) => {
@@ -65,6 +80,33 @@ export function DiscountsTable() {
             })
             console.log(error)
             setUpdateLoading(false)
+        }
+    })
+
+    const deleteDiscountToastId = "deleteDiscountToast";
+    const deleteMutation = useMutation({
+        mutationFn: async (id: number) => {
+            toast.loading("Deleting discount...", {
+                id: deleteDiscountToastId,
+                description: null
+            })
+            const data = await removeDiscount(id);
+            if (!data.success) throw new Error();
+            return data
+        },
+        onSuccess: () => {
+            toast.success(generalI18n.success, {
+                description: "Discount deleted successfully.",
+                id: deleteDiscountToastId
+            })
+            refetch()
+        },
+        onError: (error) => {
+            toast.error("Oops!", {
+                description: "Failed to delete discount.",
+                id: deleteDiscountToastId
+            })
+            console.log(error)
         }
     })
 
@@ -140,7 +182,7 @@ export function DiscountsTable() {
                 const enabled = row.original.IsActive;
                 const usage = row.original.MaxUsage || 1;
                 const isExpired = endDate < today || startDate > today || enabled == false || usage == 0 ;
-                return <span className={`${isExpired ? "bg-red-900" : "bg-green-500"} p-1 px-2 rounded font-semibold`}> {cell.getValue()} </span>
+                return <span className={`${isExpired ? "bg-red-950" : "bg-green-500"} p-1 px-2 rounded font-semibold`}> {cell.getValue()} </span>
             },
         },
         {
@@ -315,11 +357,11 @@ export function DiscountsTable() {
                       <div className="mt-4 grid grid-cols-2 gap-y-4">
                         <div className="flex flex-col">
                                 <p className="font-bold">Starting Date</p>
-                                <p>{record.StartDate ? format(new Date(record.StartDate), "MMM dd, yyyy") : "None"}</p>
+                                <p className={record.StartDate && (new Date(record.StartDate) > new Date() ? "text-red-500" : "")}>{record.StartDate ? format(new Date(record.StartDate), "MMM dd, yyyy") : "None"}</p>
                             </div>
                             <div className="flex flex-col">
                                 <p className="font-bold">Ending Date</p>
-                                <p>{record.EndDate ? format(new Date(record.EndDate), "MMM dd, yyyy") : "None"}</p>
+                                <p className={record.EndDate && (new Date(record.EndDate) < new Date() ? "text-red-500" : "")}>{record.EndDate ? format(new Date(record.EndDate), "MMM dd, yyyy") : "None"}</p>
                             </div>
                             <div className="flex flex-col">
                                 <p className="font-bold">Minimum Stay</p>
@@ -365,14 +407,11 @@ export function DiscountsTable() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {
-
-                      }}
-                    >
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
                             setSelectedDiscountData(record);
                             setDiscountFormModalState(true);
+                            setSelectedDiscountRoomType(filterRoomTypes(record.Id))
+                            console.log(selectedDiscountRoomType)
+                            console.log(filterRoomTypes(7))
                       }}
                     >
                         <div className="flex justify-between w-full items-center">
@@ -382,6 +421,8 @@ export function DiscountsTable() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
+                        setSelectedDiscountData(record);
+                        setOpen(true);
                       }}
                       className="font-medium text-red-500"
                     >
@@ -399,6 +440,13 @@ export function DiscountsTable() {
 
     return (
         <div className="p-4">
+            <AlertConfirmDelete
+                alertMessage={"Are you sure you want to delete this discount?"}
+                openState={open}
+                onOpenChange={setOpen}
+                onConfirm={() => deleteMutation.mutate(selectedDiscountData.Id)}>
+
+            </AlertConfirmDelete>
             <DetailedDataTable
                 isLoading={isLoading}
                 title={"Discounts"}
@@ -420,3 +468,4 @@ export function DiscountsTable() {
             />
         </div>)
 }
+
