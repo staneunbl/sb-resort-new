@@ -329,3 +329,15 @@ export function emailStringConfirmBooking(config: Config, details: {reservationI
   `
 }
 
+export function convertToLocalUTC(date: Date) {
+  const localDate = new Date(date);
+  localDate.setHours(0,0,0,0)
+
+  const timezoneOffset = localDate.getTimezoneOffset();
+
+  const newDate = new Date(localDate.getTime() - (timezoneOffset * 60 * 1000));
+
+  return newDate.toISOString()
+
+}
+

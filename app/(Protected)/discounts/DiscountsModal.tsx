@@ -44,7 +44,7 @@ import SelectComponent from "@/components/SelectComponent";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "next-export-i18n";
 import { toast } from "sonner";
-import { isEmptyObj } from "@/utils/Helpers";
+import { convertToLocalUTC, isEmptyObj } from "@/utils/Helpers";
 import { addPromos, updatePromos } from "@/app/ServerAction/promos.action";
 import { DatePicker } from "@/components/ui/calendar2";
 import { useEffect, useState } from "react";
@@ -134,15 +134,14 @@ export function DiscountsModal() {
                 DiscountCode: data.discountCode,
                 DiscountType: data.discountType === "flat" ? "flat" : "percentage",
                 DiscountValue: data.discountValue,
-                StartDate: data.discountStartDate ? data.discountStartDate.toISOString().split("T")[0] : null,
-                EndDate: data.discountEndDate ? data.discountEndDate.toISOString().split("T")[0] : null,
+                StartDate: data.discountStartDate ? convertToLocalUTC(data.discountStartDate) : null,
+                EndDate: data.discountEndDate ? convertToLocalUTC(data.discountEndDate) : null,
                 MinNight: data.minimumStay || null,
                 MaxNight: data.maximumStay || null,
                 MinAmount: data.minimumTotal || null,
                 MaxAmount: data.maximumTotal || null,
                 MaxUsage: data.maxUsage || null
             }
-            console.log(obj)
             const { res } = await addDiscount(obj, data.roomTypes || []);
             if (!res) {
                 throw new Error("error");
@@ -156,7 +155,8 @@ export function DiscountsModal() {
                 duration: 2000
             });
             refetch(); 
-            setSelectedDiscountData({} as any)
+            setSelectedDiscountData({} as any);
+            form.reset();
             setDiscountFormModalState(false);
         },
         onError: () => {
@@ -212,7 +212,6 @@ export function DiscountsModal() {
     })
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log(data)
         const oldRooms = selectedDiscountRoomType;
         const newRooms = data.roomTypes;
         editMode ? editMutation.mutate(data) : addDiscountMutation.mutate(data);
@@ -239,7 +238,7 @@ export function DiscountsModal() {
                         {"Please fill up the form to add a new discount."}
                     </DialogDescription>
                 </DialogHeader>
-                <Button onClick={
+                {/* <Button onClick={
                     () => {
                         console.log(selectedDiscountData)
                         console.log(selectedDiscountRoomType)
@@ -249,7 +248,7 @@ export function DiscountsModal() {
                     }
                 }>
                     Console
-                </Button>
+                </Button> */}
                 {/* <Button onClick={
                     () => {
                         form.reset()
