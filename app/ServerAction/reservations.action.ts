@@ -62,7 +62,8 @@ export async function getReservations() {
       ...ReservationStatus(ReservationStatus:StatusName), 
       ...RoomTypes(RoomType:TypeName), 
       ...ReservationType(ReservationType:TypeName), 
-      GuestData(FirstName,LastName,Email,Contact)`,
+      GuestData(FirstName,LastName,Email,Contact),
+      Discounts(Id, DiscountName, DiscountCode, DiscountType, DiscountValue)`,
     ).eq("IsDeleted", false)
     .order("StatusId", { ascending: true })
     .order("CreatedAt", { ascending: false })
@@ -375,10 +376,11 @@ export async function addOnlineReservation(
   roomrateid: number,
   devicetypeid: number,
   country: string,
-  request: string
+  request: string,
+  discountid: number | null,
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation_1",
-    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request })
+  const { data, error } = await supabase.rpc("create_client_reservation_2",
+    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid })
 
   if (error) {
     console.log(error);
