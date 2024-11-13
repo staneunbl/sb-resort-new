@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 
-import { calculateFinalBill, calculateInitialBill, commafy, findWeekdaysInRange, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
+import { calculateFinalBill, calculateInitialBill, commafy, convertToLocalUTC, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
@@ -60,7 +60,7 @@ export default function FinalizeBillingForm() {
     mutationKey: ["FinalizeBill"],
     mutationFn: async (value: number) => {
       const res = await finalizeBill(value);
-      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date());
+      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date(convertToLocalUTCTime(new Date())));
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
@@ -226,8 +226,8 @@ export default function FinalizeBillingForm() {
                         <p className="text-black font-bold">¥{formatCurrencyJP(subtotal * 0.12)}</p>
                     </div>
                     <div className="flex justify-between">
-                        <p className="text-black/[.70] ">Discount <span className="text-black/[.50] text-sm ">({selectedBillingData.DiscountCode})</span></p>
-                        <p className="text-green-500 font-bold">- ¥{formatCurrencyJP(discount)}</p>
+                        <p className="text-black/[.70] ">Discount <span className="text-black/[.50] text-sm ">{selectedBillingData.DiscountCode && `(${selectedBillingData.DiscountCode})`}</span></p>
+                        <p className={`${selectedBillingData.Discount ? "text-green-500" : "text-black"} font-bold`}>- ¥{formatCurrencyJP(discount)}</p>
                     </div>
                     <div className="flex justify-between">
                         <p className="text-black/[.70] ">Deposit</p>

@@ -363,3 +363,14 @@ export function convertToLocalUTC(date: Date) {
 
 }
 
+export function convertToLocalUTCTime(date: Date) {
+  const localDate = new Date(date);
+
+  const timezoneOffset = localDate.getTimezoneOffset();
+
+  const newDate = new Date(localDate.getTime() - (timezoneOffset * 60 * 1000));
+
+  return newDate.toISOString()
+
+}
+

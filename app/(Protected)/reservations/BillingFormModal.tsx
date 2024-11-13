@@ -60,7 +60,7 @@ import {
   MultiSelectorList,
   MultiSelectorTrigger,
 } from "@/components/MultiSelect";
-import { calculateInitialBill, commafy, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
+import { calculateInitialBill, commafy, convertToLocalUTC, convertToLocalUTCTime, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { useTranslation } from "next-export-i18n";
 export default function BillingFormModal() {
   const { t } = useTranslation();
@@ -80,7 +80,7 @@ export default function BillingFormModal() {
     mutationKey: ["AddBilling"],
     mutationFn: async (values: any) => {
       const res = await addBillings(values);
-      const res2 = await updateCheckInTime(values.ReservationId, new Date())
+      const res2 = await updateCheckInTime(values.ReservationId, new Date(convertToLocalUTCTime(new Date())))
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
