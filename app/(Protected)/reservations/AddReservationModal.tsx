@@ -190,7 +190,8 @@ export default function AddReservationModal() {
                         roomRate.Id,
                         1,
                         values.country,
-                        values.request || ""
+                        values.request || "",
+                        null
             )
             if(!res.success) throw new Error(res.res)
             return res.res
