@@ -177,7 +177,7 @@ export default function BillingsTable() {
       enableHiding: false,
       cell: ({ row }: any) => {
         const record = row.original;
-        const isFinalized = record.BillingStatus === "Fully Paid";
+        const isFinalized = record.BillingStatus === "Fully Paid" && record.ReservationStatus === "Done";
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -38,8 +38,8 @@ export function commafy(value: number | string): string | null {
 }
 
 export function calculateInitialBill<Number>(
-  reservationDate: Date,
-  roomCount: number,
+  checkIn: Date,
+  checkOut: Date,
   weekdayRoomRate: number,
   weekendRoomRate: number,
   extraAdultCount: number,
@@ -49,17 +49,13 @@ export function calculateInitialBill<Number>(
   weekdayChildRate: number,
   weekendChildRate: number,
 ) {
-  const day = reservationDate.getDay();
-  const isWeekend = day >= 5;
-  const roomRate = isWeekend ? weekendRoomRate : weekdayRoomRate;
-  const adultRate = isWeekend ? weekendAdultRate : weekdayAdultRate;
-  const childRate = isWeekend ? weekendChildRate : weekdayChildRate;
+  console.log(checkIn, checkOut)
+  const { weekdays, weekends } = findWeekdaysInRange(checkIn, checkOut);
+  const baseRate = (weekdays * weekdayRoomRate) + (weekends * weekendRoomRate);
+  const extraAdultRate = (weekdays * extraAdultCount * weekdayAdultRate) + (weekends * extraAdultCount * weekendAdultRate);
+  const extraChildRate = (weekdays * extraChildCount * weekdayChildRate) + (weekends * extraChildCount * weekendChildRate);
 
-  return (
-    roomCount * roomRate +
-    extraAdultCount * adultRate +
-    extraChildCount * childRate
-  );
+  return baseRate + extraAdultRate + extraChildRate
 }
 
 export function calculateFinalBill(

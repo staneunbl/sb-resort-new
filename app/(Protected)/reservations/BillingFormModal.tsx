@@ -107,9 +107,10 @@ export default function BillingFormModal() {
         selectedReservationData?.RoomTypeId || 0,
       );
       if (!res.success) throw new Error();
+      console.log(selectedReservationData.CheckInDate, selectedReservationData.CheckOutDate)
       return calculateInitialBill(
-        new Date(selectedReservationData?.CreatedAt || ""),
-        selectedReservationData?.RoomCount || 1,
+        selectedReservationData.CheckInDate,
+        selectedReservationData.CheckOutDate,
         res.res[0]?.BaseRoomRate,
         res.res[0]?.WeekendRoomRate,
         selectedReservationData?.ExtraAdult || 0,

@@ -53,7 +53,7 @@ import {
   getRoomTypeRates,
 } from "../ServerAction/rooms.action";
 import parse from "html-react-parser";
-import { capitalizeFirstLetter, commafy, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber, getPercentage } from "@/utils/Helpers";
+import { capitalizeFirstLetter, commafy, convertToLocalUTCTime, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber, getPercentage } from "@/utils/Helpers";
 import { addOnlineReservation, checkReferenceNumber, checkReservation, peekLastReservation } from "../ServerAction/reservations.action";
 import { useRouter } from "next/navigation";
 import { getPromo } from "../ServerAction/promos.action";
@@ -1532,8 +1532,8 @@ function ConfirmForm({
       "",
       values.numberOfRooms,
       values.roomTypeId,
-      values.checkInDate,
-      values.checkOutDate,
+      new Date(convertToLocalUTCTime(values.checkInDate)),
+      new Date(convertToLocalUTCTime(values.checkOutDate)),
       values.extraAdult,
       values.extraChild,
       values.roomRateId,
