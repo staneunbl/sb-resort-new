@@ -1273,17 +1273,25 @@ function CustomerDetailsForm({
                         <p className="text-white/[.70]">VAT</p>
                         <p className="text-white">¥{formatCurrencyJP(initialBill * 0.12)}</p>
                     </div>
-                    <div className="flex justify-between">
-                        <p className="text-white/[.70]">Promo Code</p>
-                        <p className="text-white">{promoCode || "None"}</p>
-                    </div>
-                    <div className="flex justify-between">
-                        <p className="text-white/[.70]">Discount Code</p>
-                        <div className="flex flex-col items-end">
-                          <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill + (initialBill * 0.12)), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
-                          <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                    {
+                      promoCode && (
+                        <div className="flex justify-between">
+                            <p className="text-white/[.70]">Promo Code</p>
+                            <p className="text-white">{promoCode || "None"}</p>
                         </div>
-                    </div>
+                      )
+                    }
+                    {
+                      appliedDiscount.code && (
+                        <div className="flex justify-between">
+                            <p className="text-white/[.70]">Discount Code</p>
+                            <div className="flex flex-col items-end">
+                              <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill + (initialBill * 0.12)), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
+                              <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                            </div>
+                        </div>
+                      )
+                    }
                     <hr />
                     <div className="flex justify-between bg-cstm-primary rounded-lg p-5">
                         <p className="text-white/[.70]">TOTAL</p>
