@@ -53,7 +53,7 @@ import {
   getRoomTypeRates,
 } from "../ServerAction/rooms.action";
 import parse from "html-react-parser";
-import { capitalizeFirstLetter, commafy, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber } from "@/utils/Helpers";
+import { capitalizeFirstLetter, commafy, dateAnalysis, emailStringConfirmBooking, formatCurrencyJP, generateReferenceNumber, getPercentage } from "@/utils/Helpers";
 import { addOnlineReservation, checkReferenceNumber, checkReservation, peekLastReservation } from "../ServerAction/reservations.action";
 import { useRouter } from "next/navigation";
 import { getPromo } from "../ServerAction/promos.action";
@@ -67,6 +67,7 @@ import { countries } from "@/data/countries";
 import { useConfig } from "@/utils/ConfigProvider";
 import { SiAmericanexpress, SiMastercard, SiVisa } from "@icons-pack/react-simple-icons";
 import sendEmail from "../ServerAction/email.action";
+import { checkDiscount } from "../ServerAction/discounts.action";
 
 export default function MainBookingForm() {
   const config = useConfig()
@@ -847,7 +848,11 @@ function CustomerDetailsForm({
     setDateDetails,
     initialBill,
     setToSPrivacyModalState,
+    setAppliedDiscount,
+    appliedDiscount
   } = useBookingStore();
+
+  const [discountLoading, setDiscountLoading] = useState(false);
 
   const formSchema = z
     .object({
@@ -865,6 +870,7 @@ function CustomerDetailsForm({
         message: "Please accept the terms and conditions",
       }),
       notForBooker: z.boolean().default(false),
+      voucherCode: z.string().optional(),
     })
     .refine((data) => data.email === data.confirmEmail, {
       path: ["confirmEmail"],
@@ -888,8 +894,37 @@ function CustomerDetailsForm({
       contactNumber: contactNumber,
       termsAndCondition: false,
       notForBooker: false,
-    }
+      voucherCode: appliedDiscount.code || "",
+    },
   });
+
+  async function checkVoucher(voucherCode: string) {
+    setDiscountLoading(true);
+    setAppliedDiscount({} as any);
+    const data = await checkDiscount(voucherCode, {
+      roomTypeId: selectedRoomRate.RoomTypeId,
+      startDate: checkInRange.from,
+      endDate: checkInRange.to,
+      nights: totalDays,
+      bill: initialBill
+    })
+
+    if (data.success) {
+      setAppliedDiscount({
+        id: data.res?.Id,
+        name: data.res?.DiscountName,
+        code: data.res?.DiscountCode,
+        type: data.res?.DiscountType,
+        value: data.res?.DiscountValue
+      });
+      form.clearErrors("voucherCode");
+    }
+    if (!data.success) {
+      form.setError("voucherCode", { message: data.message });
+    }
+    console.log(data)
+    setDiscountLoading(false)
+  }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setInitialBill(initialBill);
@@ -905,6 +940,10 @@ function CustomerDetailsForm({
     setDateDetails({ totalDays });
     goNextPage();
   }
+
+  useEffect(() => {
+    console.log(appliedDiscount)
+  }, [appliedDiscount]);
 
   return (
     <div
@@ -928,7 +967,7 @@ function CustomerDetailsForm({
             <div className={cn("flex w-full flex-col", "lg:flex-row")}>
               <div
                 className={cn(
-                  "grid w-full grid-cols-4 gap-x-4 gap-y-2 border p-4",
+                  "grid w-full grid-cols-4 gap-x-4 gap-y-6 border p-4",
                   "lg:w-2/3",
                 )}
               >
@@ -1141,6 +1180,38 @@ function CustomerDetailsForm({
                     </FormItem>
                   )}
                 />
+                <div className="w-full col-span-4 my-2">
+                  <hr className="w-full"/>
+
+                </div>
+                <FormField
+                  name="voucherCode"
+                  render={({ field }) => (
+                    <FormItem className={cn("col-span-4")}>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Enter a voucher code</FormLabel>
+                        
+                      </div>
+                      <FormControl>
+                        <div className="flex gap-4">
+                          <Input {...field} className="w-3/4" disabled={discountLoading} />
+                          <Button 
+                            className="w-1/4" 
+                            type="button" 
+                            onClick={ () => { 
+                                console.log(field.value)
+                                checkVoucher(field.value)
+                              }
+                            }
+                          >
+                            {discountLoading ? <Loader2 className="animate-spin" color="currentColor" /> : "Apply"}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div
                 className={cn(
@@ -1206,18 +1277,30 @@ function CustomerDetailsForm({
                         <p className="text-white/[.70]">Promo Code</p>
                         <p className="text-white">{promoCode || "None"}</p>
                     </div>
+                    <div className="flex justify-between">
+                        <p className="text-white/[.70]">Discount Code</p>
+                        <div className="flex flex-col items-end">
+                          <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill + (initialBill * 0.12)), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
+                          <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                        </div>
+                    </div>
                     <hr />
                     <div className="flex justify-between bg-cstm-primary rounded-lg p-5">
                         <p className="text-white/[.70]">TOTAL</p>
                         <div className="flex flex-col items-end">
-                            <p className="text-white font-bold text-2xl">¥{formatCurrencyJP(initialBill + (initialBill * 0.12))}</p>
+                            <p className="text-white font-bold text-2xl">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)) - (appliedDiscount && (appliedDiscount.type === "percentage" ? ((initialBill + (initialBill * 0.12)) * appliedDiscount.value / 100) : appliedDiscount.value) || 0))}</p>
+                            {
+                              appliedDiscount.id && (
+                                <p className="text-white/[.50] font-bold text-lg line-through">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)))}</p>
+                              )
+                            }
                             <p className="text-sm italic text-white/[.70]">Including taxes and fees.</p>
                         </div>
                     </div>
-                    <div className="flex gap-4 rounded bg-white justify-center p-1">
-                        <SiMastercard color="default"></SiMastercard>
-                        <SiVisa color="default"></SiVisa>
-                        <SiAmericanexpress color="default"></SiAmericanexpress>
+                    <div className="flex gap-4 rounded justify-center p-1">
+                        <SiMastercard color="#5F7486" size={36}></SiMastercard>
+                        <SiVisa color="#5F7486" size={36}></SiVisa>
+                        <SiAmericanexpress color="#5F7486" size={36}></SiAmericanexpress>
                     </div>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -1333,6 +1416,7 @@ function ConfirmForm({
     country,
     request,
     resetStore,
+    appliedDiscount
   } = useBookingStore();
 
   const [bookingSuccess, setBookingSuccess] = useState(false)
@@ -1386,6 +1470,29 @@ function ConfirmForm({
     return age;
   }
 
+  async function sendTestEmail() {
+
+      const details = {
+        reservationId: "1",
+        bookingDate: new Date(),
+        checkIn: new Date(checkInRange.from),
+        checkOut: new Date(checkInRange.to),
+        roomType: selectedRoom.Name,
+        guestName: {
+            firstName: capitalizeFirstLetter(firstName),
+            lastName: capitalizeFirstLetter(lastName)
+        },
+        roomBill: initialBill,
+        promoCode: "",
+        promoCodeValue: "",
+        discountCode: appliedDiscount.code || "",
+        discountValue: appliedDiscount.value || 0,
+        discountType: appliedDiscount.type || "",
+      }
+
+      sendEmail("wendell.ravago@linoflaptech.com", `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     let deviceTypeId;
     const userAgent =
@@ -1424,7 +1531,8 @@ function ConfirmForm({
       values.roomRateId,
       deviceTypeId,
       capitalizeFirstLetter(values.country),
-      values.request
+      values.request,
+      appliedDiscount.id || null
     );
 
     if(success) {
@@ -1442,7 +1550,10 @@ function ConfirmForm({
         },
         roomBill: initialBill,
         promoCode: "",
-        promoCodeValue: ""
+        promoCodeValue: "",
+        discountCode: appliedDiscount.code || "",
+        discountValue: appliedDiscount.value || 0,
+        discountType: appliedDiscount.type || "",
       }
 
       sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
@@ -1566,7 +1677,12 @@ function ConfirmForm({
                     <div className="flex flex-col md:flex-row justify-between bg-cstm-primary rounded-lg p-5">
                           <p className="text-white/[.70]">TOTAL</p>
                           <div className="flex flex-col items-start md:items-end">
-                              <p className="text-white font-bold text-2xl">¥{formatCurrencyJP(initialBill + (initialBill * 0.12))}</p>
+                            <p className="text-white font-bold text-2xl">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)) - (appliedDiscount && (appliedDiscount.type === "percentage" ? ((initialBill + (initialBill * 0.12)) * appliedDiscount.value / 100) : appliedDiscount.value) || 0))}</p>
+                            {
+                              appliedDiscount.id && (
+                                <p className="text-white/[.50] font-bold text-lg line-through">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)))}</p>
+                              )
+                            }
                               <p className="text-sm italic text-white/[.70]">Including fees and taxes.</p>
                           </div>
                     </div>

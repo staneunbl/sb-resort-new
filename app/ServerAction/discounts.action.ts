@@ -216,3 +216,62 @@ export async function removeDiscount(discountId: number){
     
     return { success: true, res: data }
 }
+
+export async function checkDiscount (discountCode: string, details: {
+    roomTypeId: number,
+    startDate: Date,
+    endDate: Date,
+    nights: number,
+    bill: number,
+}) {
+    console.log(discountCode, details)
+    const { data, error } = await supabase
+        .from("Discounts")
+        .select("Id, DiscountName, DiscountCode, DiscountType, DiscountValue")
+        .eq("DiscountCode", discountCode)
+        .eq("IsActive", true)
+        .eq("IsDeleted", false)
+        .single()
+
+    if(error || !data) {
+        return { success: false, message: "Invalid or inactive discount code." , res: null }
+    }
+    
+   
+    const { data: discountRoomType, error: discountRoomTypeError } = await supabase
+        .from("DiscountRoomTypes")
+        .select("*")
+        .eq("DiscountId", data.Id)
+        .eq("RoomTypeId", details.roomTypeId)
+        .single()
+    
+    if (discountRoomTypeError || !discountRoomType) {
+        return { success: false, message: "Room type is not eligible for discount." , res: null }
+    }
+
+    if (discountRoomType.StartDate && discountRoomType.StartDate > details.startDate) {
+        return { success: false, message: "Discount is not active yet." , res: null }
+    }
+
+    if (discountRoomType.EndDate && discountRoomType.EndDate < details.endDate) {
+        return { success: false, message: "Discount has expired." , res: null }
+    }
+
+    if (discountRoomType.MinNight && discountRoomType.MinNight > details.nights) {
+        return { success: false, message: "Minimum nights not met." , res: null }
+    }
+
+    if (discountRoomType.MaxNight && discountRoomType.MaxNight < details.nights) {  
+        return { success: false, message: "Maximum nights exceeded." , res: null }
+    }
+
+    if (discountRoomType.MinAmount && discountRoomType.MinAmount > details.bill) {
+        return { success: false, message: "Minimum bill not met." , res: null }
+    }
+
+    if (discountRoomType.MaxAmount && discountRoomType.MaxAmount < details.bill) {
+        return { success: false, message: "Maximum bill exceeded." , res: null }
+    }
+
+    return {success: true, message: "Discount can be applied.", res: data}
+}

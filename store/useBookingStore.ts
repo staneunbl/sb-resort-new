@@ -90,7 +90,12 @@ export const useBookingStore = create<BookingStore>()((set) => ({
         contactNumber: "",
         dateDetails: {},
         initialBill: 0,
+        appliedDiscount: {} as any,
     })),
+
+    appliedDiscount: {} as any,
+    setAppliedDiscount: (data: any) => set((state) => ({ ...state, appliedDiscount: data }))
+
 }))
 
 interface BookingStore {
@@ -153,4 +158,7 @@ interface BookingStore {
     initialBill: number
     setInitialBill: (initialBill: number) => void
     resetStore: () => void
+
+    appliedDiscount: { id: number, name: string, code: string, type: string, value: number }
+    setAppliedDiscount: (discount: { id: number, name: string, code: string, type: string, value: number }) => void
 }
