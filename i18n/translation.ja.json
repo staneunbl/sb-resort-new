@@ -181,6 +181,7 @@
     "quantity": "数量",
     "addOnTotal": "追加料金合計",
     "promoCode": "プロモコード",
+    "discountCode": "割引コード",
     "toast": {
       "addReservation": "予約を追加しました",
       "editReservation": " 予約を編集しました",

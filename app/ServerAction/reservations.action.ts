@@ -72,7 +72,7 @@ export async function getReservations() {
     return { success: false, res: data, error: error.message };
   }
   return { success: true, res: data };
-}
+} 
 export async function getReservation(id: string) {
   const { data, error } = await supabase
     .from("Reservations")
@@ -81,7 +81,8 @@ export async function getReservation(id: string) {
       ...ReservationStatus(ReservationStatus:StatusName), 
       ...RoomTypes(RoomType:TypeName), 
       ...ReservationType(ReservationType:TypeName), 
-      GuestData(*)`)
+      GuestData(*),
+      Discounts(Id, DiscountName, DiscountCode, DiscountType, DiscountValue)`)
     .eq("IsDeleted", false)
     .eq("Id", id)
     .single();

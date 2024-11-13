@@ -234,6 +234,16 @@ export default function ReservationDetails({ id }: { id: string }) {
                   </p>
                 </div>
                 <div className="flex w-full">
+                  <p className="w-1/2 font-semibold">
+                    {reservationI18n.discountCode}
+                  </p>
+                  <p className="w-1/2">
+                    {
+                      data.DiscountId ? <span className="py-1 px-2 bg-cstm-primary text-white rounded text-sm">{data.Discounts.DiscountCode}</span> : "None"
+                    }
+                  </p>
+                </div>
+                <div className="flex w-full">
                   <h1 className="w-1/2 font-semibold">
                     {dashboardI18n.forCheckIn}
                   </h1>
