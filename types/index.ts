@@ -90,6 +90,7 @@ export interface Reservation{
     CheckOutDate: Date;
     CreatedAt: Date;
     GuestId: number | null;
+    DiscountId: number | null;
     StatusId: number;
     ExtraChild: number;
     ExtraAdult: number;
@@ -103,6 +104,13 @@ export interface Reservation{
         FirstName: string;
         LastName: string;
     } | null;
+    Discounts: {
+        Id: number;
+        DiscountName: string,
+        DiscountCode: string,
+        DiscountType: string,
+        DiscountValue: number
+    }
     Remarks: string;
 }
 

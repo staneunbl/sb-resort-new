@@ -60,7 +60,7 @@ import {
   MultiSelectorList,
   MultiSelectorTrigger,
 } from "@/components/MultiSelect";
-import { calculateInitialBill, commafy } from "@/utils/Helpers";
+import { calculateInitialBill, commafy, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { useTranslation } from "next-export-i18n";
 export default function BillingFormModal() {
   const { t } = useTranslation();
@@ -90,6 +90,7 @@ export default function BillingFormModal() {
         description: "The room has been added successfully",
       });
       refetchReservation();
+      setBillingFormModalState(false);
     },
     onError: () => {
       toast.error(generali18n.somethingWentWrong, {
@@ -154,6 +155,18 @@ export default function BillingFormModal() {
     // console.log(values);
     mutation.mutate(values);
   }
+
+  const reservationBill = (price: number) => {
+    const vat = price * 0.12;
+    const subtotal = price + vat;
+    const discountValue = selectedReservationData.DiscountId ? selectedReservationData.Discounts.DiscountType === 'percentage' ? getPercentage(subtotal, selectedReservationData.Discounts.DiscountValue) : selectedReservationData.Discounts.DiscountValue : 0;
+    
+    console.log("Price :", price)
+    console.log("VAT: " , vat)
+    console.log("Discount: ", discountValue)
+    return subtotal - discountValue
+  } 
+
   return (
     <Dialog
       open={billingFormModalState}
@@ -186,9 +199,10 @@ export default function BillingFormModal() {
                 {reservationI18n.initialBill}:{" "}
                 <span className="text-green-500">
                   {`${
-                    !isFetched
+                    
+                    !isFetched && currentRoomtypeRate
                       ? "Calculating..."
-                      : `P ${commafy(currentRoomtypeRate || 0)}`
+                      : `P ${formatCurrencyJP(reservationBill((currentRoomtypeRate || 0)))}`
                   }`}
                 </span>
               </DialogDescription>
