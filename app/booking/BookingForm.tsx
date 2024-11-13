@@ -866,6 +866,10 @@ function CustomerDetailsForm({
       confirmEmail: z.string().email({ message: "Please enter a valid email" }),
       contactNumber: z.coerce.string().regex(/^\d+$/, { message: "Number can only contain digits." }).min(6, {message: "Number must contain at least 6 numbers."}).max(11, {message: "Number must contain at most 11 numbers."}),
       request: z.string(),
+      address1: z.string(),
+      address2: z.string().optional(),
+      city: z.string().min(1, { message: "Please enter a city" }),
+      zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
       termsAndCondition: z.boolean().default(false).refine((val) => val, {
         message: "Please accept the terms and conditions",
       }),
@@ -956,418 +960,499 @@ function CustomerDetailsForm({
       )}
     >
       <ToSPrivacyModal></ToSPrivacyModal>
-      <Card className="overflow-hidden">
-        <Form {...form}>
-          <form
-            ref={formRef}
-            id="bookingForm"
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-row gap-4"
-          >
-            <div className={cn("flex w-full flex-col", "lg:flex-row")}>
-              <div
-                className={cn(
-                  "grid w-full grid-cols-4 gap-x-4 gap-y-6 border p-4",
-                  "lg:w-2/3",
-                )}
-              >
-                <FormField
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4", "sm:col-span-2")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>First Name</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
+      <Form {...form}>
+        <form
+          ref={formRef}
+          id="bookingForm"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-row gap-4 relative min-h-screen"
+        >
+          <Card className="overflow-hidden w-2/3">
+            <div className={cn("flex w-full flex-col",)}>
+              <div className="flex flex-col p-4 gap-4">
+                <p className="font-bold text-xl">Contact Information</p>
+                <div
+                  className={cn(
+                    "grid w-full grid-cols-4 gap-x-4 gap-y-6",
+                    
                   )}
-                />
-                <FormField
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4", "sm:col-span-2")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Last Name</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
+                >
+                  <FormField
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>First Name</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Last Name</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="birthDate"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Birth Date</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <DatePicker date={field.value} setDate={field.onChange} />
+                          {/* <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground",
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "PPP")
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) =>
+                                  date > new Date() ||
+                                  date < new Date("1900-01-01")
+                                }
+                                captionLayout="dropdown"
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover> */}
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  {/* <FormField
+                    name="nationality"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Nationality</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  /> */}
+                    <FormField
+                      name="contactNumber"
+                      render={({ field }) => (
+                        <FormItem className={cn("col-span-4")}>
+                          <div className="flex items-center gap-2">
+                            <FormLabel>Contact Number</FormLabel>
+                            <FormMessage className="text-xs" />
+                          </div>
+                          <FormControl>
+                            <Input {...field} type="number"/>
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Email</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="confirmEmail"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Confirm Email</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                </div>
+                <p className="font-bold text-xl">Billing Address</p>
+                <div
+                  className={cn(
+                    "grid w-full grid-cols-4 gap-x-4 gap-y-6",
+                    
                   )}
-                />
-                <FormField
-                  name="birthDate"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Birth Date</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <DatePicker date={field.value} setDate={field.onChange} />
-                        {/* <Popover>
+                >
+                  <FormField
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-4")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Country</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
-                                variant={"outline"}
+                                variant="outline"
+                                role="combobox"
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground",
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
                                 )}
                               >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                {field.value
+                                  ? countries.find(
+                                      (country) => country.name === field.value
+                                    )?.name
+                                  : "Select Country"}
+                                <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              captionLayout="dropdown"
-                              initialFocus
-                            />
+                          <PopoverContent className="w-full p-0">
+                            <Command>
+                              <CommandInput
+                                placeholder="Search country..."
+                                className="h-9"
+                              />
+                              <CommandList>
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                  {countries.map((country) => (
+                                    <CommandItem
+                                      value={country.name}
+                                      key={country.name}
+                                      onSelect={() => {
+                                        form.setValue("country", country.name)
+                                      }}
+                                    >
+                                      {country.name}
+                                      <CheckIcon
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          country.name === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
                           </PopoverContent>
-                        </Popover> */}
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                {/* <FormField
-                  name="nationality"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4", "sm:col-span-2")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Nationality</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                /> */}
-                <FormField
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4", "sm:col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Country</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              className={cn(
-                                "w-full justify-between",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value
-                                ? countries.find(
-                                    (country) => country.name === field.value
-                                  )?.name
-                                : "Select Country"}
-                              <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            <CommandInput
-                              placeholder="Search country..."
-                              className="h-9"
-                            />
-                            <CommandList>
-                              <CommandEmpty>No framework found.</CommandEmpty>
-                              <CommandGroup>
-                                {countries.map((country) => (
-                                  <CommandItem
-                                    value={country.name}
-                                    key={country.name}
-                                    onSelect={() => {
-                                      form.setValue("country", country.name)
-                                    }}
-                                  >
-                                    {country.name}
-                                    <CheckIcon
-                                      className={cn(
-                                        "ml-auto h-4 w-4",
-                                        country.name === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Email</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="confirmEmail"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Confirm Email</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="contactNumber"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Contact Number</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Input {...field} type="number"/>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="request"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4 row-span-2")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Special Request</FormLabel>
-                        <FormMessage className="text-xs" />
-                      </div>
-                      <FormControl>
-                        <Textarea {...field} className="resize-none" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <div className="w-full col-span-4 my-2">
-                  <hr className="w-full"/>
+                        </Popover>
+                      </FormItem>
+                    )}
+                  />
 
-                </div>
-                <FormField
-                  name="voucherCode"
-                  render={({ field }) => (
-                    <FormItem className={cn("col-span-4")}>
-                      <div className="flex items-center gap-2">
-                        <FormLabel>Enter a voucher code</FormLabel>
-                        
-                      </div>
-                      <FormControl>
-                        <div className="flex gap-4">
-                          <Input {...field} className="w-3/4" disabled={discountLoading} />
-                          <Button 
-                            className="w-1/4" 
-                            type="button" 
-                            onClick={ () => { 
-                                console.log(field.value)
-                                checkVoucher(field.value)
-                              }
-                            }
-                          >
-                            {discountLoading ? <Loader2 className="animate-spin" color="currentColor" /> : "Apply"}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage className="text-xs" />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div
-                className={cn(
-                  "w-full space-y-4 bg-cstm-secondary p-4",
-                  "lg:w-1/3",
-                )}
-              >
-                <h1 className="text-xl font-bold text-white">Booking Details</h1>
-                {/* <div className="grid-row-2 grid grid-cols-3 items-center gap-y-2">
-                  <h1 className="text-white font-medium">Check-In</h1>
-                  <p className="col-span-2">
-                    <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.from), "PPP")}</span>
-                  </p>
-                  <h1 className="text-white font-medium">Check-Out</h1>
-                  <p className="col-span-2">
-                    <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.to), "PPP")}</span>
-                  </p>
-                </div> */}
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2 flex-wrap">
-                        <p className="text-white ">Check In</p>
-                        <div>
-                          <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.from), "PPP")}</span>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-2 flex-wrap">
-                        <p className="text-white ">Check Out</p>
-                        <div>
-                          <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.to), "PPP")}</span>
-                        </div>
-                    </div>
-                </div>
-                <p className="text-xl mt-8 font-bold text-white">Charge Summary</p>
-                {/* <h1 className="text-xl font-bold text-white">Charge Summary</h1>
-                <div className="grid-row-4 grid grid-cols-3 items-center gap-y-2">
-                  <h1 className="font-medium">Initial Bill</h1>
-                  <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
-                    P {initialBill}
-                  </p>
-                  <h1 className="font-medium">VAT</h1>
-                  <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
-                    P {initialBill * 0.12}
-                  </p>
-                  <h1 className="font-medium">Promo Code</h1>
-                  <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
-                    {promoCode || "None"}
-                  </p>
-                  <h1 className="font-medium">Total</h1>
-                  <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
-                    P {commafy(initialBill + initialBill * 0.12)}
-                  </p>
-                </div> */}
-                <div className="flex flex-col gap-4">
-                    <div className="flex justify-between">
-                        <p className="text-white/[.70]">Initial Bill</p>
-                        <p className="text-white">¥{formatCurrencyJP(initialBill)}</p>
-                    </div>
-                    <div className="flex justify-between">
-                        <p className="text-white/[.70]">VAT</p>
-                        <p className="text-white">¥{formatCurrencyJP(initialBill * 0.12)}</p>
-                    </div>
-                    {
-                      promoCode && (
-                        <div className="flex justify-between">
-                            <p className="text-white/[.70]">Promo Code</p>
-                            <p className="text-white">{promoCode || "None"}</p>
-                        </div>
-                      )
-                    }
-                    {
-                      appliedDiscount.code && (
-                        <div className="flex justify-between">
-                            <p className="text-white/[.70]">Discount Code</p>
-                            <div className="flex flex-col items-end">
-                              <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill + (initialBill * 0.12)), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
-                              <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
-                            </div>
-                        </div>
-                      )
-                    }
-                    <hr />
-                    <div className="flex justify-between bg-cstm-primary rounded-lg p-5">
-                        <p className="text-white/[.70]">TOTAL</p>
-                        <div className="flex flex-col items-end">
-                            <p className="text-white font-bold text-2xl">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)) - (appliedDiscount && (appliedDiscount.type === "percentage" ? ((initialBill + (initialBill * 0.12)) * appliedDiscount.value / 100) : appliedDiscount.value) || 0))}</p>
-                            {
-                              appliedDiscount.id && (
-                                <p className="text-white/[.50] font-bold text-lg line-through">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)))}</p>
-                              )
-                            }
-                            <p className="text-sm italic text-white/[.70]">Including taxes and fees.</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-4 rounded justify-center p-1">
-                        <SiMastercard color="#5F7486" size={36}></SiMastercard>
-                        <SiVisa color="#5F7486" size={36}></SiVisa>
-                        <SiAmericanexpress color="#5F7486" size={36}></SiAmericanexpress>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-2">
                   <FormField
-                    name="termsAndCondition"
+                    name="address1"
                     render={({ field }) => (
-                      <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>Address 1</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
                         <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="data-[state=checked]:bg-cstm-primary border-cstm-primary w-5 h-5 text-xs"
-                          />
+                          <Input {...field} />
                         </FormControl>
-                        <FormLabel className="m-0 text-xs text-white">
-                          <FormMessage></FormMessage>
-                          I have read and agreed to (name of hotel)'s{"  "}
-                          <Button
-                            type="button"
-                            className="m-0 h-max p-0 text-cstm-primary"
-                            variant="link"
-                            onClick={() => {
-                              setToSPrivacyModalState(true);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                setToSPrivacyModalState(true);
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="address2"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>Address 2</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>City</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>Postal / ZIP Code</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    name="request"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4 row-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Special Request</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Textarea {...field} className="resize-none" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <div className="w-full col-span-4 my-2">
+                    <hr className="w-full"/>
+
+                  </div>
+                  <FormField
+                    name="voucherCode"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Enter a voucher code</FormLabel>
+                          
+                        </div>
+                        <FormControl>
+                          <div className="flex gap-4">
+                            <Input {...field} className="w-3/4" disabled={discountLoading} />
+                            <Button 
+                              className="w-1/4" 
+                              type="button" 
+                              onClick={ () => { 
+                                  console.log(field.value)
+                                  checkVoucher(field.value)
+                                }
                               }
-                            }}
-                          >
-                            Terms of Service
-                          </Button>
-                          {"  "}and{"  "}
-                          <Button
-                            type="button"
-                            className="m-0 h-max p-0 text-cstm-primary"
-                            variant="link"
-                            onClick={() => {
-                              setToSPrivacyModalState(true);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                setToSPrivacyModalState(true);
-                              }
-                            }}
-                          >
-                            Privacy Policy.
-                          </Button>
-                           
-                        </FormLabel>
+                            >
+                              {discountLoading ? <Loader2 className="animate-spin" color="currentColor" /> : "Apply"}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
                 </div>
+                    
+
               </div>
             </div>
-          </form>
-        </Form>
-      </Card>
+          </Card>
+          <div className="w-full lg:w-1/3">
+            <div className="sticky">
+              <Card className="">
+                  <div
+                    className={cn(
+                      "w-full space-y-4 bg-cstm-secondary p-4 rounded-md"
+                    )}
+                  >
+                    <h1 className="text-xl font-bold text-white">Booking Details</h1>
+                    {/* <div className="grid-row-2 grid grid-cols-3 items-center gap-y-2">
+                      <h1 className="text-white font-medium">Check-In</h1>
+                      <p className="col-span-2">
+                        <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.from), "PPP")}</span>
+                      </p>
+                      <h1 className="text-white font-medium">Check-Out</h1>
+                      <p className="col-span-2">
+                        <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.to), "PPP")}</span>
+                      </p>
+                    </div> */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-2 flex-wrap">
+                            <p className="text-white ">Check In</p>
+                            <div>
+                              <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.from), "PPP")}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2 flex-wrap">
+                            <p className="text-white ">Check Out</p>
+                            <div>
+                              <span className="bg-cstm-primary rounded-lg p-1 px-4 text-white">{format(new Date(checkInRange.to), "PPP")}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-xl mt-8 font-bold text-white">Charge Summary</p>
+                    {/* <h1 className="text-xl font-bold text-white">Charge Summary</h1>
+                    <div className="grid-row-4 grid grid-cols-3 items-center gap-y-2">
+                      <h1 className="font-medium">Initial Bill</h1>
+                      <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
+                        P {initialBill}
+                      </p>
+                      <h1 className="font-medium">VAT</h1>
+                      <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
+                        P {initialBill * 0.12}
+                      </p>
+                      <h1 className="font-medium">Promo Code</h1>
+                      <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
+                        {promoCode || "None"}
+                      </p>
+                      <h1 className="font-medium">Total</h1>
+                      <p className="col-span-2 bg-cstm-secondary p-1 px-4 text-white">
+                        P {commafy(initialBill + initialBill * 0.12)}
+                      </p>
+                    </div> */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex justify-between">
+                            <p className="text-white/[.70]">Initial Bill</p>
+                            <p className="text-white">¥{formatCurrencyJP(initialBill)}</p>
+                        </div>
+                        <div className="flex justify-between">
+                            <p className="text-white/[.70]">VAT</p>
+                            <p className="text-white">¥{formatCurrencyJP(initialBill * 0.12)}</p>
+                        </div>
+                        {
+                          promoCode && (
+                            <div className="flex justify-between">
+                                <p className="text-white/[.70]">Promo Code</p>
+                                <p className="text-white">{promoCode || "None"}</p>
+                            </div>
+                          )
+                        }
+                        {
+                          appliedDiscount.code && (
+                            <div className="flex justify-between">
+                                <p className="text-white/[.70]">Discount Code</p>
+                                <div className="flex flex-col items-end">
+                                  <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill + (initialBill * 0.12)), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
+                                  <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                                </div>
+                            </div>
+                          )
+                        }
+                        <hr />
+                        <div className="flex justify-between bg-cstm-primary rounded-lg p-5">
+                            <p className="text-white/[.70]">TOTAL</p>
+                            <div className="flex flex-col items-end">
+                                <p className="text-white font-bold text-2xl">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)) - (appliedDiscount && (appliedDiscount.type === "percentage" ? ((initialBill + (initialBill * 0.12)) * appliedDiscount.value / 100) : appliedDiscount.value) || 0))}</p>
+                                {
+                                  appliedDiscount.id && (
+                                    <p className="text-white/[.50] font-bold text-lg line-through">¥{formatCurrencyJP((initialBill + (initialBill * 0.12)))}</p>
+                                  )
+                                }
+                                <p className="text-sm italic text-white/[.70]">Including taxes and fees.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 rounded justify-center p-1">
+                            <SiMastercard color="#5F7486" size={36}></SiMastercard>
+                            <SiVisa color="#5F7486" size={36}></SiVisa>
+                            <SiAmericanexpress color="#5F7486" size={36}></SiAmericanexpress>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        name="termsAndCondition"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-2 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                className="data-[state=checked]:bg-cstm-primary border-cstm-primary w-5 h-5 text-xs"
+                              />
+                            </FormControl>
+                            <FormLabel className="m-0 text-xs text-white">
+                              <FormMessage></FormMessage>
+                              I have read and agreed to (name of hotel)'s{"  "}
+                              <Button
+                                type="button"
+                                className="m-0 h-max p-0 text-cstm-primary"
+                                variant="link"
+                                onClick={() => {
+                                  setToSPrivacyModalState(true);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    setToSPrivacyModalState(true);
+                                  }
+                                }}
+                              >
+                                Terms of Service
+                              </Button>
+                              {"  "}and{"  "}
+                              <Button
+                                type="button"
+                                className="m-0 h-max p-0 text-cstm-primary"
+                                variant="link"
+                                onClick={() => {
+                                  setToSPrivacyModalState(true);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    setToSPrivacyModalState(true);
+                                  }
+                                }}
+                              >
+                                Privacy Policy.
+                              </Button>
+                              
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+              </Card>
+            </div>
+          </div>
+        </form>
+      </Form>
+      
       <div className={cn("mt-4 flex justify-center gap-4", "")}>
         <Button
           disabled={pageState === 0}
