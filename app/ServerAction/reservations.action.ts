@@ -379,9 +379,13 @@ export async function addOnlineReservation(
   country: string,
   request: string,
   discountid: number | null,
+  address1: string,
+  address2: string | null,
+  city: string,
+  zipcode: string
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation_2",
-    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid })
+  const { data, error } = await supabase.rpc("create_client_reservation_3",
+    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid, address1, address2, city, zipcode });
 
   if (error) {
     console.log(error);

@@ -836,6 +836,10 @@ function CustomerDetailsForm({
     setContactNumber,
     setCountry,
     setRequest,
+    setAddress1,
+    setAddress2,
+    setCity,
+    setZipCode,
     firstName,
     lastName,
     birthDate,
@@ -941,6 +945,10 @@ function CustomerDetailsForm({
     setContactNumber(values.contactNumber);
     setCountry(values.country);
     setRequest(values.request);
+    setAddress1(values.address1);
+    setAddress2(values.address2 || "");
+    setCity(values.city);
+    setZipCode(values.zipCode);
     setDateDetails({ totalDays });
     goNextPage();
   }
@@ -1508,6 +1516,10 @@ function ConfirmForm({
     referenceNumber,
     country,
     request,
+    address1,
+    address2,
+    city,
+    zipCode,
     resetStore,
     appliedDiscount
   } = useBookingStore();
@@ -1530,6 +1542,10 @@ function ConfirmForm({
     roomRateId: z.number(),
     country: z.string(),
     request: z.string(),
+    address1: z.string(),
+    address2: z.string().nullable(),
+    city: z.string(),
+    zipCode: z.string(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -1549,7 +1565,11 @@ function ConfirmForm({
       contactNumber,
       roomRateId: selectedRoomRate.RoomRateID,
       country,
-      request
+      request,
+      address1,
+      address2,
+      city,
+      zipCode
     },
   });
 
@@ -1625,7 +1645,11 @@ function ConfirmForm({
       deviceTypeId,
       capitalizeFirstLetter(values.country),
       values.request,
-      appliedDiscount.id || null
+      appliedDiscount.id || null,
+      values.address1,
+      values.address2,
+      values.city,
+      values.zipCode
     );
 
     if(success) {

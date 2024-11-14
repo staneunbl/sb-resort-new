@@ -125,26 +125,26 @@ export default function ReservationDetails({ id }: { id: string }) {
     guestDetailsMutation.mutate(values)
   }
 
-  const { data: currentRoomtypeRate, isFetched } = useQuery({
-    queryKey: ["RoomTypePrice", data?.RoomTypeId || 0],
-    enabled: data ? true : false,
-    queryFn: async () => {
-      const res = await getCurrentRoomTypesRate(data?.RoomTypeId || 0);
-      if (!res.success) throw new Error();
-      return calculateInitialBill(
-        new Date(data?.CreatedAt || ""),
-        data?.RoomCount || 1,
-        res.res[0]?.BaseRoomRate,
-        res.res[0]?.WeekendRoomRate,
-        data?.ExtraAdult || 0,
-        res.res[0]?.ExtraAdultRate,
-        res.res[0]?.WeekendExtraAdultRate,
-        data?.ExtraChild || 0,
-        res.res[0]?.ExtraChildRate,
-        res.res[0]?.WeekendExtraChildRate,
-      );
-    },
-  });
+  // const { data: currentRoomtypeRate, isFetched } = useQuery({
+  //   queryKey: ["RoomTypePrice", data?.RoomTypeId || 0],
+  //   enabled: data ? true : false,
+  //   queryFn: async () => {
+  //     const res = await getCurrentRoomTypesRate(data?.RoomTypeId || 0);
+  //     if (!res.success) throw new Error();
+  //     return calculateInitialBill(
+  //       data?.,
+  //       data?.RoomCount || 1,
+  //       res.res[0]?.BaseRoomRate,
+  //       res.res[0]?.WeekendRoomRate,
+  //       data?.ExtraAdult || 0,
+  //       res.res[0]?.ExtraAdultRate,
+  //       res.res[0]?.WeekendExtraAdultRate,
+  //       data?.ExtraChild || 0,
+  //       res.res[0]?.ExtraChildRate,
+  //       res.res[0]?.WeekendExtraChildRate,
+  //     );
+  //   },
+  // });
 
   // Edit Remarks
 
