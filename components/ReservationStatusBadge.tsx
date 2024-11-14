@@ -5,7 +5,7 @@ export default function ReservationStatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const generali18n = t("general");
   const badgeColor = {
-    Pending: "bg-gray-500",
+    Pending: "bg-yellow-500",
     "Checked-In": "bg-green-500",
     Done: "bg-blue-500",
     Cancelled: "bg-red-500",
