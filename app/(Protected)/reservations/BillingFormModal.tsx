@@ -60,7 +60,7 @@ import {
   MultiSelectorList,
   MultiSelectorTrigger,
 } from "@/components/MultiSelect";
-import { calculateInitialBill, commafy } from "@/utils/Helpers";
+import { calculateInitialBill, commafy, convertToLocalUTC, convertToLocalUTCTime, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { useTranslation } from "next-export-i18n";
 export default function BillingFormModal() {
   const { t } = useTranslation();
@@ -80,7 +80,7 @@ export default function BillingFormModal() {
     mutationKey: ["AddBilling"],
     mutationFn: async (values: any) => {
       const res = await addBillings(values);
-      const res2 = await updateCheckInTime(values.ReservationId, new Date())
+      const res2 = await updateCheckInTime(values.ReservationId, new Date(convertToLocalUTCTime(new Date())))
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
@@ -90,6 +90,7 @@ export default function BillingFormModal() {
         description: "The room has been added successfully",
       });
       refetchReservation();
+      setBillingFormModalState(false);
     },
     onError: () => {
       toast.error(generali18n.somethingWentWrong, {
@@ -106,9 +107,10 @@ export default function BillingFormModal() {
         selectedReservationData?.RoomTypeId || 0,
       );
       if (!res.success) throw new Error();
+      console.log(selectedReservationData.CheckInDate, selectedReservationData.CheckOutDate)
       return calculateInitialBill(
-        new Date(selectedReservationData?.CreatedAt || ""),
-        selectedReservationData?.RoomCount || 1,
+        selectedReservationData.CheckInDate,
+        selectedReservationData.CheckOutDate,
         res.res[0]?.BaseRoomRate,
         res.res[0]?.WeekendRoomRate,
         selectedReservationData?.ExtraAdult || 0,
@@ -154,6 +156,18 @@ export default function BillingFormModal() {
     // console.log(values);
     mutation.mutate(values);
   }
+
+  const reservationBill = (price: number) => {
+    const vat = price * 0.12;
+    const subtotal = price + vat;
+    const discountValue = selectedReservationData.DiscountId ? selectedReservationData.Discounts.DiscountType === 'percentage' ? getPercentage(subtotal, selectedReservationData.Discounts.DiscountValue) : selectedReservationData.Discounts.DiscountValue : 0;
+    
+    console.log("Price :", price)
+    console.log("VAT: " , vat)
+    console.log("Discount: ", discountValue)
+    return subtotal - discountValue
+  } 
+
   return (
     <Dialog
       open={billingFormModalState}
@@ -186,9 +200,10 @@ export default function BillingFormModal() {
                 {reservationI18n.initialBill}:{" "}
                 <span className="text-green-500">
                   {`${
-                    !isFetched
+                    
+                    !isFetched && currentRoomtypeRate
                       ? "Calculating..."
-                      : `P ${commafy(currentRoomtypeRate || 0)}`
+                      : `P ${formatCurrencyJP(reservationBill((currentRoomtypeRate || 0)))}`
                   }`}
                 </span>
               </DialogDescription>

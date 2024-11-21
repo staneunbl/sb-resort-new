@@ -22,7 +22,7 @@ export async function dashboardCheckOut() {
 }
 export async function monthlySales() {
   const { data, error } = await supabase
-    .from("MonthlyTotalSales")
+    .from("monthlytotalsales1")
     .select();
 
   if (error) {

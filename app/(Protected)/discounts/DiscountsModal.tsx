@@ -28,7 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { addWeeks, format } from "date-fns";
+import { addWeeks, format, set } from "date-fns";
 import { cn } from "@/lib/utils";
 
 import { CalendarIcon } from "lucide-react";
@@ -44,33 +44,53 @@ import SelectComponent from "@/components/SelectComponent";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "next-export-i18n";
 import { toast } from "sonner";
-import { isEmptyObj } from "@/utils/Helpers";
+import { convertToLocalUTC, isEmptyObj } from "@/utils/Helpers";
 import { addPromos, updatePromos } from "@/app/ServerAction/promos.action";
 import { DatePicker } from "@/components/ui/calendar2";
-import { useEffect } from "react";
-import { addDiscount } from "@/app/ServerAction/discounts.action";
+import { useEffect, useState } from "react";
+import { addDiscount, updateDiscount } from "@/app/ServerAction/discounts.action";
+import { createDropdownMenuScope } from "@radix-ui/react-dropdown-menu";
 export function DiscountsModal() {
 
-    const { discountFormModalState, setDiscountFormModalState, selectedDiscountData, roomTypeOptionsQuery, getDiscountsQuery } = useGlobalStore();
+    const { 
+        discountFormModalState, 
+        setDiscountFormModalState, 
+        selectedDiscountData, 
+        roomTypeOptionsQuery, 
+        getDiscountsQuery, 
+        setSelectedDiscountData, 
+        selectedDiscountRoomType, 
+        setSelectedDiscountRoomType } = useGlobalStore();
 
-    const isEditMode = isEmptyObj(selectedDiscountData) ? false : true;
+
+    useEffect(() => {
+        console.log(selectedDiscountData)
+        console.log(form.getValues())
+    }, [])
+
     const { data: RoomTypeOption } = roomTypeOptionsQuery();
+    const [editMode, setEditMode] = useState(false);
     const { refetch } = getDiscountsQuery();
     const formSchema = z.object({
         discountName: z.string().min(1, {message: "Please enter a discount name."}),
         discountCode: z.string().min(1, {message: "Please enter a discount code."}),
         discountType: z.string().min(1, {message: "Please select a discount type."}),
         discountValue: z.coerce.number().min(1, {message: "Please enter a discount value."}),
-        discountStartDate: z.date().optional(),
-        discountEndDate: z.date().optional(),
-        minimumStay: z.number().optional(),
-        maximumStay: z.number().optional(),
-        minimumTotal: z.number().optional(),
-        maximumTotal: z.number().optional(),
-        maxUsage: z.number().optional(),
+        discountStartDate: z.date().nullable(),
+        discountEndDate: z.date().nullable(),
+        minimumStay: z.coerce.number().optional(),
+        maximumStay: z.coerce.number().optional(),
+        minimumTotal: z.coerce.number().optional(),
+        maximumTotal: z.coerce.number().optional(),
+        maxUsage: z.coerce.number().optional(),
         roomTypes: z.array(z.number()).optional(),
-        enabled: z.boolean().optional(),
     })
+
+    useEffect(() => {
+        console.log(selectedDiscountData)
+        selectedDiscountData.Id ? setEditMode(true) : setEditMode(false);
+        console.log(editMode)
+    }, [selectedDiscountData])
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -78,51 +98,50 @@ export function DiscountsModal() {
             discountName: "",
             discountCode: "",
             discountType: "",
-            discountValue: undefined,
-            discountStartDate: undefined,
-            discountEndDate: undefined,
-            minimumStay: undefined,
-            maximumStay: undefined,
-            minimumTotal: undefined,
-            maximumTotal: undefined,
-            maxUsage: undefined,
-            roomTypes: undefined,
-            enabled: undefined
+            discountValue: 0,
+            discountStartDate: null,
+            discountEndDate: null,
+            minimumStay: 0,
+            maximumStay: 30,
+            minimumTotal: 0,
+            maximumTotal: 99000,
+            maxUsage: 99,
+            roomTypes: [],
         },
         values: {
-            discountName: selectedDiscountData ? selectedDiscountData.discountName : "",
-            discountCode: selectedDiscountData ? selectedDiscountData.discountCode : "",
-            discountType: selectedDiscountData ? selectedDiscountData.discountType : "",
-            discountValue: selectedDiscountData ? selectedDiscountData.discountValue : undefined,
-            discountStartDate: selectedDiscountData ? selectedDiscountData.discountStartDate : undefined,
-            discountEndDate: selectedDiscountData ? selectedDiscountData.discountEndDate : undefined,
-            minimumStay: selectedDiscountData ? selectedDiscountData.minimumStay : undefined,
-            maximumStay: selectedDiscountData ? selectedDiscountData.maximumStay : undefined,            
-            minimumTotal: selectedDiscountData ? selectedDiscountData.minimumTotal : undefined,
-            maximumTotal: selectedDiscountData ? selectedDiscountData.maximumTotal : undefined,
-            maxUsage: selectedDiscountData ? selectedDiscountData.maxUsage : undefined,
-            roomTypes: selectedDiscountData ? selectedDiscountData.roomTypes : undefined,
-            enabled: selectedDiscountData ? selectedDiscountData.enabled : undefined
+            discountName: selectedDiscountData && selectedDiscountData.DiscountName ? selectedDiscountData.DiscountName : "",
+            discountCode: selectedDiscountData && selectedDiscountData.DiscountCode ? selectedDiscountData.DiscountCode : "",
+            discountType: selectedDiscountData && selectedDiscountData.DiscountType ? selectedDiscountData.DiscountType : "",
+            discountValue: selectedDiscountData && selectedDiscountData.DiscountValue ? selectedDiscountData.DiscountValue : 0,
+            discountStartDate: selectedDiscountData && selectedDiscountData.StartDate ? new Date(selectedDiscountData.StartDate) : null,
+            discountEndDate: selectedDiscountData && selectedDiscountData.EndDate ? new Date(selectedDiscountData.EndDate) : null,
+            minimumStay: selectedDiscountData && selectedDiscountData.MinNight ? selectedDiscountData.MinNight : null,
+            maximumStay: selectedDiscountData  && selectedDiscountData.MaxNight? selectedDiscountData.MaxNight : null,            
+            minimumTotal: selectedDiscountData && selectedDiscountData.MinAmount ? selectedDiscountData.MinAmount: null,
+            maximumTotal: selectedDiscountData && selectedDiscountData.MaxAmount ? selectedDiscountData.MaxAmount : null,
+            maxUsage: selectedDiscountData && selectedDiscountData.MaxUsage ? selectedDiscountData.MaxUsage : null,
+            roomTypes: selectedDiscountRoomType ? selectedDiscountRoomType : [],
         }
     })
 
+    const addDiscountToastId = "addDiscountStatus";
     const addDiscountMutation = useMutation({
+
         mutationFn: async (data: z.infer<typeof formSchema>) => {
+            toast.loading("Adding discount...", { id: addDiscountToastId, description: null });
             const obj = {
                 DiscountName: data.discountName,
                 DiscountCode: data.discountCode,
                 DiscountType: data.discountType === "flat" ? "flat" : "percentage",
                 DiscountValue: data.discountValue,
-                StartDate: data.discountStartDate || null,
-                EndDate: data.discountEndDate || null,
-                IsActive: data.enabled || false ,
-                MinNight: data.minimumStay || 0,
-                MaxNight: data.maximumStay || 0,
-                MinAmount: data.minimumTotal || 0,
-                MaxAmount: data.maximumTotal || 0,
-                MaxUsage: data.maxUsage || 0
+                StartDate: data.discountStartDate ? convertToLocalUTC(data.discountStartDate) : null,
+                EndDate: data.discountEndDate ? convertToLocalUTC(data.discountEndDate) : null,
+                MinNight: data.minimumStay || null,
+                MaxNight: data.maximumStay || null,
+                MinAmount: data.minimumTotal || null,
+                MaxAmount: data.maximumTotal || null,
+                MaxUsage: data.maxUsage || null
             }
-            console.log(obj)
             const { res } = await addDiscount(obj, data.roomTypes || []);
             if (!res) {
                 throw new Error("error");
@@ -130,47 +149,72 @@ export function DiscountsModal() {
             return res
         },
         onSuccess: () => {
-            toast.success("Discount added successfully.");
-            refetch();
+            toast.success("Success", {
+                description: "Discount added successfully.",
+                id: addDiscountToastId,
+                duration: 2000
+            });
+            refetch(); 
+            setSelectedDiscountData({} as any);
+            form.reset();
             setDiscountFormModalState(false);
         },
         onError: () => {
-            toast.error("Discount could not be added.");
+            toast.error("Oops!", {
+                description: "Discount could not be added. Try again later.",
+                id: addDiscountToastId,
+                duration: 2000
+            });
         }
     })
 
+    const editDiscountToastId = "editDiscountStatus";
     const editMutation = useMutation({
         mutationFn: async (data: z.infer<typeof formSchema>) => {
+            toast.loading("Updating discount...", { id: editDiscountToastId, description: null });
             const obj = {
-                Id: selectedDiscountData?.Id,
-                DiscountName: data.discountName,
-                DiscountCode: data.discountCode,
-                DiscountType: data.discountType,
-                DiscountValue: data.discountValue,
-                StartDate: data.discountStartDate || null,
-                EndDate: data.discountEndDate || null,
-                IsActive: data.enabled,
-                MinNight: data.minimumStay || 0,
-                MaxNight: data.maximumStay || 0,
-                MinAmount: data.minimumTotal || 0,
-                MaxAmount: data.maximumTotal || 0,
-                MaxUsage: data.maxUsage || 0
+                id: selectedDiscountData?.Id,
+                discountName: data.discountName,
+                discountCode: data.discountCode,
+                discountType: data.discountType,
+                discountValue: data.discountValue,
+                startDate: data.discountStartDate || null,
+                endDate: data.discountEndDate || null,
+                minNight: data.minimumStay || null,
+                maxNight: data.maximumStay || null,
+                minAmount: data.minimumTotal || null,
+                maxAmount: data.maximumTotal || null,
+                maxUsage: data.maxUsage || null
             }
-            return await updatePromos(obj);
+            const rooms = {
+                old: selectedDiscountRoomType || [],
+                new: data.roomTypes || []
+            }
+            return await updateDiscount(obj, rooms);
         },
         onSuccess: () => {
-            toast.success("Discount updated successfully.");
+            toast.success("Success", {
+                description: "Discount updated successfully.",
+                id: editDiscountToastId,
+                duration: 2000
+            });
             refetch();
             setDiscountFormModalState(false);
         },
         onError: () => {
-            toast.error("Discount could not be added.");
+            
+            toast.error("Oops!", {
+                description: "Discount could not be updated. Try again later.",
+                id: editDiscountToastId,
+                duration: 2000
+            });
         }
     })
 
     const onSubmit = (data: z.infer<typeof formSchema>) => {
-        console.log(data)
-        addDiscountMutation.mutate(data);
+        const oldRooms = selectedDiscountRoomType;
+        const newRooms = data.roomTypes;
+        editMode ? editMutation.mutate(data) : addDiscountMutation.mutate(data);
     }
 
     useEffect(() => {
@@ -181,17 +225,37 @@ export function DiscountsModal() {
         <Dialog
             open={discountFormModalState}
             onOpenChange={(open) => {
+                form.reset();
+                setSelectedDiscountData({} as any);
                 setDiscountFormModalState(open);
+                setSelectedDiscountRoomType([]);
             }}
         >
             <DialogContent className="sm:max-w-[800px] max-h-[1200px]">
                 <DialogHeader>
-                    <DialogTitle>{"Add Discount"}</DialogTitle>
+                    <DialogTitle>{editMode ? "Edit Discount" :"Add Discount"}</DialogTitle>
                     <DialogDescription>
                         {"Please fill up the form to add a new discount."}
                     </DialogDescription>
                 </DialogHeader>
-                
+                {/* <Button onClick={
+                    () => {
+                        console.log(selectedDiscountData)
+                        console.log(selectedDiscountRoomType)
+                        console.log(form.getValues())
+                        console.log(form.getValues("discountStartDate")?.toISOString())
+                        console.log(form.getValues("discountStartDate")?.toUTCString())
+                    }
+                }>
+                    Console
+                </Button> */}
+                {/* <Button onClick={
+                    () => {
+                        form.reset()
+                    }
+                }>
+                    Reset
+                </Button> */}
                 <div>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -296,7 +360,7 @@ export function DiscountsModal() {
                                                         <FormItem className="w-1/2">
                                                             <FormLabel>Start Date</FormLabel>
                                                             <FormControl>
-                                                                <DatePicker date={field.value} setDate={field.onChange} />
+                                                                <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
                                                                 Date when the discount becomes available.
@@ -312,7 +376,7 @@ export function DiscountsModal() {
                                                         <FormItem className="w-1/2">
                                                             <FormLabel>End Date</FormLabel>
                                                             <FormControl>
-                                                                <DatePicker date={field.value} setDate={field.onChange} />
+                                                                <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
                                                                 Date when the discount expires.
@@ -489,11 +553,22 @@ export function DiscountsModal() {
                                 </div>
                             </div>
                             <div className="mt-4 pt-4 border-t flex gap-4 justify-end">
-                                <Button variant="outline">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    onClick={() => {
+                                            setDiscountFormModalState(false);
+                                            setSelectedDiscountData({});
+                                            form.reset();
+                                            console.log(selectedDiscountData)
+                                            console.log(form)
+                                        }
+                                    }
+                                >
                                     Cancel
                                 </Button>
-                                <Button>
-                                    Add Discount
+                                <Button type="submit">
+                                    {editMode ? "Edit Discount" : "Add Discount"}
                                 </Button>
                             </div>
                         </form>

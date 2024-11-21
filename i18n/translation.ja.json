@@ -181,6 +181,7 @@
     "quantity": "数量",
     "addOnTotal": "追加料金合計",
     "promoCode": "プロモコード",
+    "discountCode": "割引コード",
     "toast": {
       "addReservation": "予約を追加しました",
       "editReservation": " 予約を編集しました",
@@ -205,7 +206,10 @@
     "discountValue": "割引値",
     "isActive": "有効",
     "startDate": "開始日",
-    "endDate": "終了日" 
+    "endDate": "終了日",
+    "discountStatus": "割引ステータス",
+    "discountUpdateSuccess": "割引を更新しました",
+    "discountUpdateFailed": "割引更新に失敗しました" 
   },
   "LoginPage": {
     "title": "ログイン",

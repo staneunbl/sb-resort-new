@@ -106,9 +106,13 @@ export default function Header({
       url: "/promos",
     },
     {
+      name: "Discounts",
+      url: "/discounts",
+    },
+    {
       name: "Settings",
       url: "/settings"
-    }
+    },
   ];
   return (
     <div className="h-1/12 w-full bg-cstm-secondary">

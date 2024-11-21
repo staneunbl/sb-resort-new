@@ -56,6 +56,11 @@ export const useBookingStore = create<BookingStore>()((set) => ({
     contactNumber: "",
     country: "",
     request: "",
+    address1: "",
+    address2: "",
+    city: "",
+    zipCode: "",
+
 
     setFirstName: (firstName: string) => set((state) => ({ ...state, firstName })),
     setLastName: (lastName: string) => set((state) => ({ ...state, lastName })),
@@ -65,6 +70,10 @@ export const useBookingStore = create<BookingStore>()((set) => ({
     setContactNumber: (contactNumber: string) => set((state) => ({ ...state, contactNumber })),
     setCountry: (country: string) => set((state) => ({ ...state, country })),
     setRequest: (request: string) => set((state) => ({ ...state, request })),
+    setAddress1: (address1: string) => set((state) => ({ ...state, address1 })),
+    setAddress2: (address2: string) => set((state) => ({ ...state, address2 })),
+    setCity: (city: string) => set((state) => ({ ...state, city })),
+    setZipCode: (zipCode: string) => set((state) => ({ ...state, zipCode })),
     dateDetails: {
 
     },
@@ -90,7 +99,12 @@ export const useBookingStore = create<BookingStore>()((set) => ({
         contactNumber: "",
         dateDetails: {},
         initialBill: 0,
+        appliedDiscount: {} as any,
     })),
+
+    appliedDiscount: {} as any,
+    setAppliedDiscount: (data: any) => set((state) => ({ ...state, appliedDiscount: data }))
+
 }))
 
 interface BookingStore {
@@ -141,6 +155,15 @@ interface BookingStore {
     setCountry: (country: string) => void
     request: string
     setRequest: (request: string) => void
+    
+    address1: string
+    setAddress1: (address1: string) => void
+    address2: string
+    setAddress2: (address2: string) => void
+    city: string,
+    setCity: (city: string) => void
+    zipCode: string
+    setZipCode: (zipCode: string) => void
 
     lightboxModalState: boolean
     setLightboxModalState: (isOpen: boolean) => void
@@ -153,4 +176,7 @@ interface BookingStore {
     initialBill: number
     setInitialBill: (initialBill: number) => void
     resetStore: () => void
+
+    appliedDiscount: { id: number, name: string, code: string, type: string, value: number }
+    setAppliedDiscount: (discount: { id: number, name: string, code: string, type: string, value: number }) => void
 }

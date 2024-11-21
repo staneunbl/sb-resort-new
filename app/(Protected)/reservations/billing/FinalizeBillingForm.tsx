@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 
-import { calculateFinalBill, calculateInitialBill, commafy, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
+import { calculateFinalBill, calculateInitialBill, commafy, convertToLocalUTC, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { finalizeBill, updateCheckOutTime } from "@/app/ServerAction/reservations.action";
 import { toast } from "sonner";
 import { FormProvider } from "react-hook-form";
@@ -46,6 +46,10 @@ export default function FinalizeBillingForm() {
     selectedBillingData.TotalPerAddOn
   )
 
+  const vat = subtotal * 0.12;
+
+  const discount = selectedBillingData.DiscountValue ? selectedBillingData.DiscountType === "percentage" ? getPercentage(subtotal + vat, selectedBillingData.DiscountValue) : selectedBillingData.DiscountValue : 0;
+
   const { refetch } = reservationSummaryQuery()
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export default function FinalizeBillingForm() {
     mutationKey: ["FinalizeBill"],
     mutationFn: async (value: number) => {
       const res = await finalizeBill(value);
-      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date());
+      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date(convertToLocalUTCTime(new Date())));
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
@@ -218,12 +222,16 @@ export default function FinalizeBillingForm() {
                         <p className="text-black font-bold">¥{formatCurrencyJP(subtotal)}</p>
                     </div>
                     <div className="flex justify-between">
-                        <p className="text-black/[.70] ">Deposit</p>
-                        <p className="text-black font-bold">- ¥{formatCurrencyJP(selectedBillingData.Deposit)}</p>
-                    </div>
-                    <div className="flex justify-between">
                         <p className="text-black/[.70] ">VAT <span className="text-black/[.50] text-sm ">(12%)</span></p>
                         <p className="text-black font-bold">¥{formatCurrencyJP(subtotal * 0.12)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                        <p className="text-black/[.70] ">Discount <span className="text-black/[.50] text-sm ">{selectedBillingData.DiscountCode && `(${selectedBillingData.DiscountCode})`}</span></p>
+                        <p className={`${selectedBillingData.Discount ? "text-green-500" : "text-black"} font-bold`}>- ¥{formatCurrencyJP(discount)}</p>
+                    </div>
+                    <div className="flex justify-between">
+                        <p className="text-black/[.70] ">Deposit</p>
+                        <p className="text-black font-bold">- ¥{formatCurrencyJP(selectedBillingData.Deposit)}</p>
                     </div>
                     <div className="border-t-2 p-t-2">
                       {/* <span>Total Bill</span>
@@ -237,7 +245,7 @@ export default function FinalizeBillingForm() {
                       <div className="flex justify-between bg-cstm-secondary p-4 rounded-md mt-2 items-start">
                         <p className="text-white/[.70] ">TOTAL</p>
                         <p className="text-white text-3xl font-bold">
-                          ¥{formatCurrencyJP((subtotal + (subtotal * 0.12) - selectedBillingData.Deposit))}
+                          ¥{formatCurrencyJP(((subtotal + (subtotal * 0.12) - discount) - selectedBillingData.Deposit))}
                         </p>
                     </div>
                     <div className="flex gap-4 rounded bg-white p-1 justify-end">

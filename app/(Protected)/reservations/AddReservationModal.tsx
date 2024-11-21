@@ -43,7 +43,7 @@ import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "next-export-i18n";
 import { Textarea } from "@/components/ui/textarea";
-import { capitalizeFirstLetter, computeInitialBooking, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
+import { capitalizeFirstLetter, computeInitialBooking, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
 import { countries } from "@/data/countries";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { RoomRate } from "@/types";
@@ -183,14 +183,21 @@ export default function AddReservationModal() {
                         "",
                         1,
                         roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
-                        values.dateRange.from,
-                        values.dateRange.to,
+                        new Date(convertToLocalUTCTime(values.dateRange.from)),
+                        new Date(convertToLocalUTCTime(values.dateRange.to)),
                         values.extraAdult,
                         values.extraChild,
                         roomRate.Id,
                         1,
                         values.country,
-                        values.request || ""
+                        values.request || "",
+                        null,
+                        "",
+                        "",
+                        "",
+                        "",
+                        values.adultGuests,
+                        values.childGuests
             )
             if(!res.success) throw new Error(res.res)
             return res.res

@@ -62,7 +62,8 @@ export async function getReservations() {
       ...ReservationStatus(ReservationStatus:StatusName), 
       ...RoomTypes(RoomType:TypeName), 
       ...ReservationType(ReservationType:TypeName), 
-      GuestData(FirstName,LastName,Email,Contact)`,
+      GuestData(FirstName,LastName,Email,Contact),
+      Discounts(Id, DiscountName, DiscountCode, DiscountType, DiscountValue)`,
     ).eq("IsDeleted", false)
     .order("StatusId", { ascending: true })
     .order("CreatedAt", { ascending: false })
@@ -71,7 +72,7 @@ export async function getReservations() {
     return { success: false, res: data, error: error.message };
   }
   return { success: true, res: data };
-}
+} 
 export async function getReservation(id: string) {
   const { data, error } = await supabase
     .from("Reservations")
@@ -80,7 +81,8 @@ export async function getReservation(id: string) {
       ...ReservationStatus(ReservationStatus:StatusName), 
       ...RoomTypes(RoomType:TypeName), 
       ...ReservationType(ReservationType:TypeName), 
-      GuestData(*)`)
+      GuestData(*),
+      Discounts(Id, DiscountName, DiscountCode, DiscountType, DiscountValue)`)
     .eq("IsDeleted", false)
     .eq("Id", id)
     .single();
@@ -349,7 +351,7 @@ export async function getBillingStatusOptions() {
 
 export async function getReservationSummary() {
   const { data, error } = await supabase
-    .from("reservationsummary")
+    .from("reservationsummary1")
     .select('*')
   if (error) {
     console.log(error);
@@ -375,10 +377,17 @@ export async function addOnlineReservation(
   roomrateid: number,
   devicetypeid: number,
   country: string,
-  request: string
+  request: string,
+  discountid: number | null,
+  address1: string,
+  address2: string | null,
+  city: string,
+  zipcode: string,
+  adultguests: number,
+  childguests: number
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation_1",
-    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request })
+  const { data, error } = await supabase.rpc("create_client_reservation_4",
+    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid, address1, address2, city, zipcode, adultguests, childguests });
 
   if (error) {
     console.log(error);
