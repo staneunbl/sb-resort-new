@@ -195,7 +195,9 @@ export default function AddReservationModal() {
                         "",
                         "",
                         "",
-                        ""
+                        "",
+                        values.adultGuests,
+                        values.childGuests
             )
             if(!res.success) throw new Error(res.res)
             return res.res

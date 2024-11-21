@@ -614,7 +614,9 @@ function SelectRoomRateForm({
     setExtraAdult,
     setExtraChild,
     adultGuests,
+    setAdultGuests,
     childGuests,
+    setChildGuests,
     selectedRoom,
     setSelectedRoom,
     selectedRoomRate,
@@ -853,7 +855,9 @@ function CustomerDetailsForm({
     initialBill,
     setToSPrivacyModalState,
     setAppliedDiscount,
-    appliedDiscount
+    appliedDiscount,
+    adultGuests,
+    childGuests
   } = useBookingStore();
 
   const [discountLoading, setDiscountLoading] = useState(false);
@@ -1521,7 +1525,8 @@ function ConfirmForm({
     city,
     zipCode,
     resetStore,
-    appliedDiscount
+    appliedDiscount,
+
   } = useBookingStore();
 
   const [bookingSuccess, setBookingSuccess] = useState(false)
@@ -1546,6 +1551,8 @@ function ConfirmForm({
     address2: z.string().nullable(),
     city: z.string(),
     zipCode: z.string(),
+    adultGuests: z.number(),
+    childGuests: z.number()
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -1569,7 +1576,9 @@ function ConfirmForm({
       address1,
       address2,
       city,
-      zipCode
+      zipCode,
+      adultGuests,
+      childGuests
     },
   });
 
@@ -1603,7 +1612,7 @@ function ConfirmForm({
         discountType: appliedDiscount.type || "",
       }
 
-      sendEmail("wendell.ravago@linoflaptech.com", `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
+      sendEmail("", `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -1649,7 +1658,9 @@ function ConfirmForm({
       values.address1,
       values.address2,
       values.city,
-      values.zipCode
+      values.zipCode,
+      values.adultGuests,
+      values.childGuests
     );
 
     if(success) {
