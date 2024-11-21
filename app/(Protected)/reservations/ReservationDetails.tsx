@@ -264,6 +264,19 @@ export default function ReservationDetails({ id }: { id: string }) {
                 </div>
                 <div className="flex w-full justify-between pb-2 border-b">
                   <h1 className="">
+                    Adult Guests
+                  </h1>
+                  <p className="font-semibold">{`${data?.AdultGuests} ${data?.AdultGuests == 1 ? "Adult" : "Adults"}` || "N/A"}</p>
+                </div>
+                <div className="flex w-full justify-between pb-2 border-b">
+                  <h1 className="">
+                    Child Guests
+                  </h1>
+                  <p className="font-semibold">{`${data?.ChildGuests} ${data?.ChildGuests == 1 ? "Child" : "Children"}` || "N/A"}</p>
+                </div>
+                
+                <div className="flex w-full justify-between pb-2 border-b">
+                  <h1 className="">
                     {dashboardI18n.forCheckIn}
                   </h1>
                   <p className="font-semibold">
