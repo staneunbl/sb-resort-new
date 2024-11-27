@@ -652,7 +652,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                       <FormItem>
                         <div>
                           <FormControl>
-                            <Tiptap {...field} />
+                            <Tiptap value={field.value} onChange={field.onChange} placeholder="Room description..." />
                           </FormControl>
                           <div className="h-4">
                             <FormMessage />

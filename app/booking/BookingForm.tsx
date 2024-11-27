@@ -857,7 +857,11 @@ function CustomerDetailsForm({
     setAppliedDiscount,
     appliedDiscount,
     adultGuests,
-    childGuests
+    childGuests,
+    address1,
+    address2,
+    city,
+    zipCode
   } = useBookingStore();
 
   const [discountLoading, setDiscountLoading] = useState(false);
@@ -907,6 +911,10 @@ function CustomerDetailsForm({
       termsAndCondition: false,
       notForBooker: false,
       voucherCode: appliedDiscount.code || "",
+      address1: address1,
+      address2: address2,
+      city: city,
+      zipCode: zipCode
     },
   });
 
@@ -1814,8 +1822,11 @@ function ConfirmForm({
                               <p className="text-sm italic text-white/[.70]">Including fees and taxes.</p>
                           </div>
                     </div>
-                    <p className="text-white">You may finish your booking, but see to it that you pay the amount specified within the next 24 hours.</p>
-                    <p className="text-white/[.70]">Once paid, please send us a copy of the scanned deposit slip via email or by calling us at Contact Number for verification purpose. Upon verifying your payment, a confirmation of reservation will be sent to your email. </p>
+                    {/* <p className="text-white">You may finish your booking, but see to it that you pay the amount specified within the next 24 hours.</p>
+                    <p className="text-white/[.70]">Once paid, please send us a copy of the scanned deposit slip via email or by calling us at Contact Number for verification purpose. Upon verifying your payment, a confirmation of reservation will be sent to your email. </p> */}
+                    <div>
+                      {parse(config?.PaymentInstructions)}
+                    </div>
                 </div>
   
                 <div className="w-full md:w-1/3 p-5 flex flex-col gap-4 rounded-lg bg-cstm-secondary">
