@@ -292,9 +292,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                   <p className="font-semibold">
                     {
                       data.CheckInActual ?
-                      format(new Date(data.CheckInActual), "MMM dd, yyyy - h:mm a", {
-                        locale: localeFns[locale],
-                      }) :
+                      format(new Date(data.CheckInActual), "MMM dd, yyyy - h:mm a") :
                       "N/A"
                   }
                   </p>

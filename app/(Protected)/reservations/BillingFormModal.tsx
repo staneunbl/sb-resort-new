@@ -80,7 +80,7 @@ export default function BillingFormModal() {
     mutationKey: ["AddBilling"],
     mutationFn: async (values: any) => {
       const res = await addBillings(values);
-      const res2 = await updateCheckInTime(values.ReservationId, new Date(convertToLocalUTCTime(new Date())))
+      const res2 = await updateCheckInTime(values.ReservationId, new Date())
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
