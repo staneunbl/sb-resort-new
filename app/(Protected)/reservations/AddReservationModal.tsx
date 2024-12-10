@@ -85,7 +85,11 @@ export default function AddReservationModal() {
         email: z.string().email().min(1, {message: "Invalid email format."}),
         phoneNumber: z.string().min(9, {message: "Phone number must contain at least 9 digits."}).max(11, {message: "Phone number must contain at most 11 digits."}),
         country: z.string(),
-    
+        address1: z.string(),
+        address2: z.string().optional(),
+        city: z.string().min(1, { message: "Please enter a city" }),
+        province: z.string().min(1, {message: "Please enter a province"}),
+        zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -192,12 +196,14 @@ export default function AddReservationModal() {
                         values.country,
                         values.request || "",
                         null,
-                        "",
-                        "",
-                        "",
-                        "",
+                        values.address1,
+                        values.address2 || "",
+                        values.city,
+                        values.province,
+                        values.zipCode,
                         values.adultGuests,
-                        values.childGuests
+                        values.childGuests,
+                        2
             )
             if(!res.success) throw new Error(res.res)
             return res.res
@@ -255,7 +261,7 @@ export default function AddReservationModal() {
             setDays({weekends: 0, weekdays: 0});
         }}
       >
-        <DialogContent className="sm:max-w-[950px] sm:max-h-[600px] overflow-hidden">
+        <DialogContent className="sm:max-w-[1200px] sm:max-h-[600px] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Add Reservation</DialogTitle>
             <DialogDescription>
@@ -327,9 +333,9 @@ export default function AddReservationModal() {
                             ):
                             (
                                 <>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col pb-4 border-b">
                                         <p className="text-lg font-bold">Room Details</p>
-                                        <div className="flex gap-4">
+                                        <div className="flex gap-4 ">
                                             <div className="w-full">
                                                 <FormField
                                                     name="roomType"
@@ -456,8 +462,22 @@ export default function AddReservationModal() {
                                                 />    
                                             </div>
                                         </div>
+                                        <div className="">
+                                            <FormField
+                                                name="request"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Special Requests</FormLabel>
+                                                        <FormControl className=" ">
+                                                            <Textarea className="border" {...field} value={field.value || ""} />
+                                                        </FormControl>
+                                                        <FormMessage></FormMessage>
+                                                    </FormItem>
+                                                )}
+                                            />    
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col pb-4 border-b">
                                         <p className="text-lg font-bold">Guest Details</p>
                                         <div className="flex gap-4">
                                             <div className="w-1/2">
@@ -490,73 +510,7 @@ export default function AddReservationModal() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-4 mt-4">
-                                            <div className="">
-                                                <FormField
-                                                    name="country"
-                                                    render={({ field }) => (
-                                                        <FormItem className={cn("col-span-4", "sm:col-span-2")}>
-                                                            <div className="flex items-center gap-2">
-                                                                <FormLabel>Country</FormLabel>
-                                                                <FormMessage className="text-xs" />
-                                                            </div>
-                                                            {/* <Input {...field} /> */}
-                                                            <Popover>
-                                                                <PopoverTrigger asChild>
-                                                                    <FormControl>
-                                                                        <Button
-                                                                        variant="outline"
-                                                                        role="combobox"
-                                                                        className={cn(
-                                                                            "w-full justify-between",
-                                                                            !field.value && "text-muted-foreground"
-                                                                        )}
-                                                                        >
-                                                                        {field.value
-                                                                            ? countries.find(
-                                                                                (country) => country.name === field.value
-                                                                            )?.name
-                                                                            : "Select Country"}
-                                                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                        </Button>
-                                                                    </FormControl>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className="w-full p-0">
-                                                                <Command>
-                                                                    <CommandInput
-                                                                    placeholder="Search country..."
-                                                                    className="h-9"
-                                                                    />
-                                                                    <CommandList>
-                                                                        <CommandEmpty>No framework found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            {countries.map((country) => (
-                                                                            <CommandItem
-                                                                                value={country.name}
-                                                                                key={country.name}
-                                                                                onSelect={() => {
-                                                                                form.setValue("country", country.name)
-                                                                                }}
-                                                                            >
-                                                                                {country.name}
-                                                                                <CheckIcon
-                                                                                className={cn(
-                                                                                    "ml-auto h-4 w-4",
-                                                                                    country.name === field.value
-                                                                                    ? "opacity-100"
-                                                                                    : "opacity-0"
-                                                                                )}
-                                                                                />
-                                                                            </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                    </CommandList>
-                                                                </Command>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </FormItem>
-                                                    )}
-                                                /> 
-                                            </div>
+                                           
                                             <div>
                                                 <FormField
                                                     name="birthDate"
@@ -602,14 +556,79 @@ export default function AddReservationModal() {
                                                     )}
                                                 />    
                                             </div>
-                                            <div className="">
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-4">
+                                        <p className="text-lg font-bold">Billing Address</p>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
                                                 <FormField
-                                                    name="request"
+                                                    name="address1"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>Special Requests</FormLabel>
+                                                            <FormLabel>Address 1</FormLabel>
                                                             <FormControl className=" ">
-                                                                <Textarea className="border" {...field} value={field.value || ""} />
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="address2"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Address 2</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="city"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>City</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="province"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Province / State / Region</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="zipCode"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>ZIP Code</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
                                                             </FormControl>
                                                             <FormMessage></FormMessage>
                                                         </FormItem>

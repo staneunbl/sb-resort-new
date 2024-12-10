@@ -867,7 +867,9 @@ function CustomerDetailsForm({
     address1,
     address2,
     city,
-    zipCode
+    zipCode,
+    province,
+    setProvince
   } = useBookingStore();
 
   const [discountLoading, setDiscountLoading] = useState(false);
@@ -887,6 +889,7 @@ function CustomerDetailsForm({
       address1: z.string(),
       address2: z.string().optional(),
       city: z.string().min(1, { message: "Please enter a city" }),
+      province: z.string().min(1, {message: "Please enter a province"}),
       zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
       termsAndCondition: z.boolean().default(false).refine((val) => val, {
         message: "Please accept the terms and conditions",
@@ -920,6 +923,7 @@ function CustomerDetailsForm({
       address1: address1,
       address2: address2,
       city: city,
+      province: province,
       zipCode: zipCode
     },
   });
@@ -967,6 +971,7 @@ function CustomerDetailsForm({
     setAddress2(values.address2 || "");
     setCity(values.city);
     setZipCode(values.zipCode);
+    setProvince(values.province);
     setDateDetails({ totalDays });
     goNextPage();
   }
@@ -1254,11 +1259,26 @@ function CustomerDetailsForm({
                   />
 
                   <FormField
+                    name="province"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Province</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
                     name="zipCode"
                     render={({ field }) => (
                       <FormItem className={cn("col-span-4", "sm:col-span-2")}>
                         <div className="flex items-center gap-2">
-                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>Postal / ZIP Code</FormLabel>
+                          <FormLabel >Postal / ZIP Code</FormLabel>
                           <FormMessage className="text-xs" />
                         </div>
                         <FormControl>
@@ -1538,6 +1558,7 @@ function ConfirmForm({
     address2,
     city,
     zipCode,
+    province, 
     resetStore,
     appliedDiscount,
 
@@ -1565,6 +1586,7 @@ function ConfirmForm({
     address1: z.string(),
     address2: z.string().nullable(),
     city: z.string(),
+    province: z.string(),
     zipCode: z.string(),
     adultGuests: z.number(),
     childGuests: z.number()
@@ -1591,6 +1613,7 @@ function ConfirmForm({
       address1,
       address2,
       city,
+      province,
       zipCode,
       adultGuests,
       childGuests
@@ -1675,9 +1698,11 @@ function ConfirmForm({
       values.address1,
       values.address2,
       values.city,
+      values.province,
       values.zipCode,
       values.adultGuests,
-      values.childGuests
+      values.childGuests,
+      1
     );
 
     if(success) {

@@ -1,4 +1,5 @@
 import { addDays } from "date-fns";
+import { p } from "million/dist/shared/million.50256fe7";
 import { create } from "zustand";
 
 
@@ -59,6 +60,7 @@ export const useBookingStore = create<BookingStore>()((set) => ({
     address1: "",
     address2: "",
     city: "",
+    province: "",
     zipCode: "",
 
 
@@ -73,6 +75,7 @@ export const useBookingStore = create<BookingStore>()((set) => ({
     setAddress1: (address1: string) => set((state) => ({ ...state, address1 })),
     setAddress2: (address2: string) => set((state) => ({ ...state, address2 })),
     setCity: (city: string) => set((state) => ({ ...state, city })),
+    setProvince: (province: string) => set((state) => ({ ...state, province })),
     setZipCode: (zipCode: string) => set((state) => ({ ...state, zipCode })),
     dateDetails: {
 
@@ -164,6 +167,8 @@ interface BookingStore {
     setCity: (city: string) => void
     zipCode: string
     setZipCode: (zipCode: string) => void
+    province: string
+    setProvince: (province: string) => void
 
     lightboxModalState: boolean
     setLightboxModalState: (isOpen: boolean) => void

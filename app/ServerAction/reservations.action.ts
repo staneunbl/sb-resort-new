@@ -382,12 +382,14 @@ export async function addOnlineReservation(
   address1: string,
   address2: string | null,
   city: string,
+  province: string, 
   zipcode: string,
   adultguests: number,
-  childguests: number
+  childguests: number,
+  reservationtypeid: number,
 ) {
-  const { data, error } = await supabase.rpc("create_client_reservation_4",
-    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid, address1, address2, city, zipcode, adultguests, childguests });
+  const { data, error } = await supabase.rpc("create_client_reservation_6",
+    { firstname, lastname, birthdate, email, contact, nationality, roomcount, roomtypeid, checkindate, checkoutdate, extrachild, extraadult, roomrateid, devicetypeid, country, request, discountid, address1, address2, city, province, zipcode, adultguests, childguests, reservationtypeid });
 
   if (error) {
     console.log(error);
