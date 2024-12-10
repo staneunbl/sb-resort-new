@@ -158,4 +158,8 @@ export interface Config {
     TiktokUrl: string,
     YoutubeUrl: string,
     XUrl: string,
+    TermsOfService: string,
+    PrivacyPolicy: string,
+    PaymentInstructions: string,
+    CookieMessage: string
 }

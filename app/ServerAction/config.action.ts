@@ -28,7 +28,7 @@ export async function getConfig() {
     })
 }
 
-export async function updateConfig(companyName: string, companyLogo: string, companyContact: string, companyEmail: string, companyAddress: string, facebookUrl: string, instagramUrl: string, tiktokUrl: string, youtubeUrl: string, xUrl: string){
+export async function updateConfig(companyName: string, companyLogo: string, companyContact: string, companyEmail: string, companyAddress: string, facebookUrl: string, instagramUrl: string, tiktokUrl: string, youtubeUrl: string, xUrl: string, termsOfService: string, privacyPolicy: string, paymentInstructions: string, cookieMessage: string){
      // Prepare the updates based on the key
      const updates = [
         { key: 'CompanyName', value: companyName },
@@ -41,6 +41,10 @@ export async function updateConfig(companyName: string, companyLogo: string, com
         { key: 'TiktokUrl', value: tiktokUrl },
         { key: 'YoutubeUrl', value: youtubeUrl },
         { key: 'XUrl', value: xUrl },
+        { key: "TermsOfService", value: termsOfService },
+        { key: "PrivacyPolicy", value: privacyPolicy},
+        { key: "PaymentInstructions", value: paymentInstructions},
+        { key: "CookieMessage", value: cookieMessage} 
     ];
 
     // Perform the updates

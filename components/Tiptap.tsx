@@ -13,7 +13,7 @@ import ListItem from "@tiptap/extension-list-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect } from "react";
 
-const Tiptap = ({ value, onChange }: any) => {
+const Tiptap = ({ value, onChange, placeholder }: any) => {
   const editor = useEditor(
     {
       extensions: [
@@ -30,7 +30,7 @@ const Tiptap = ({ value, onChange }: any) => {
           },
         }),
         Placeholder.configure({
-          placeholder: "Room description...",
+          placeholder: placeholder,
           emptyEditorClass: "is-editor-empty"
         })
       ],

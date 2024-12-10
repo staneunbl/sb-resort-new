@@ -8,10 +8,10 @@ import {
   } from "@/components/ui/dialog"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-
+import parse from "html-react-parser"
 import { useBookingStore } from "@/store/useBookingStore"
 import { useGlobalStore } from "@/store/useGlobalStore"
+import { useConfig } from "@/utils/ConfigProvider"
 
   export function ToSPrivacyModal() {
 
@@ -19,6 +19,8 @@ import { useGlobalStore } from "@/store/useGlobalStore"
         ToSPrivacyModalState,
         setToSPrivacyModalState
     } = useBookingStore()
+
+    const config = useConfig()
 
     return (
         <Dialog
@@ -39,7 +41,7 @@ import { useGlobalStore } from "@/store/useGlobalStore"
                     </TabsList>
                     <TabsContent value="tos" className="max-h-[400px] overflow-auto mt-4">
                         <div className="flex flex-col gap-4">
-                            <p>By using our services and making a reservation, you acknowledge that you have read and agree to our Terms of Service. Please review the following details carefully before providing your consent.</p>
+                            {/* <p>By using our services and making a reservation, you acknowledge that you have read and agree to our Terms of Service. Please review the following details carefully before providing your consent.</p>
                         
                             <p className="font-bold text-lg">Summary of the Terms and Service</p>
                             <div className="flex flex-col gap-4">
@@ -72,12 +74,14 @@ import { useGlobalStore } from "@/store/useGlobalStore"
                                         <p className="font-bold">7. Changes to Terms</p>
                                         <p className="ms-4">We reserve the right to update these terms as necessary. Any modifications will be posted on our website, and continued use of our services indicates acceptance of the new terms.</p>
                                 </div>
-                            </div>
+                            </div> */}
+
+                            {parse(config?.TermsOfService)}
                         </div>
                     </TabsContent>
                     <TabsContent value="privacy" className="max-h-[400px] overflow-auto mt-4">
                         <div className="flex flex-col gap-4">
-                            <p>To ensure a safe and enjoyable experience for all our guests, we kindly ask you to review and sign the following rules and policies.</p>
+                            {/* <p>To ensure a safe and enjoyable experience for all our guests, we kindly ask you to review and sign the following rules and policies.</p>
                         
                             <div className="flex flex-col gap-4 [&>li]:ms-4">
                                 <div>
@@ -159,7 +163,9 @@ import { useGlobalStore } from "@/store/useGlobalStore"
                                             </li>
                                         </ul>
                                 </div>
-                            </div>
+                            </div> */}
+
+                            {parse(config?.PrivacyPolicy)}
                         </div>
                     </TabsContent>
                 </Tabs>
