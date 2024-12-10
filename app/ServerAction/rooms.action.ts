@@ -466,9 +466,10 @@ export async function getAvailableRoomsRPC(to: Date, from: Date) {
 }
 
 export async function getAvailableRoomTypeRPC(to: Date, from: Date) {
-  const { data, error } = await supabase.rpc("get_available_rooms_per_type", {start_date: from, end_date: to});
+  const { data, error } = await supabase.rpc("GetAvailableRoomTypes", {usercheckin: from, usercheckout: to});
   // const {data, error} = await supabase.from('RoomTypes').select('*').eq('isDeleted', 'false')
   if (error) {
+    console.log(error)
     return { success: false, res: error.message, };
   }
   return { success: true, res: data };

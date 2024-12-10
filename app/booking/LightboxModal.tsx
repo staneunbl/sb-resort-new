@@ -126,7 +126,7 @@ import { RoomType } from "@/types";
                         <div className="flex items-start gap-4 transition flex-col sm:flex-row sm:justify-start sm:items-center">
                             <div className="flex gap-2 items-center text-cstm-primary">
                                 <BedDoubleIcon size={16} />
-                                <p>{roomType.BedTypes.TypeName}</p>
+                                <p>{roomType.BedType}</p>
                             </div>
                             <div className="flex gap-2 items-center text-cstm-primary">
                                 <CircleUserRoundIcon size={16} />

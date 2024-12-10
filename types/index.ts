@@ -17,14 +17,8 @@ export interface RoomType {
     Description: string;
     MaxAdult: number;
     MaxChild: number;
-    Rooms: {
-        count: number
-    },
-    BedTypes: {
-        Id: string,
-        TypeName: string,
-        CreatedAt: Date
-    },
+    AvailableRooms: number;
+    BedType: string;
     Images: string[]
 }
 

@@ -46,6 +46,7 @@ import {
 import { toast } from "sonner";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
+  getAvailableRoomTypeRPC,
   getCurrentRoomTypeRate,
   getPromoRoomRate,
   getRoomAmenities,
@@ -413,6 +414,11 @@ function SelectRoomForm({
     queryFn: async () => (await getRoomTypeRates()).res,
   })
 
+  const {data: availableRooms, isLoading: availableRoomsLoading, refetch} = useQuery({
+    queryKey: ["availableRooms"],
+    queryFn: async () => (await getAvailableRoomTypeRPC(checkInRange.from, checkInRange.to)).res
+  })
+
   const formSchema = z.object({
     roomType: z.number().min(1, { message: "Please select a room type" }),
   });
@@ -518,7 +524,7 @@ function SelectRoomForm({
         )}
       </Accordion> */}
       {
-        roomTypesFetching ? (
+        availableRoomsLoading ? (
           <div className="flex flex-col justify-center items-center">
             <Loader className="animate-spin" />
             <p>Loading...</p>
@@ -533,9 +539,9 @@ function SelectRoomForm({
             <p className="text-black/[.70]">Select your preferred room type before proceeding.</p>
             <p className="text-sm text-black/[.60]">Room Availability is subject to change due to various factors, such as new bookings, updates to room inventory, and customer cancellations.</p>
             <div className="flex gap-8 flex-wrap justify-center">
-            {roomTypes?.map((roomType: any, i: number) => {
+            {availableRooms?.map((roomType: any, i: number) => {
 
-                  if(roomType.Rooms[0].count > 0) {
+                  if(roomType.AvailableRooms > 0) {
                     let price = undefined
                     if(!roomRatesFetching && Array.isArray(roomRates)){
                       if(isString(roomRates)) {
@@ -546,7 +552,7 @@ function SelectRoomForm({
                       }
                     }
                     return (
-                        <RoomCard tabindex={0} key={i} onClick={() => changeSelectedRoom(roomType, false)} roomTitle={roomType.Name} bedType={roomType.BedTypes.TypeName} adultCount={roomType.MaxAdult} childCount={roomType.MaxChild} roomDesc={roomType.Description} price={price} selectedType={selectedRoom.Name} disabled={false} availRooms={roomType.Rooms[0].count} images={roomType.Images}></RoomCard>
+                        <RoomCard tabindex={0} key={i} onClick={() => changeSelectedRoom(roomType, false)} roomTitle={roomType.Name} bedType={roomType.BedType} adultCount={roomType.MaxAdult} childCount={roomType.MaxChild} roomDesc={roomType.Description} price={price} selectedType={selectedRoom.Name} disabled={false} availRooms={roomType.AvailableRooms} images={roomType.Images}></RoomCard>
                     );
                   }
                   
@@ -1530,6 +1536,7 @@ function ConfirmForm({
   } = useBookingStore();
 
   const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = z.object({
     firstName: z.string(),
@@ -1616,6 +1623,8 @@ function ConfirmForm({
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+
+    setIsLoading(true);
     let deviceTypeId;
     const userAgent =
       navigator.userAgent || navigator.vendor || (window as any).opera;
@@ -1687,6 +1696,7 @@ function ConfirmForm({
       sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
       resetStore();
+      
     }
     else {
       toast.error("Oops!", {
@@ -1695,6 +1705,7 @@ function ConfirmForm({
         duration: 3500,
       })
     }
+    setIsLoading(false)
   }
 
   if(bookingSuccess) {
@@ -1840,7 +1851,7 @@ function ConfirmForm({
                     <div className="flex items-start gap-4 transition flex-col">
                       <div className={`flex gap-2 items-center text-cstm-primary`}>
                           <BedDoubleIcon size={16} className="transition"/>
-                          <p className="transition">{selectedRoom.BedTypes.TypeName} </p>
+                          <p className="transition">{selectedRoom.BedType} </p>
                       </div>
                       <div className={`flex gap-2 items-center text-cstm-primary`}>
                           <CircleUserRoundIcon size={16} className="transition"/>
@@ -1914,10 +1925,11 @@ function ConfirmForm({
             onClick={() => {
               goPrevPage();
             }}
+            disabled={isLoading}
           >
             Back
           </Button>
-          <Button className="bg-cstm-primary" type="submit" form="bookingForm">
+          <Button className="bg-cstm-primary" type="submit" form="bookingForm" disabled={isLoading}>
             Finish Booking
           </Button>
         </div>
