@@ -73,7 +73,7 @@ export default function ReservationDetailsController({ id }: { id: string }) {
         <div className="">
           <div className="flex items-center gap-4">
             <Button
-              onClick={() => router.push("/reservations")}
+              onClick={() => router.back()}
               className="h-min rounded bg-cstm-secondary p-1"
             >
               <ChevronLeft size="20" />

@@ -38,6 +38,10 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   selectedRoomData: null,
   setSelectedRoomData: (data) => set(() => ({ selectedRoomData: data })),
 
+  // History States
+  lastVisitedUrl: "",
+  setLastVisitedUrl: (data) => set(() => ({ lastVisitedUrl: data })),
+
   roomFormModalState: false,
   setRoomFormModalState: (data) => set(() => ({ roomFormModalState: data })),
   /* Add/Edit RoomRates States */
@@ -372,7 +376,11 @@ interface GlobalState {
 
   // General
   imageUploadMaxMB: number,
-  setImageUploadMaxMB: (value: number) => void
+  setImageUploadMaxMB: (value: number) => void,
+
+  // History State
+  lastVisitedUrl: string,
+  setLastVisitedUrl: (value: string) => void,
 
   localeFns: { [key: string]: Locale };
   /*  RoomForm States */

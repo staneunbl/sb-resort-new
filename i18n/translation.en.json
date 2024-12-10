@@ -181,6 +181,7 @@
     "addOnTotal": "Add-On Total",
     "promoCode": "Promo Code",
     "discountCode": "Discount Code",
+    "viewReservationDetail": "View Reservation Details",
     "toast": {
       "addReservation": "Reservation added successfully",
       "editReservation": "Reservation edited successfully",
