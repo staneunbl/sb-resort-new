@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, formatDate } from "date-fns";
 import { Cell } from "recharts";
 import { useTranslation } from "next-export-i18n";
 import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon, Ellipsis } from "lucide-react";
@@ -22,12 +22,15 @@ import { commafy, formatCurrencyJP } from "@/utils/Helpers";
 import { ReservationSummaryRecord } from "@/types";
 import ReservationStatusBadge from "@/components/ReservationStatusBadge";
 import { access } from "fs";
+import { useRouter } from "next/navigation";
 export default function BillingsTable() {
   const { t } = useTranslation();
   const { locale } = t("locale");
   const reservationI18n = t("ReservationsPage");
   const generali18n = t("general");
   const roomsI18n = t("RoomsPage");
+
+  const router = useRouter()
 
   const {
     localeFns,
@@ -88,6 +91,26 @@ export default function BillingsTable() {
       accessorKey: "RoomNumber",
       header: roomsI18n.roomNumber,
       
+    },
+    {
+      accessorKey: "CheckInDate",
+      header: ({column}: any) => {
+        return "Check-In Date"
+      },
+      cell: ({ row }: any) => {
+        const date = format(new Date(row.getValue("CheckInDate")), "MMM dd, yyyy");
+        return date;
+      },
+    },
+    {
+      accessorKey: "CheckOutDate",
+      header: ({column}: any) => {
+        return "Check-Out Date"
+      },
+      cell: ({ row }: any) => {
+        const date = format(new Date(row.getValue("CheckOutDate")), "MMM dd, yyyy");
+        return date;
+      },
     },
     {
       accessorKey: "BillingStatus",
@@ -197,22 +220,37 @@ export default function BillingsTable() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  setSelectedBillingData(record);
-                  setFinilizeBillingModalState(true);
-                }}
-                disabled={isFinalized}
-              >
-                {reservationI18n.finalizeBill}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                disabled={isFinalized}
-                onClick={() => {
-                  setSelectedBillingData(record);
-                  setBillingAddOnFormModalState(true);
+                  router.push(`/reservations/details/${record.ReservationId}`);
+                  // /reservations/details/[number]
+
                 }}
               >
-                {reservationI18n.addAddOn}
+                {reservationI18n.viewReservationDetail}
               </DropdownMenuItem>
+              {
+                !isFinalized && (
+                  <>
+                    <DropdownMenuItem
+                      disabled={isFinalized}
+                      onClick={() => {
+                        setSelectedBillingData(record);
+                        setBillingAddOnFormModalState(true);
+                      }}
+                    >
+                      {reservationI18n.addAddOn}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setSelectedBillingData(record);
+                        setFinilizeBillingModalState(true);
+                      }}
+                      disabled={isFinalized}
+                    >
+                      {reservationI18n.finalizeBill}
+                    </DropdownMenuItem>
+                  </>
+                )
+              }
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -228,7 +266,7 @@ export default function BillingsTable() {
           columns={column as ColumnDef<any>[]}
           data={data || []}
           visibility={{ Id: false, FirstName: false, LastName: false }}
-          columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber"]}
+          columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber", "CheckInDate", "CheckOutDate"]}
           initialSort={[{id: "ReservationId", desc: true}]}
         />
       </div>
