@@ -21,6 +21,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { commafy, formatCurrencyJP } from "@/utils/Helpers";
 import { ReservationSummaryRecord } from "@/types";
 import ReservationStatusBadge from "@/components/ReservationStatusBadge";
+import { access } from "fs";
 export default function BillingsTable() {
   const { t } = useTranslation();
   const { locale } = t("locale");
@@ -82,6 +83,11 @@ export default function BillingsTable() {
         const guest = firstName + " " + lastName;
         return firstName ? guest : "N/A";
       },
+    },
+    {
+      accessorKey: "RoomNumber",
+      header: roomsI18n.roomNumber,
+      
     },
     {
       accessorKey: "BillingStatus",
@@ -222,7 +228,7 @@ export default function BillingsTable() {
           columns={column as ColumnDef<any>[]}
           data={data || []}
           visibility={{ Id: false, FirstName: false, LastName: false }}
-          columnToSearch={["ReservationId", "FirstName", "LastName"]}
+          columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber"]}
           initialSort={[{id: "ReservationId", desc: true}]}
         />
       </div>
