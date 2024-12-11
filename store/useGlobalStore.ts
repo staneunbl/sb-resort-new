@@ -324,8 +324,19 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   getConfigQuery: () => {
     return useQuery({
       queryKey: ["GetConfig"],
-      queryFn: async () => transformConfig(),
-      staleTime: Infinity
+      queryFn: async () => {
+        try {
+          const result = await transformConfig();
+          return result
+        }
+        catch (error) {
+          console.error("Config query error:", error);
+          throw error;
+        }
+      },
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      retry: 1
     })
   },
 
