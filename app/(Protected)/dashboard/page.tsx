@@ -6,13 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PeekUserRole } from "@/app/ServerAction/auth.action";
 import { redirect } from "next/navigation";
 const MonthlySalesChart = dynamic(() => import("./MonthlySalesChart"), {
-  loading: () => <Skeleton  className="w-full h-80" />,
+  loading: () => <Skeleton  className="w-full h-60" />,
   ssr: false,
 });
 const MonthlyReservationChart = dynamic(
     () => import("./MonthlyReservationChart"),
     {
-        loading: () => <Skeleton className="w-full h-80"/>,
+        loading: () => <Skeleton className="w-full h-60"/>,
         ssr: false,
     }
 );
