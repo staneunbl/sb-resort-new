@@ -4,6 +4,7 @@ import Provider from "@/utils/Provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfigProvider } from "@/utils/ConfigProvider";
+import {SpeedInsights} from "@vercel/speed-insights/next";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 const defaultUrl = process.env.VERCEL_URL
@@ -32,6 +33,7 @@ export default function RootLayout({
                         <Toaster />
                     </ConfigProvider>
                 </Provider>
+                <SpeedInsights />
             </body>
         </html>
     );
