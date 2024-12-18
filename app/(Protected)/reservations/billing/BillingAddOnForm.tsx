@@ -224,19 +224,25 @@ export default function BillingAddOnForm() {
                           value={item.value}
                           data-value={item}
                           onSelect={(currentValue) => {
-                            /* this is very complex and i dont have any idea how to explain it */
-                            setAddedAddOn((prev) => {
-                              if (prev.includes(item)) return prev.filter((item) => item !== item);
-                              return [...prev, {...item, quantity: 1}];
-                            });
-                            setOpen(false);
+                            let exists = addedAddOn.some((addOn: any) => (item.value === addOn.value) && (item.label === addOn.label) && (item.Price === addOn.Price))
+                            console.log(item);
+                            if(exists) {
+                              console.log(item, "already added")
+                            }
+                            else {
+                              setAddedAddOn((prev) => {
+                                if (prev.includes(item)) return prev.filter((item) => (item !== item));
+                                return [...prev, {...item, quantity: 1}];
+                              });
+                              setOpen(false);
+                            }
                           }}
                         >
                           {item.label}
                           <Check
                             className={cn(
                               "ml-auto h-4 w-4",
-                              addedAddOn.includes(item)
+                              addedAddOn.some((addOn: any) => (item.value === addOn.value) && (item.label === addOn.label) && (item.Price === addOn.Price))
                                 ? "opacity-100"
                                 : "opacity-0",
                             )}
@@ -318,7 +324,7 @@ export default function BillingAddOnForm() {
                     name={item.value.toString()}
                     defaultValue="1"
                     minLength={1}
-                    className="input-decoration-none w-2/6 outline-none px-2 text-right"
+                    className="input-decoration-none w-2/6 px-2 text-right"
                     onChange={(e) => {
                       handleQuantityChange(e.target.value, item.value);
                     }}
