@@ -1,5 +1,5 @@
 "use client"
-import { BabyIcon, CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleAlertIcon, CircleUserIcon, Loader2 } from "lucide-react";
+import { BabyIcon, CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleAlertIcon, CircleUserIcon, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SelectComponent from "@/components/SelectComponent";
 import { useGlobalStore } from "@/store/useGlobalStore";
@@ -43,15 +43,21 @@ import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "next-export-i18n";
 import { Textarea } from "@/components/ui/textarea";
-import { capitalizeFirstLetter, computeInitialBooking, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
+import { capitalizeFirstLetter, computeInitialBooking, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { countries } from "@/data/countries";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { RoomRate } from "@/types";
 import { DatePicker } from "@/components/ui/calendar2";
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+  } from "@/components/ui/tooltip";
+import { checkDiscount } from "@/app/ServerAction/discounts.action";
 
 export default function AddReservationModal() {
 
-    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery } = useGlobalStore();
+    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery, appliedDiscount, setAppliedDiscount } = useGlobalStore();
     const [childCapacity, setChildCapacity] = useState(0);
     const [adultCapacity, setAdultCapacity] = useState(0);
     const [extraChild, setExtraChild] = useState(0);
@@ -90,6 +96,8 @@ export default function AddReservationModal() {
         city: z.string().min(1, { message: "Please enter a city" }),
         province: z.string().min(1, {message: "Please enter a province"}),
         zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
+        discount: z.string(),
+        promo: z.string(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -104,17 +112,50 @@ export default function AddReservationModal() {
             request: "",
             firstName: "",
             lastName: "",
-            birthday: new Date("1990-01-01"),
+            birthday: undefined,
             email: "",
             phoneNumber: "",
             country: "Philippines",
+            discount: "",
+            promo: ""
         }
     })
 
     const { data, isLoading, refetch } = availableRoomsQuery(form.getValues("dateRange").from, form.getValues("dateRange").to);
-    const { data: roomTypeData, isLoading: roomTypeLoading, refetch: roomTypeRefetch } = roomTypesQuery()
+    const { data: roomTypeData, isLoading: roomTypeLoading, refetch: roomTypeRefetch } = roomTypesQuery();
     const { data: roomRateData, isLoading: roomRateLoading, refetch: roomRateRefetch } = roomRatesQuery();
     const { refetch: reservationRefetch } = reservationQuery();
+    const [discountLoading, setDiscountLoading] = useState<boolean>(false);
+    const [initialBill, setInitialBill] = useState<number>(0);
+
+    async function checkVoucher(voucherCode: string) {
+        setDiscountLoading(true);
+        setAppliedDiscount({} as any);
+        const data = await checkDiscount(voucherCode, {
+          roomTypeId: roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
+          startDate: form.getValues("dateRange.from"),
+          endDate: form.getValues("dateRange.to"),
+          nights: days.weekdays + days.weekends,
+          bill: initialBill
+        })
+    
+        if (data.success) {
+          setAppliedDiscount({
+            id: data.res?.Id,
+            name: data.res?.DiscountName,
+            code: data.res?.DiscountCode,
+            type: data.res?.DiscountType,
+            value: data.res?.DiscountValue
+          });
+          form.clearErrors("discount");
+        }
+        if (!data.success) {
+          form.setError("discount", { message: data.message });
+        }
+        console.log(data)
+        setDiscountLoading(false)
+      }
+    
 
     useEffect(() => {
         refetch()
@@ -152,6 +193,28 @@ export default function AddReservationModal() {
             setExtraChild(0)
         }
     }, [form.watch("childGuests"), childCapacity])
+
+    useEffect(() => {
+        if(appliedDiscount.code){
+            checkVoucher(appliedDiscount.code)
+        }
+    }, [roomRate])
+
+    useEffect(() => {
+        setInitialBill((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))
+        console.log((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))
+    }, [roomRate, form.watch("dateRange"), form.watch("adultGuests"), form.watch("childGuests"), form.watch("extraAdult"), form.watch("extraChild")])
+
+    useEffect(() => {
+        if(appliedDiscount) {
+            if(appliedDiscount.type == "percentage") {
+                setInitialBill(initialBill - (initialBill * (appliedDiscount.value / 100)))
+            }
+            if(appliedDiscount.type == "flat") {
+                setInitialBill(initialBill - appliedDiscount.value)
+            }
+        }
+    }, [appliedDiscount])
 
     useEffect(() => {
         console.log(form.getValues("country"))
@@ -195,7 +258,7 @@ export default function AddReservationModal() {
                         1,
                         values.country,
                         values.request || "",
-                        null,
+                        appliedDiscount.id || null,
                         values.address1,
                         values.address2 || "",
                         values.city,
@@ -227,6 +290,7 @@ export default function AddReservationModal() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log("onSubmit function")
         addMutation.mutate(values)
         console.log(values)
     }
@@ -259,6 +323,7 @@ export default function AddReservationModal() {
                 "CreatedAt": new Date()
             });
             setDays({weekends: 0, weekdays: 0});
+            setAppliedDiscount({} as any);
         }}
       >
         <DialogContent className="sm:max-w-[1200px] sm:max-h-[600px] overflow-hidden">
@@ -281,6 +346,7 @@ export default function AddReservationModal() {
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
+                                                    type="button"
                                                     variant={"outline"}
                                                     className={cn(
                                                     "w-full pl-3 text-left font-normal  ",
@@ -513,17 +579,17 @@ export default function AddReservationModal() {
                                            
                                             <div>
                                                 <FormField
-                                                    name="birthDate"
+                                                    name="birthday"
                                                     render={({ field }) => (
                                                         <FormItem className={cn("col-span-4")}>
                                                         <div className="flex items-center gap-2">
                                                             <FormLabel>Birth Date</FormLabel>
-                                                            <FormMessage className="text-xs" />
                                                         </div>
                                                         <FormControl>
                                                             <DatePicker date={field.value} setDate={field.onChange} />
                                                             
                                                         </FormControl>
+                                                        <FormMessage className="text-xs" />
                                                         </FormItem>
                                                     )}
                                                 />
@@ -558,7 +624,7 @@ export default function AddReservationModal() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col gap-4 pb-4 border-b">
                                         <p className="text-lg font-bold">Billing Address</p>
                                         <div className="flex gap-4">
                                             <div className="w-1/2">
@@ -637,6 +703,50 @@ export default function AddReservationModal() {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="flex gap-2 items-center">
+                                        <p className="text-lg font-bold">Promo / Discount</p>
+                                        <Tooltip data-align="start">
+                                            <TooltipTrigger asChild>
+                                                <span className="text-muted-foreground"><Info stroke="currentColor" size={14}></Info></span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>Only one of discount or promo can be active.</TooltipContent>
+                                        </Tooltip>
+                                    </div>
+                                        <div className="flex gap-4 pb-4">
+                                            <div className="flex flex-col gap-4 w-full">
+                                                <FormField
+                                                    name="discount"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-full">
+                                                            <FormLabel>Discount</FormLabel>
+                                                            <div className="flex gap-4 w-full">
+                                                                <FormControl className="flex flex-1">
+                                                                    <Input {...field} disabled={discountLoading} />
+                                                                </FormControl>
+                                                                <Button type="button" disabled={discountLoading} onClick={() => checkVoucher(field.value)}>Apply</Button>
+                                                            </div>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    name="promo"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-full">
+                                                            <FormLabel>Promo Code</FormLabel>
+                                                            <div className="flex gap-4 w-full">
+                                                                <FormControl className="flex flex-1">
+                                                                    <Input {...field} />
+                                                                </FormControl>
+                                                                <Button type="button" onClick={() => console.log(field.value)}>Apply</Button>
+                                                            </div>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+
+                                        </div>
                                 </>
                             )
                         }
@@ -693,6 +803,17 @@ export default function AddReservationModal() {
                                     <p className="text-black/[.70] ">VAT <span className="text-black/[.50] text-sm ">(12%)</span></p>
                                     <p className="text-black font-bold">¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12))}</p>
                                 </div>
+                                {
+                                    appliedDiscount.code && (
+                                    <div className="flex justify-between">
+                                        <p className="text-black/[.70]">Discount Code</p>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
+                                            <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                                        </div>
+                                    </div>
+                                    )
+                                }
                                 <div className="border-t-2 p-t-2">
                                 {/* <span>Total Bill</span>
                                 <span className="font-bold">
@@ -705,7 +826,8 @@ export default function AddReservationModal() {
                                 <div className="flex justify-between bg-cstm-secondary p-4 rounded-md mt-2 items-start">
                                     <p className="text-white/[.70] ">TOTAL</p>
                                     <p className="text-white text-3xl font-bold">
-                                        ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) )}
+                                        {/* ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))} */}
+                                        ¥{formatCurrencyJP(initialBill)}
                                     </p>
                                 </div>
                                 </div>
@@ -713,7 +835,7 @@ export default function AddReservationModal() {
                             </div>
                         </div>
                         <div className="flex justify-end">
-                            <Button type="submit" className="w-full text-white" disabled={isLoading || submissionLoading}>{submissionLoading ? <Loader2 size={16} color="currentColor" className="animate-spin" /> : "Submit"}</Button>
+                            <Button type="submit" onClick={() => {console.log(form.formState.errors)}} className="w-full text-white" disabled={isLoading || submissionLoading}>{submissionLoading ? <Loader2 size={16} color="currentColor" className="animate-spin" /> : "Submit"}</Button>
                         </div>
                     </div>
                 </form>

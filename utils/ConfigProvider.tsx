@@ -1,12 +1,31 @@
 "use client";
 
+import { transformConfig } from "@/app/ServerAction/config.action";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { Config } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { createContext,  useContext, useEffect, useState } from "react";
 
 
 const ConfigContext = createContext<Config | null>(null)
+
+const starterConfig = {
+    CompanyName: "",
+    CompanyLogo: "",
+    CompanyContact: "",
+    CompanyAddress: "",
+    CompanyEmail: "",
+    FacebookUrl: "",
+    InstagramUrl: "",
+    TiktokUrl: "",
+    YoutubeUrl: "",
+    XUrl: "",
+    TermsOfService: "",
+    PrivacyPolicy: "",
+    PaymentInstructions: "",
+    CookieMessage: ""
+}
 
 
 export const useConfig = () => {
@@ -19,9 +38,25 @@ export const useConfig = () => {
 } 
 
 export const ConfigProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
-    const { getConfigQuery } = useGlobalStore();
-    const { data, isLoading, error } = getConfigQuery()
-    const [config, setConfig] = useState<Config | null>(null);
+
+    const { data, isLoading, error } = useQuery({
+      queryKey: ["GetConfig"],
+      queryFn: async () => {
+        try {
+          const result = await transformConfig();
+          return result
+        }
+        catch (error) {
+          console.error("Config query error:", error);
+          throw error;
+        }
+      },
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      retry: 1
+    })
+
+    const [config, setConfig] = useState<Config>();
 
     useEffect(() => {
         console.log("ConfigProvider()", data)
@@ -43,7 +78,7 @@ export const ConfigProvider: React.FC<{children: React.ReactNode}> = ({children}
     }
     
     return (
-        <ConfigContext.Provider value={config}>
+        <ConfigContext.Provider value={config || starterConfig}>
             {children}
         </ConfigContext.Provider>
     )

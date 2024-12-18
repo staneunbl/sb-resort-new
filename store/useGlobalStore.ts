@@ -161,6 +161,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
   selectedDiscountRoomType: [],
   setSelectedDiscountRoomType: (data: any) => set(() => ({ selectedDiscountRoomType: data })),
+  appliedDiscount: {} as any,
+  setAppliedDiscount: (data: any) => set((state) => ({ ...state, appliedDiscount: data })),
 
   roomTypesQuery: () => {
     return useQuery({
@@ -522,6 +524,8 @@ interface GlobalState {
   setSelectedDiscountsFilter: (data: any) => void;
   selectedDiscountRoomType: any
   setSelectedDiscountRoomType: (data: any) => void;
+  appliedDiscount: { id: number, name: string, code: string, type: string, value: number }
+  setAppliedDiscount: (discount: { id: number, name: string, code: string, type: string, value: number }) => void
 }
 
 
