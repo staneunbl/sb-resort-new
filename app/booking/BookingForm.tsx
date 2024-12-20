@@ -181,31 +181,14 @@ function BookingDateForm({
 
   const [pageStateLoading, setPageStateLoading] = useState(false);
   const [pageStateTrigger, setPageStateTrigger] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    /* Add Value to a Global State */
-    // let unique = false
-    // let result = ''
-    //const {res, error} = await checkReferenceNumber(generateReferenceNumber());
+    console.log("clickCount", clickCount)
+    if(clickCount > 1) return;
 
     setPageStateLoading(true);
-
-    // while(!unique){
-    //   let ref = generateReferenceNumber()
-    //   const {res, error} = await checkReferenceNumber(ref);
-
-    //   if (res && res.length === 0) {
-    //     unique = true;
-    //     result = ref
-    //     setReferenceNumber(result);
-    //   }
-    // }
-    
-    // const { res } = await peekLastReservation();
-    // console.log(res)
-    // console.log(res[0].Id)
-    // let refId = res[0].Id + 1
-    setReferenceNumber("50");
+    setClickCount(clickCount + 1);
 
     setNumberOfRooms(1);
     setCheckInRange(values.dateRange);
@@ -215,19 +198,27 @@ function BookingDateForm({
         setPageStateLoading(false);
         return;
       }
+      console.log("with promo code")
       console.log(res)
       setPromoCode(values.promoCode);
       setPromoDetails(res);
+      setClickCount(0)
       goToRoomRates();
-    } else {
+    } 
+    
+    else {
+      console.log("no promo code")
       setPageStateLoading(false);
+      setClickCount(0)
       goNextPage();
     }
+
   }
 
   useEffect(() => {
     setPromoCode("");
   }, []);
+
   return (
     <div className="mx-auto rounded-sm p-3">
       <Card className="p-4">
@@ -367,22 +358,14 @@ function BookingDateForm({
         
       </Card>
       <div className={cn("mt-4 flex justify-center gap-4", "")}>
-        {/* <Button
-          disabled={pageState === 0}
-          variant={"destructive"}
-          onClick={() => {
-            console.log(pageState);
-          }}
-        >
-          Back
-        </Button> */}
         <Button
           disabled={pageStateLoading}
           className="bg-cstm-primary"
           type="submit"
           form="bookingForm"
           onClick={() => {
-            form.trigger();
+            // used to handle multiple clicks
+            setClickCount(clickCount + 1)
           }}
         >
           {pageStateLoading ? (
