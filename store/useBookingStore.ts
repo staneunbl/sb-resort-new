@@ -6,6 +6,7 @@ import { create } from "zustand";
 
 export const useBookingStore = create<BookingStore>()((set) => ({
     pageState: 0,
+    setPageState: (pageState: number) => set((state) => ({ ...state, pageState })),
     goNextPage: () => set((state) => {
         return (state.pageState < 4) ? { ...state, pageState: state.pageState + 1 } : state
     }),
@@ -87,7 +88,7 @@ export const useBookingStore = create<BookingStore>()((set) => ({
     resetStore: () => set((state) => ({
         //pageState: 0,
         numberOfRooms: 1,
-        checkInRange: { from: new Date(), to: new Date() },
+        checkInRange: { from: new Date(), to: addDays(new Date(), 1) },
         promoCode: "",
         roomId: 0,
         extraAdult: 0,
@@ -112,6 +113,7 @@ export const useBookingStore = create<BookingStore>()((set) => ({
 
 interface BookingStore {
     pageState: number;/*  */
+    setPageState: (page: number) => void
     goNextPage: () => void
     goPrevPage: () => void
     checkInRange: { from: Date, to: Date };

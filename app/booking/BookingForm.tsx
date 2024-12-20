@@ -73,7 +73,7 @@ import { checkDiscount } from "../ServerAction/discounts.action";
 export default function MainBookingForm() {
   const config = useConfig()
   const formRef = useRef<HTMLFormElement>(null);
-  const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState } = useBookingStore();
+  const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState, setPageState} = useBookingStore();
 
   const BookingForms = [
     <BookingDateForm formRef={formRef} />,
@@ -1478,6 +1478,27 @@ function CustomerDetailsForm({
                   </div>
               </Card>
             </div>
+            <div>
+              <Button type="button" onClick={() => {
+                form.setValue("firstName", "John");
+                form.setValue("lastName", "Doe");
+                form.setValue("birthDate", new Date("1998-01-01"));
+                form.setValue("country", "Philippines");
+                form.setValue("email", "jdoe@gmail.com");
+                form.setValue("confirmEmail", "jdoe@gmail.com");
+                form.setValue("contactNumber", "09123456789");
+                form.setValue("request", "Please provide extra towels.");
+                form.setValue("address1", "123 Main St.");
+                form.setValue("address2", "Brgy. 1");
+                form.setValue("city", "Manila");
+                form.setValue("province", "Metro Manila");
+                form.setValue("zipCode", "1000");
+              
+              }}
+              >
+                ADD DUMMY
+              </Button>
+            </div>
           </div>
         </form>
       </Form>
@@ -1544,7 +1565,7 @@ function ConfirmForm({
     province, 
     resetStore,
     appliedDiscount,
-
+    setPageState
   } = useBookingStore();
 
   const [bookingSuccess, setBookingSuccess] = useState(false)
@@ -1711,6 +1732,7 @@ function ConfirmForm({
 
       sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
+      //setPageState(0);
       resetStore();
       
     }
