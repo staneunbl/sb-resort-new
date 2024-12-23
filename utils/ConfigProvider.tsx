@@ -30,7 +30,7 @@ const starterConfig = {
 
 export const useConfig = () => {
     const context = useContext(ConfigContext)
-    console.log("useConfig()", context)
+    //console.log("useConfig()", context)
     if(context === null) {
         throw new Error("useConfig must be used within a ConfigProvider");
     }

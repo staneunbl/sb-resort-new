@@ -54,10 +54,11 @@ import {
     TooltipContent,
   } from "@/components/ui/tooltip";
 import { checkDiscount } from "@/app/ServerAction/discounts.action";
+import { checkPromoWalkIn, getPromo } from "@/app/ServerAction/promos.action";
 
 export default function AddReservationModal() {
 
-    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery, appliedDiscount, setAppliedDiscount } = useGlobalStore();
+    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery, appliedDiscount, setAppliedDiscount, appliedPromo, setAppliedPromo } = useGlobalStore();
     const [childCapacity, setChildCapacity] = useState(0);
     const [adultCapacity, setAdultCapacity] = useState(0);
     const [extraChild, setExtraChild] = useState(0);
@@ -126,35 +127,107 @@ export default function AddReservationModal() {
     const { data: roomRateData, isLoading: roomRateLoading, refetch: roomRateRefetch } = roomRatesQuery();
     const { refetch: reservationRefetch } = reservationQuery();
     const [discountLoading, setDiscountLoading] = useState<boolean>(false);
+    const [promoLoading, setPromoLoading] = useState<boolean>(false);
     const [initialBill, setInitialBill] = useState<number>(0);
 
     async function checkVoucher(voucherCode: string) {
-        setDiscountLoading(true);
-        setAppliedDiscount({} as any);
-        const data = await checkDiscount(voucherCode, {
-          roomTypeId: roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
-          startDate: form.getValues("dateRange.from"),
-          endDate: form.getValues("dateRange.to"),
-          nights: days.weekdays + days.weekends,
-          bill: initialBill
-        })
-    
-        if (data.success) {
-          setAppliedDiscount({
-            id: data.res?.Id,
-            name: data.res?.DiscountName,
-            code: data.res?.DiscountCode,
-            type: data.res?.DiscountType,
-            value: data.res?.DiscountValue
-          });
-          form.clearErrors("discount");
+        if(voucherCode == "") {
+            form.setError("discount", { message: "Please enter a discount code." });
+            form.clearErrors('promo');
+            return;
         }
-        if (!data.success) {
-          form.setError("discount", { message: data.message });
+        else {
+            setDiscountLoading(true);
+            setAppliedDiscount({} as any);
+            const data = await checkDiscount(voucherCode, {
+                roomTypeId: roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
+                startDate: form.getValues("dateRange.from"),
+                endDate: form.getValues("dateRange.to"),
+                nights: days.weekdays + days.weekends,
+                bill: initialBill
+            })
+            
+            if (data.success) {
+              setAppliedPromo({} as any);
+              setAppliedDiscount({
+                id: data.res?.Id,
+                name: data.res?.DiscountName,
+                code: data.res?.DiscountCode,
+                type: data.res?.DiscountType,
+                value: data.res?.DiscountValue
+              });
+              form.setValue("promo", "");
+              form.clearErrors("discount");
+
+            }
+            if (!data.success) {
+              form.setError("discount", { message: data.message });
+            }
+            console.log(data)
+            setDiscountLoading(false)
         }
-        console.log(data)
-        setDiscountLoading(false)
       }
+
+    function removeDiscount() {
+        setAppliedDiscount({} as any);
+        form.clearErrors("discount");
+        form.setValue("discount", "");    
+    }
+
+    async function checkPromo(promoCode: string) {
+        if(promoCode == "") {
+            form.setError("promo", { message: "Please enter a promo code." });
+            form.clearErrors("discount");
+            return;
+        }
+        else {
+            setPromoLoading(true);
+            setAppliedPromo({} as any);
+            const data = await checkPromoWalkIn(promoCode);
+            console.log(data);
+            
+            if(data.success && data.res) {
+                setAppliedPromo(data.res)
+                setAppliedDiscount({} as any);
+            
+                
+                form.clearErrors("promo");
+                form.clearErrors("discount");
+                
+                form.setValue("discount", "");
+                form.setValue("roomType", data.res.RoomType.toLowerCase())
+            }
+            if(!data.success) {
+                form.setError("promo", { message: data.message });
+            }
+            
+            setPromoLoading(false);
+        }
+    }
+
+    function removePromo() {
+        setAppliedPromo({} as any);
+        form.clearErrors("promo");
+        form.setValue("promo", "");
+        form.setValue("roomType", "")
+        setRoomRate({
+            "RateTypeId": 0,
+            "RoomTypeId": 0,
+            "RoomType": "",
+            "MaxAdult": 0,
+            "MaxChild": 0,
+            "Description": "",
+            "BedTypeId": 0,
+            "Id": 0,
+            "BaseRoomRate": 0,
+            "ExtraAdultRate": 0,
+            "ExtraChildRate": 0,
+            "WeekendExtraAdultRate": 0,
+            "WeekendExtraChildRate": 0,
+            "WeekendRoomRate": 0,
+            "CreatedAt": new Date()
+        });
+    }
     
 
     useEffect(() => {
@@ -167,11 +240,51 @@ export default function AddReservationModal() {
         setChildCapacity(roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.MaxChild)
     }, [form.watch("roomType"), roomTypeData])
 
+    /*setRoomRate({
+            "RateTypeId": 0,
+            "RoomTypeId": 0,
+            "RoomType": "",
+            "MaxAdult": 0,
+            "MaxChild": 0,
+            "Description": "",
+            "BedTypeId": 0,
+            "Id": 0,
+            "BaseRoomRate": 0,
+            "ExtraAdultRate": 0,
+            "ExtraChildRate": 0,
+            "WeekendExtraAdultRate": 0,
+            "WeekendExtraChildRate": 0,
+            "WeekendRoomRate": 0,
+            "CreatedAt": new Date()
+        });*/
     
     useEffect(() => {
         if(!roomRateLoading && roomRateData) {
             const rate = roomRateData?.find((rate: any) => rate.RoomType.toLowerCase() == form.getValues("roomType"))
-            setRoomRate(rate)
+            console.log(appliedPromo.PromoCode)
+            if(appliedPromo.PromoCode) {
+                const promoRate: RoomRate = {
+                    RateTypeId: 2,
+                    RoomTypeId: appliedPromo.RoomTypeId,
+                    RoomType: appliedPromo.RoomType,
+                    MaxAdult: rate.MaxAdult,
+                    MaxChild: rate.MaxChild,
+                    Description: rate.Description,
+                    BedTypeId: rate.BedTypeId,
+                    Id: appliedPromo.Id,
+                    BaseRoomRate: appliedPromo.BaseRoomRate,
+                    ExtraChildRate: appliedPromo.ExtraChildRate,
+                    ExtraAdultRate: appliedPromo.ExtraAdultRate,
+                    WeekendRoomRate: appliedPromo.WeekendRoomRate,
+                    WeekendExtraChildRate: appliedPromo.WeekendExtraChildRate,
+                    WeekendExtraAdultRate: appliedPromo.WeekendExtraAdultRate,
+                    CreatedAt: rate.CreatedAt
+                }
+                setRoomRate(promoRate)
+            }
+            else {
+                setRoomRate(rate)
+            }
         }
     }, [form.watch("roomType"), roomRateData])
     
@@ -197,6 +310,9 @@ export default function AddReservationModal() {
     useEffect(() => {
         if(appliedDiscount.code){
             checkVoucher(appliedDiscount.code)
+        }
+        else if(appliedPromo.PromoCode) {
+            checkPromo(appliedPromo.PromoCode)
         }
     }, [roomRate])
 
@@ -324,6 +440,7 @@ export default function AddReservationModal() {
             });
             setDays({weekends: 0, weekdays: 0});
             setAppliedDiscount({} as any);
+            setAppliedPromo({} as any);
         }}
       >
         <DialogContent className="sm:max-w-[1200px] sm:max-h-[600px] overflow-hidden">
@@ -413,6 +530,7 @@ export default function AddReservationModal() {
                                                                     className="w-full"
                                                                     setState={field.onChange}
                                                                     state={field.value}
+                                                                    disabled={appliedPromo.PromoCode ? true : false}
                                                                     options={  Array.from(new Set(data?.map((room: any) => room.room_type))).map((roomType: any) => ({value: roomType, label: roomType})) || [{value: "Single", label: "Single"}] }
                                                                     placeholder={"Select room type..."}
                                                                 />
@@ -720,10 +838,18 @@ export default function AddReservationModal() {
                                                         <FormItem className="w-full">
                                                             <FormLabel>Discount</FormLabel>
                                                             <div className="flex gap-4 w-full">
-                                                                <FormControl className="flex flex-1">
+                                                                <FormControl className="flex flex-1 relative">
                                                                     <Input {...field} disabled={discountLoading} />
                                                                 </FormControl>
-                                                                <Button type="button" disabled={discountLoading} onClick={() => checkVoucher(field.value)}>Apply</Button>
+                                                                <Button type="button" disabled={discountLoading} onClick={() => appliedDiscount.code ? removeDiscount() : checkVoucher(field.value)} className={`min-w-32 w-32 ${appliedDiscount.code ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
+                                                                {
+                                                                        discountLoading ? 
+                                                                        <Loader2 className="animate-spin" /> : 
+                                                                            appliedDiscount.code?
+                                                                            "Remove" : 
+                                                                            "Apply"
+                                                                    }
+                                                                </Button>
                                                             </div>
                                                             <FormMessage></FormMessage>
                                                         </FormItem>
@@ -733,17 +859,36 @@ export default function AddReservationModal() {
                                                     name="promo"
                                                     render={({ field }) => (
                                                         <FormItem className="w-full">
-                                                            <FormLabel>Promo Code</FormLabel>
+                                                            <FormLabel>Promo Code {appliedPromo ? "(" + appliedPromo.PromoCode + ")" : ""}</FormLabel>
                                                             <div className="flex gap-4 w-full">
                                                                 <FormControl className="flex flex-1">
-                                                                    <Input {...field} />
+                                                                    <div className="relative">
+                                                                        <div className="absolute top-0 right-0 pr-3 h-full z-1 flex items-center justify center"> 
+                                                                        <Tooltip data-align="start">
+                                                                            <TooltipTrigger asChild>
+                                                                                <span className="text-muted-foreground"><Info stroke="currentColor" size={14}></Info></span>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent>Applying a promo overrides selected room details.</TooltipContent>
+                                                                        </Tooltip> 
+                                                                        </div>
+                                                                        <Input {...field} />
+                                                                    </div>
                                                                 </FormControl>
-                                                                <Button type="button" onClick={() => console.log(field.value)}>Apply</Button>
+                                                                <Button disabled={(promoLoading)} type="button" onClick={() => appliedPromo.PromoCode ? removePromo() : checkPromo(field.value)} className={`min-w-32 w-32 ${appliedPromo.PromoCode ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
+                                                                    {
+                                                                        promoLoading ? 
+                                                                        <Loader2 className="animate-spin" /> : 
+                                                                            appliedPromo.PromoCode?
+                                                                            "Remove" : 
+                                                                            "Apply"
+                                                                    }
+                                                                </Button>
                                                             </div>
                                                             <FormMessage></FormMessage>
                                                         </FormItem>
                                                     )}
                                                 />
+                                                {/* <Button type="button" onClick={() => console.log(appliedDiscount, appliedPromo, form.getValues("roomType"), roomRate)}>DEBUG</Button> */}
                                             </div>
 
                                         </div>
@@ -755,7 +900,17 @@ export default function AddReservationModal() {
                         <div className="flex flex-col w-full h-fit p-4 bg-white border-gray-200 border shadow-lg rounded">
                             <p className="text-lg font-bold" onClick={() => {console.log(roomRate)}}>Booking Summary</p>
                             <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-4 text-sm">
+                                <div className="flex flex-col gap-3 text-sm">
+                                    {
+                                        appliedPromo.PromoCode && (
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-bold">Promo Code</p>
+                                            <div className="flex flex-col items-end">
+                                                <span className="p-1 rounded bg-cstm-secondary text-white">{appliedPromo.PromoCode}</span>
+                                            </div>
+                                        </div>
+                                        )
+                                    }
                                     <div>
                                         <p className="font-bold">Room</p>
                                         <div className="flex flex-col gap-2 ms-4">

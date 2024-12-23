@@ -18,6 +18,7 @@ export default function SelectComponent({
   placeholder = "Select",
   defaultValue = "",
   required = false,
+  disabled = false
 }: {
   className?: string;
   state?: string;
@@ -29,6 +30,7 @@ export default function SelectComponent({
   placeholder?: string;
   defaultValue?: string;
   required?: boolean;
+  disabled?: boolean;
 }) {
 
 
@@ -55,7 +57,7 @@ export default function SelectComponent({
   // }
 
   return (
-    <Select required={required} onValueChange={handleValueChange} value={state} defaultValue={defaultValue}>
+    <Select required={required} onValueChange={handleValueChange} value={state} defaultValue={defaultValue} disabled={disabled}>
       <SelectTrigger
         className={cn("w-[180px]", className)}
       >
