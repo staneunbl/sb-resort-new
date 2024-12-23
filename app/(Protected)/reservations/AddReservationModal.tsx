@@ -263,6 +263,23 @@ export default function AddReservationModal() {
             const rate = roomRateData?.find((rate: any) => rate.RoomType.toLowerCase() == form.getValues("roomType"))
             console.log(appliedPromo.PromoCode)
             if(appliedPromo.PromoCode) {
+                setRoomRate({
+                    "RateTypeId": 0,
+                    "RoomTypeId": 0,
+                    "RoomType": "",
+                    "MaxAdult": 0,
+                    "MaxChild": 0,
+                    "Description": "",
+                    "BedTypeId": 0,
+                    "Id": 0,
+                    "BaseRoomRate": 0,
+                    "ExtraAdultRate": 0,
+                    "ExtraChildRate": 0,
+                    "WeekendExtraAdultRate": 0,
+                    "WeekendExtraChildRate": 0,
+                    "WeekendRoomRate": 0,
+                    "CreatedAt": new Date()
+                });
                 const promoRate: RoomRate = {
                     RateTypeId: 2,
                     RoomTypeId: appliedPromo.RoomTypeId,
