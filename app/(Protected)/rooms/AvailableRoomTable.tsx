@@ -53,7 +53,7 @@ export default function AvailableRoomTable() {
 
   const columns: ColumnDef<AvailableRoom>[] = [
     {
-      accessorKey: "roomtype",
+      accessorKey: "Name",
       header: ({column}: any) => {
         return (
           <div className="flex">
@@ -84,7 +84,7 @@ export default function AvailableRoomTable() {
     //   };
     // }),
     {
-      accessorKey: "availablerooms",
+      accessorKey: "AvailableRooms",
       header: "Available Rooms",
       size: 100,
       maxSize: 100
@@ -93,7 +93,7 @@ export default function AvailableRoomTable() {
       header: "Room Numbers",
 
       cell: ({cell}) => {
-        const roomType = cell.row.getValue("roomtype")
+        const roomType = cell.row.getValue("Name")
         
         if(!availRoomsRPC || isFetchingRPC) {
           return <p>Loading...</p>
