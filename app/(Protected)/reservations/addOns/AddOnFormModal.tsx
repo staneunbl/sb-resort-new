@@ -113,7 +113,7 @@ export default function AddOnFormModal() {
           <DialogTitle>{isEditMode ? "Edit Add-on" : "Add Add-on"}</DialogTitle>
           <DialogDescription className="text-md">
             {isEditMode 
-              ? "Please complete the form to Edit an add-on"
+              ? "Please complete the form to edit an add-on"
               : "Please complete the form to add an add-on."}
           </DialogDescription>
         </DialogHeader>
@@ -162,7 +162,9 @@ export default function AddOnFormModal() {
               />
               <DialogFooter>
                 <Button className="bg-cstm-secondary" type="submit">
-                  Submit
+                {isEditMode 
+              ? "Update"
+              : "Submit"}
                 </Button>
               </DialogFooter>
             </form>

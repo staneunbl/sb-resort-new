@@ -434,7 +434,7 @@ export function DiscountsModal() {
                                                     name="minimumTotal"
                                                     render={({ field }) => (
                                                         <FormItem className="w-1/2">
-                                                            <FormLabel>Minimum Total</FormLabel>
+                                                            <FormLabel>Minimum Billing</FormLabel>
                                                             <FormControl>
                                                                 <Input
                                                                     placeholder="Minimum total"
@@ -454,7 +454,7 @@ export function DiscountsModal() {
                                                     name="maximumTotal"
                                                     render={({ field }) => (
                                                         <FormItem className="w-1/2">
-                                                            <FormLabel>Maximum Total</FormLabel>
+                                                            <FormLabel>Maximum Billing</FormLabel>
                                                             <FormControl>
                                                                 <Input
                                                                     placeholder="Maximum total"

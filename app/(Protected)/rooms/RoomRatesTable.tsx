@@ -242,7 +242,7 @@ export default function RoomRatesTable() {
         isLoading={isLoading}
         title={roomsI18n.roomRate}
         data={roomRates || []}
-        searchPlaceholder={roomsI18n.searchRateType}
+        searchPlaceholder={roomsI18n.searchRoomType}
         columns={column}
         columnToSearch={["RoomType"]}
         filterByCol={[

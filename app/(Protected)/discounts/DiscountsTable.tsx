@@ -451,7 +451,7 @@ export function DiscountsTable() {
                 isLoading={isLoading}
                 title={"Discounts"}
                 data={data as any[] || []}
-                searchPlaceholder={"Search Discounts..."}
+                searchPlaceholder={"Search Discounts"}
                 columns={columns}
                 columnToSearch={["Id", "DiscountName", "DiscountCode", "DiscountType", "DiscountValue"]}
                 pageSize={20}
