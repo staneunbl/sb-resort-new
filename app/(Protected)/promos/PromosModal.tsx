@@ -170,11 +170,11 @@ export default function PromosModal() {
     >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Promo" : "Add New Promo"}</DialogTitle>
+          <DialogTitle>{isEdit ? "Edit Promo Rate" : "Add Promo Rate"}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Please fill up the form to edit promo"
-              : "Please fill up the form to add new Promo"}
+              ? "Please fill up the form to edit promo rate"
+              : "Please fill up the form to add new promo rate"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -256,7 +256,7 @@ export default function PromosModal() {
                         disabled={(date) => date < new Date()}
                         initialFocus
                       />
-                    </PopoverContent>
+                    </PopoverContent> 
                   </Popover>
 
                   <FormMessage />
@@ -333,7 +333,7 @@ export default function PromosModal() {
             </div>
             <DialogFooter>
               <Button className="bg-cstm-secondary" type="submit">
-                {isEdit ? "Update Promo" : "Add New Promo"}
+                {isEdit ? "Update Promo Rate" : "Add Promo Rate"}
               </Button>
             </DialogFooter>
           </form>

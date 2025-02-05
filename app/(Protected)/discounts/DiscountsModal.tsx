@@ -235,7 +235,7 @@ export function DiscountsModal() {
                 <DialogHeader>
                     <DialogTitle>{editMode ? "Edit Discount" :"Add Discount"}</DialogTitle>
                     <DialogDescription>
-                        {"Please fill up the form to add a new discount."}
+                        {"Please fill out the form to add a new discount."}
                     </DialogDescription>
                 </DialogHeader>
                 {/* <Button onClick={
@@ -363,7 +363,7 @@ export function DiscountsModal() {
                                                                 <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Date when the discount becomes available.
+                                                                Date when the discount becomes active.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -379,7 +379,7 @@ export function DiscountsModal() {
                                                                 <DatePicker date={field.value || undefined} setDate={field.onChange} />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Date when the discount expires.
+                                                                Discount expiration date.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -401,7 +401,7 @@ export function DiscountsModal() {
                                                                 />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Minimum nights required for eligibility.
+                                                                Minimum stay required for eligibility.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -421,7 +421,7 @@ export function DiscountsModal() {
                                                                 />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Maximum nights allowed for eligibility.
+                                                                Minimum nights for discount eligibility.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -463,7 +463,7 @@ export function DiscountsModal() {
                                                                 />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Maximum booking cost to qualify.
+                                                                Maximum booking amount required for eligibility.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -485,7 +485,7 @@ export function DiscountsModal() {
                                                                 />
                                                             </FormControl>
                                                             <FormDescription className="text-xs">
-                                                                Total times this discount can be redeemed.
+                                                                Total number of times this discount can be redeemed.
                                                             </FormDescription>
                                                             <FormMessage />
                                                         </FormItem>
@@ -537,7 +537,7 @@ export function DiscountsModal() {
                                                                                     checked={field.value?.includes(type.value)}
                                                                                     onChange={() => handleCheckboxChange(type.value)}
                                                                                 />
-                                                                                <span className="w-full">{type.label}</span>
+                                                                                <span className="w-full text-sm">{type.label}</span>
                                                                             </label>
                                                                         ))
                                                                     }
@@ -568,7 +568,7 @@ export function DiscountsModal() {
                                     Cancel
                                 </Button>
                                 <Button type="submit">
-                                    {editMode ? "Edit Discount" : "Add Discount"}
+                                    {editMode ? "Update Discount" : "Add Discount"}
                                 </Button>
                             </div>
                         </form>

@@ -366,11 +366,11 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                   e.preventDefault();
                   router.push("/rooms/viewroomtypes");
                 }}
-              >
+              > 
                 {generalI18n.cancel}
               </Button>
               <Button className="bg-cstm-secondary" type="submit" >
-                {roomsI18n.saveNewRoomType}
+                {roomsI18n.editRoomType}
               </Button>
             </div>
           </div>

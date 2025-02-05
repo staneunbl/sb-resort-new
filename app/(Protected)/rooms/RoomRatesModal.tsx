@@ -175,7 +175,7 @@ export default function RoomRatesModal() {
               name="RoomTypeId"
               render={({ field }) => (
                 <FormItem className="flex flex-col justify-center space-y-1">
-                  <FormLabel className="text-center">
+                  <FormLabel className="text-left">
                     {roomsI18n.roomType}
                   </FormLabel>
                   <div>
@@ -197,7 +197,7 @@ export default function RoomRatesModal() {
               name="RateTypeId"
               render={({ field }) => (
                 <FormItem className="flex flex-col justify-center space-y-1">
-                  <FormLabel className="text-center">
+                  <FormLabel className="text-left">
                     {roomsI18n.rateType}
                   </FormLabel>
                   <div>
@@ -219,10 +219,10 @@ export default function RoomRatesModal() {
               name="validity"
               render={({ field }) => (
                 <FormItem className="flex flex-col justify-center space-y-1">
-                  <FormLabel className="flex flex-col items-center text-center">
+                  <FormLabel className="flex flex-col items-center text-left">
                     {roomsI18n.validityDate}
                   </FormLabel>
-                  <div className="flex flex-col justify-center">
+                  <div className="flex flex-col items-start">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -277,7 +277,7 @@ export default function RoomRatesModal() {
             />
             <div className="flex flex-row gap-3 pt-2">
               <div className="w-1/2">
-                <h1 className="text-center text-sm font-semibold">
+                <h1 className="text-left text-sm font-semibold">
                   {roomsI18n.weekdayRate}
                 </h1>
                 <FormField
@@ -285,7 +285,7 @@ export default function RoomRatesModal() {
                   name="BaseRoomRate"
                   render={({ field }) => (
                     <FormItem className="space-y-1">
-                      <FormLabel>{roomsI18n.weekdayRate}</FormLabel>
+                      <FormLabel className="text-left">{roomsI18n.weekdayRate}</FormLabel>
                       <div>
                         <Input {...field} />
                         <div className="h-3">
@@ -327,7 +327,7 @@ export default function RoomRatesModal() {
                 />
               </div>
               <div className="w-1/2">
-                <h1 className="text-center text-sm font-semibold">
+              <h1 className="text-left text-sm font-semibold">
                   {roomsI18n.weekendRate}
                 </h1>
                 <FormField

@@ -89,7 +89,15 @@ export default function AvailableRoomController() {
             />
           </PopoverContent>
         </Popover>
-        <Button className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary">
+        <Button className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary"
+        onClick = {() => {
+          //to reset local date state
+          setDate({ from: undefined, to: undefined }); 
+          // Reset correctly
+          setAvailableRoomsDateSelect({ from: undefined, to: undefined }); // Reset global store
+        }
+        }
+        >
           <FilterX size={20} />
         </Button>
       </div>

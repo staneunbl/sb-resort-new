@@ -92,7 +92,7 @@ export default function ReservationTable() {
               className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {reservationI18n.bookingReference} {
+              {reservationI18n.reservationId} {
                 column.getIsSorted() === 'asc' ? 
                 <ChevronUpIcon size={12} /> : 
                 column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 

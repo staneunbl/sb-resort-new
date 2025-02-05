@@ -156,7 +156,7 @@ export function AmenitiesTable() {
                 isLoading={isLoading}
                 title={"Amenities"}
                 data={amenities as any[] || []}
-                searchPlaceholder={"Search amenities..."}
+                searchPlaceholder={"Search Amenities..."}
                 columns={column}
                 columnToSearch={["Id", "Label", "Description"]}
                 pageSize={20}

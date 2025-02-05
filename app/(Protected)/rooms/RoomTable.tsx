@@ -100,7 +100,7 @@ export default function RoomTable() {
               className="p-0 bg-transparent font-semibold flex gap-1"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
             >
-              {roomsI18n.roomStatus} {
+              {roomsI18n.roomType} {
                 column.getIsSorted() === 'asc' ? 
                 <ChevronUpIcon size={12} /> : 
                 column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 

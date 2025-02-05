@@ -140,7 +140,7 @@ export default function GuestModal(){
                             name="firstName"
                             render={({ field }) => (
                             <FormItem className="flex flex-col justify-center space-y-1">
-                                <FormLabel className="text-center">First Name</FormLabel>
+                                <FormLabel className="text-left">First Name</FormLabel>
                                 <FormControl>
                                     <Input className="border" {...field} />
                                 </FormControl>
@@ -153,7 +153,7 @@ export default function GuestModal(){
                             name="lastName"
                             render={({ field }) => (
                             <FormItem className="flex flex-col justify-center space-y-1">
-                                <FormLabel className="text-center">Last Name</FormLabel>
+                                <FormLabel className="text-left">Last Name</FormLabel>
                                 <div>
                                 <FormControl>
                                     <Input className="border" {...field} />
@@ -168,7 +168,7 @@ export default function GuestModal(){
                             name="email"
                             render={({ field }) => (
                             <FormItem className="flex flex-col justify-center space-y-1">
-                                <FormLabel className="text-center">
+                                <FormLabel className="text-left">
                                 Email
                                 </FormLabel>
                                 <div>
@@ -185,7 +185,7 @@ export default function GuestModal(){
                             name="phone"
                             render={({ field }) => (
                             <FormItem className="flex flex-col justify-center space-y-1">
-                                <FormLabel className="text-center">
+                                <FormLabel className="text-left">
                                 Phone Number
                                 </FormLabel>
                                 <div>

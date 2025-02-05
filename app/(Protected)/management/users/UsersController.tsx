@@ -62,7 +62,7 @@ export default function UsersController() {
         }}
       >
         <Plus size={20} />
-        New User
+        Add New User
       </Button>
     </div>
   );

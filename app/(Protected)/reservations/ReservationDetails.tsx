@@ -343,7 +343,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                 </div>
                 <div className="flex w-full justify-between">
                   <h1 className="">
-                    {reservationI18n.reservationType}
+                    {reservationI18n.reservationMethod}
                   </h1>
                   <p className="font-semibold">{data.ReservationType}</p>
                 </div> 

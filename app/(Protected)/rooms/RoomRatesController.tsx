@@ -85,7 +85,12 @@ export default function RoomRatesController() {
           setState={setSelectedRoomRateRoomTypeFilter}
           state={selectedRoomRateRoomTypeFilter}
         />
-        <Button onClick={resetSelectOptState} className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary">
+        <Button onClick={ () => {
+          //reset selected filter to empty string, since the parameter is a string.
+          setSelectedRoomRateRoomTypeFilter("")
+          resetSelectOptState()
+        }
+          } className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary">
           <FilterX size={20} />
         </Button>
       </div>

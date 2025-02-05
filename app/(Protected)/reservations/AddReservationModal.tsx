@@ -849,30 +849,7 @@ export default function AddReservationModal() {
                                     </div>
                                         <div className="flex gap-4 pb-4">
                                             <div className="flex flex-col gap-4 w-full">
-                                                <FormField
-                                                    name="discount"
-                                                    render={({ field }) => (
-                                                        <FormItem className="w-full">
-                                                            <FormLabel>Discount</FormLabel>
-                                                            <div className="flex gap-4 w-full">
-                                                                <FormControl className="flex flex-1 relative">
-                                                                    <Input {...field} disabled={discountLoading} />
-                                                                </FormControl>
-                                                                <Button type="button" disabled={discountLoading} onClick={() => appliedDiscount.code ? removeDiscount() : checkVoucher(field.value)} className={`min-w-32 w-32 ${appliedDiscount.code ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
-                                                                {
-                                                                        discountLoading ? 
-                                                                        <Loader2 className="animate-spin" /> : 
-                                                                            appliedDiscount.code?
-                                                                            "Remove" : 
-                                                                            "Apply"
-                                                                    }
-                                                                </Button>
-                                                            </div>
-                                                            <FormMessage></FormMessage>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
+                                            <FormField
                                                     name="promo"
                                                     render={({ field }) => (
                                                         <FormItem className="w-full">
@@ -896,6 +873,29 @@ export default function AddReservationModal() {
                                                                         promoLoading ? 
                                                                         <Loader2 className="animate-spin" /> : 
                                                                             appliedPromo.PromoCode?
+                                                                            "Remove" : 
+                                                                            "Apply"
+                                                                    }
+                                                                </Button>
+                                                            </div>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    name="discount"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-full">
+                                                            <FormLabel>Discount</FormLabel>
+                                                            <div className="flex gap-4 w-full">
+                                                                <FormControl className="flex flex-1 relative">
+                                                                    <Input {...field} disabled={discountLoading} />
+                                                                </FormControl>
+                                                                <Button type="button" disabled={discountLoading} onClick={() => appliedDiscount.code ? removeDiscount() : checkVoucher(field.value)} className={`min-w-32 w-32 ${appliedDiscount.code ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
+                                                                {
+                                                                        discountLoading ? 
+                                                                        <Loader2 className="animate-spin" /> : 
+                                                                            appliedDiscount.code?
                                                                             "Remove" : 
                                                                             "Apply"
                                                                     }

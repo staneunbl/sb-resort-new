@@ -198,7 +198,7 @@ import { Reservation } from "@/types";
                 name="RoomTypeId"
                 render={({ field }) => (
                   <FormItem className="flex flex-col justify-center space-y-1">
-                    <FormLabel className="text-center">RoomType</FormLabel>
+                    <FormLabel className="text-left">RoomType</FormLabel>
                     <div>
                       <SelectComponent
                         placeholder="Select Room Type"
@@ -217,7 +217,7 @@ import { Reservation } from "@/types";
                 name="RoomCount"
                 render={({ field }) => (
                   <FormItem className="flex flex-col justify-center space-y-1">
-                    <FormLabel className="text-center">Room Count</FormLabel>
+                    <FormLabel className="text-left">Room Count</FormLabel>
                     <div>
                       <FormControl>
                         <Input className="border" {...field} />
@@ -287,7 +287,7 @@ import { Reservation } from "@/types";
                 name="ExtraChild"
                 render={({ field }) => (
                   <FormItem className="flex flex-col justify-center space-y-1">
-                    <FormLabel className="text-center">
+                    <FormLabel className="text-left">
                       Extra Child Count
                     </FormLabel>
                     <div>
@@ -304,7 +304,7 @@ import { Reservation } from "@/types";
                 name="ExtraAdult"
                 render={({ field }) => (
                   <FormItem className="flex flex-col justify-center space-y-1">
-                    <FormLabel className="text-center">
+                    <FormLabel className="text-left">
                       Extra Adult Count
                     </FormLabel>
                     <div>
@@ -319,7 +319,7 @@ import { Reservation } from "@/types";
                 name="Remarks"
                 render={({ field }) => (
                   <FormItem className="flex flex-col justify-center space-y-1">
-                    <FormLabel className="text-center">Remarks</FormLabel>
+                    <FormLabel className="text-left">Remarks</FormLabel>
                     <div>
                       <FormControl>
                         <Textarea className="border" {...field} value={field.value || ""} />

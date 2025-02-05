@@ -111,10 +111,10 @@ export default function AddOnFormModal() {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{isEditMode ? "Edit Add-on" : "Add Add-on"}</DialogTitle>
-          <DialogDescription>
-            {isEditMode
+          <DialogDescription className="text-md">
+            {isEditMode 
               ? "Please complete the form to Edit an add-on"
-              : "Please complete the form to Add an add-on"}
+              : "Please complete the form to add an add-on."}
           </DialogDescription>
         </DialogHeader>
         <div>

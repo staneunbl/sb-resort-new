@@ -132,11 +132,24 @@ export default function AvailableRoomTable() {
           Test
       </Button> */}
       <DetailedDataTable
-        title={`${roomsI18n.availableRooms} (${format(availableRoomsDateSelect.from!, "MMM dd, yyyy")} to ${format(availableRoomsDateSelect.to!, "MMM dd, yyyy")})`}
+        title={`${roomsI18n.availableRooms} 
+          (${
+          //checks if the date, is valid Date object.
+          availableRoomsDateSelect?.from instanceof Date
+          //optional Rendering
+          //ensures if availableRoomsDateSelect is undefined or null, it wont throw an error.
+            ? format(availableRoomsDateSelect.from, "MMM dd, yyyy")
+            : "Pick a date"
+        } to ${
+          availableRoomsDateSelect?.to instanceof Date
+            ? format(availableRoomsDateSelect.to, "MMM dd, yyyy")
+            : "Pick a date"
+          })`
+        }
         searchPlaceholder={roomsI18n.searchRoomType}
         isLoading={isFetchingAvailRoom}
         columns={columns}
-        columnToSearch={["roomtype"]}
+        columnToSearch={["Name"]}
         data={availRoomType || []}
       />
     </div>

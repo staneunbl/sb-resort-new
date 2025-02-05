@@ -107,9 +107,9 @@ export default function UserFormModal() {
     >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add User</DialogTitle>
+          <DialogTitle>Add New User</DialogTitle>
           <DialogDescription>
-            Please fiill up the form to proeed with the action
+              Please fill out the form to proceed with the action
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
