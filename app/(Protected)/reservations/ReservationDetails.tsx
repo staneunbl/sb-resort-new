@@ -292,9 +292,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                   <p className="font-semibold">
                     {
                       data.CheckInActual ?
-                      format(new Date(data.CheckInActual), "MMM dd, yyyy - h:mm a", {
-                        locale: localeFns[locale],
-                      }) :
+                      format(new Date(data.CheckInActual), "MMM dd, yyyy - h:mm a") :
                       "N/A"
                   }
                   </p>
@@ -612,7 +610,7 @@ export default function ReservationDetails({ id }: { id: string }) {
                             <p className="font-semibold text-black/[.70]">{data?.GuestData?.Address2}</p>
                           )
                         }
-                        <p className="font-semibold text-black/[.70]">{data?.GuestData?.City || "N/A"}, {data?.GuestData?.ZIPCode || "N/A"}</p>
+                        <p className="font-semibold text-black/[.70]">{data?.GuestData?.City || "N/A"}, {data?.GuestData?.Province || ""} {data?.GuestData?.ZIPCode || "N/A"}</p>
                         <p className="font-semibold text-black/[.70]">{data?.GuestData?.Country || "N/A"}</p>
                       </div>
                     </div>

@@ -25,7 +25,7 @@ export function RoomCard({tabindex ,roomTitle, bedType, adultCount, childCount, 
     return (
         <div 
             tabIndex={tabindex} 
-            className={`w-[80%] sm:w-[350px] md:w-[450px] lg:w-[400px] rounded drop-shadow-xl mt-5 flex-col transition group/card hover:cursor-pointer ${selectedType == roomTitle ? 'bg-cstm-secondary' : 'bg-white'} `} 
+            className={`w-[80%] sm:w-[350px] md:w-[450px] lg:w-[400px] rounded-md drop-shadow-xl mt-5 flex-col transition group/card hover:cursor-pointer ${selectedType == roomTitle ? 'bg-cstm-secondary' : 'bg-white'} `} 
             onClick={onClick}
             onKeyDown={(e) => e.key === 'Enter'  && onClick()}
         >

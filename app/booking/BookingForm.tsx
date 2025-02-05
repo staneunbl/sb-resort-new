@@ -73,7 +73,7 @@ import { checkDiscount } from "../ServerAction/discounts.action";
 export default function MainBookingForm() {
   const config = useConfig()
   const formRef = useRef<HTMLFormElement>(null);
-  const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState } = useBookingStore();
+  const { pageState, goPrevPage, goNextPage, setToSPrivacyModalState, setPageState} = useBookingStore();
 
   const BookingForms = [
     <BookingDateForm formRef={formRef} />,
@@ -181,31 +181,14 @@ function BookingDateForm({
 
   const [pageStateLoading, setPageStateLoading] = useState(false);
   const [pageStateTrigger, setPageStateTrigger] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
   
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    /* Add Value to a Global State */
-    // let unique = false
-    // let result = ''
-    //const {res, error} = await checkReferenceNumber(generateReferenceNumber());
+    console.log("clickCount", clickCount)
+    if(clickCount > 1) return;
 
     setPageStateLoading(true);
-
-    // while(!unique){
-    //   let ref = generateReferenceNumber()
-    //   const {res, error} = await checkReferenceNumber(ref);
-
-    //   if (res && res.length === 0) {
-    //     unique = true;
-    //     result = ref
-    //     setReferenceNumber(result);
-    //   }
-    // }
-    
-    // const { res } = await peekLastReservation();
-    // console.log(res)
-    // console.log(res[0].Id)
-    // let refId = res[0].Id + 1
-    setReferenceNumber("50");
+    setClickCount(clickCount + 1);
 
     setNumberOfRooms(1);
     setCheckInRange(values.dateRange);
@@ -215,19 +198,27 @@ function BookingDateForm({
         setPageStateLoading(false);
         return;
       }
+      console.log("with promo code")
       console.log(res)
       setPromoCode(values.promoCode);
       setPromoDetails(res);
+      setClickCount(0)
       goToRoomRates();
-    } else {
+    } 
+    
+    else {
+      console.log("no promo code")
       setPageStateLoading(false);
+      setClickCount(0)
       goNextPage();
     }
+
   }
 
   useEffect(() => {
     setPromoCode("");
   }, []);
+
   return (
     <div className="mx-auto rounded-sm p-3">
       <Card className="p-4">
@@ -367,22 +358,14 @@ function BookingDateForm({
         
       </Card>
       <div className={cn("mt-4 flex justify-center gap-4", "")}>
-        {/* <Button
-          disabled={pageState === 0}
-          variant={"destructive"}
-          onClick={() => {
-            console.log(pageState);
-          }}
-        >
-          Back
-        </Button> */}
         <Button
           disabled={pageStateLoading}
           className="bg-cstm-primary"
           type="submit"
           form="bookingForm"
           onClick={() => {
-            form.trigger();
+            // used to handle multiple clicks
+            setClickCount(clickCount + 1)
           }}
         >
           {pageStateLoading ? (
@@ -867,7 +850,9 @@ function CustomerDetailsForm({
     address1,
     address2,
     city,
-    zipCode
+    zipCode,
+    province,
+    setProvince
   } = useBookingStore();
 
   const [discountLoading, setDiscountLoading] = useState(false);
@@ -887,6 +872,7 @@ function CustomerDetailsForm({
       address1: z.string(),
       address2: z.string().optional(),
       city: z.string().min(1, { message: "Please enter a city" }),
+      province: z.string().min(1, {message: "Please enter a province"}),
       zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
       termsAndCondition: z.boolean().default(false).refine((val) => val, {
         message: "Please accept the terms and conditions",
@@ -920,6 +906,7 @@ function CustomerDetailsForm({
       address1: address1,
       address2: address2,
       city: city,
+      province: province,
       zipCode: zipCode
     },
   });
@@ -967,6 +954,7 @@ function CustomerDetailsForm({
     setAddress2(values.address2 || "");
     setCity(values.city);
     setZipCode(values.zipCode);
+    setProvince(values.province);
     setDateDetails({ totalDays });
     goNextPage();
   }
@@ -1254,11 +1242,26 @@ function CustomerDetailsForm({
                   />
 
                   <FormField
+                    name="province"
+                    render={({ field }) => (
+                      <FormItem className={cn("col-span-4", "sm:col-span-2")}>
+                        <div className="flex items-center gap-2">
+                          <FormLabel>Province</FormLabel>
+                          <FormMessage className="text-xs" />
+                        </div>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
                     name="zipCode"
                     render={({ field }) => (
                       <FormItem className={cn("col-span-4", "sm:col-span-2")}>
                         <div className="flex items-center gap-2">
-                          <FormLabel onClick={() => console.log(`Extra Adult: ${extraAdult}`, `Extra Child: ${extraChild}`)}>Postal / ZIP Code</FormLabel>
+                          <FormLabel >Postal / ZIP Code</FormLabel>
                           <FormMessage className="text-xs" />
                         </div>
                         <FormControl>
@@ -1475,6 +1478,27 @@ function CustomerDetailsForm({
                   </div>
               </Card>
             </div>
+            <div>
+              <Button type="button" onClick={() => {
+                form.setValue("firstName", "John");
+                form.setValue("lastName", "Doe");
+                form.setValue("birthDate", new Date("1998-01-01"));
+                form.setValue("country", "Philippines");
+                form.setValue("email", "jdoe@gmail.com");
+                form.setValue("confirmEmail", "jdoe@gmail.com");
+                form.setValue("contactNumber", "09123456789");
+                form.setValue("request", "Please provide extra towels.");
+                form.setValue("address1", "123 Main St.");
+                form.setValue("address2", "Brgy. 1");
+                form.setValue("city", "Manila");
+                form.setValue("province", "Metro Manila");
+                form.setValue("zipCode", "1000");
+              
+              }}
+              >
+                ADD DUMMY
+              </Button>
+            </div>
           </div>
         </form>
       </Form>
@@ -1538,9 +1562,10 @@ function ConfirmForm({
     address2,
     city,
     zipCode,
+    province, 
     resetStore,
     appliedDiscount,
-
+    setPageState
   } = useBookingStore();
 
   const [bookingSuccess, setBookingSuccess] = useState(false)
@@ -1565,6 +1590,7 @@ function ConfirmForm({
     address1: z.string(),
     address2: z.string().nullable(),
     city: z.string(),
+    province: z.string(),
     zipCode: z.string(),
     adultGuests: z.number(),
     childGuests: z.number()
@@ -1591,6 +1617,7 @@ function ConfirmForm({
       address1,
       address2,
       city,
+      province,
       zipCode,
       adultGuests,
       childGuests
@@ -1675,9 +1702,11 @@ function ConfirmForm({
       values.address1,
       values.address2,
       values.city,
+      values.province,
       values.zipCode,
       values.adultGuests,
-      values.childGuests
+      values.childGuests,
+      1
     );
 
     if(success) {
@@ -1703,6 +1732,7 @@ function ConfirmForm({
 
       sendEmail(values.email, `${config.CompanyName} <${config.CompanyEmail}>`, "Booking Confirmation", emailStringConfirmBooking(config, details));
       setBookingSuccess(true);
+      //setPageState(0);
       resetStore();
       
     }

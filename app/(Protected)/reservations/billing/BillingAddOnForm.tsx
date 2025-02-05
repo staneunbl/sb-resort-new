@@ -59,6 +59,7 @@ import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
 import { formatCurrencyJP } from "@/utils/Helpers";
 import { set } from "date-fns";
+import { prevElementSibling } from "domutils";
 
 interface AddOn {
   value: number;
@@ -138,12 +139,21 @@ export default function BillingAddOnForm() {
   });
 
   const [addedAddOn, setAddedAddOn] = useState<AddOn[]>([]);
-  /* Old meaning the added add-ons before 
-      New Meaning New Added add-ons 
-  */
-
   const [addOnTotal, setAddOnTotal] = useState<number>(0);
+  const [combinedTotal, setCombinedTotal] = useState<number>(0);
   const [newAddOnsTotal, setNewAddOnsTotal] = useState<number>(0);
+  const [combinedAddOns, setCombinedAddOns] = useState<(any & { quantity: number })[]>([]);
+
+  useEffect(() => {
+    if(data) {
+      const existingAddOn = data.map((item: any) => ({
+        ...item,
+        value: item.AddOnId,
+        quantity: item.AddOnCount || 1
+      }));
+      setCombinedAddOns(existingAddOn);
+    }
+  }, [data])
 
   useEffect(() => {
     setAddOnTotal(selectedBillingData?.TotalPerAddOn || 0);
@@ -155,29 +165,41 @@ export default function BillingAddOnForm() {
     const total = addedAddOn.reduce((n, { Price, quantity}) => n + (Price * quantity), 0)
     setNewAddOnsTotal(total)
   }, [addedAddOn])
+  
+  useEffect(() => {
+    console.log("combinedAddOns", combinedAddOns)
+    const total = combinedAddOns.reduce((n, { Price, quantity}) => n + (Price * quantity), 0)
+    setCombinedTotal(total)
+  }, [combinedAddOns])
 
   const handleQuantityChange = (value: string, itemValue: number) => {
     const quantity = parseInt(value) || 0;
-    setAddedAddOn(prev => 
-      prev.map(item => 
-        item.value === itemValue 
-          ? { ...item, quantity } 
-          : item
+    setCombinedAddOns((prev) =>
+      prev.map((item) =>
+        item.value === itemValue ? { ...item, quantity } : item
       )
     );
   };
 
+  const removeAddOn = (itemValue: number) => {
+    setCombinedAddOns((prev) => prev.filter((item: any) => item.value !== itemValue))
+  }
+
   function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const formEntries = Array.from(formData.entries()).map((item) => ({
-      addOnId: parseInt(item[0] as string),
-      addOnCount: parseInt(item[1] as string),
+    const formEntries = combinedAddOns.map((item) => ({
+      addOnId: item.value,
+      addOnCount: item.quantity,
     }));
+    // data?.map((addOn: any) => {
+    //   formEntries.push({ addOnId: addOn.AddOnId, addOnCount: addOn.AddOnCount });
+    // })
+    console.log(formData, formEntries);
     processBillingAddOnsMutate(formEntries);
   }
 
-  return (
+  return (  
     <Dialog
       open={billingAddOnFormModalState}
       onOpenChange={(val) => {
@@ -224,19 +246,25 @@ export default function BillingAddOnForm() {
                           value={item.value}
                           data-value={item}
                           onSelect={(currentValue) => {
-                            /* this is very complex and i dont have any idea how to explain it */
-                            setAddedAddOn((prev) => {
-                              if (prev.includes(item)) return prev.filter((item) => item !== item);
-                              return [...prev, {...item, quantity: 1}];
-                            });
-                            setOpen(false);
+                            let exists = combinedAddOns.some((addOn: any) => (item.value === addOn.value) && (item.label === addOn.label) && (item.Price === addOn.Price))
+                            console.log(item);
+                            if(exists) {
+                              console.log(item, "already added")
+                            }
+                            else {
+                              setCombinedAddOns((prev) => [
+                                ...prev,
+                                {...item, quantity: 1}
+                              ]);
+                              setOpen(false);
+                            }
                           }}
                         >
                           {item.label}
                           <Check
                             className={cn(
                               "ml-auto h-4 w-4",
-                              addedAddOn.includes(item)
+                              combinedAddOns.some((addOn: any) => (item.value === addOn.value) && (item.label === addOn.label) && (item.Price === addOn.Price))
                                 ? "opacity-100"
                                 : "opacity-0",
                             )}
@@ -286,43 +314,54 @@ export default function BillingAddOnForm() {
                   <LoaderCircle className="animate-spin" />
                 </div>
               ) : (
-                data &&
-                data.map((item: any) => (
-                  <div className="flex items-center py-2 border-b text-sm" key={item.Id}>
-                    <label className="w-2/6 px-2 font-semibold">
-                      {item.AddOnName}
-                    </label>
-                    <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
-                    <p className="w-2/6 px-2 text-black/[.6] text-right">{item.AddOnCount}</p>
-                    {/* <input
-                    {/* <input
-                      type="number"
-                      name={item.AddOnId}
-                      defaultValue={item.AddOnCount}
-                      minLength={1}
-                      className="input-decoration-none w-1/6 px-2 outline-none"
-                    /> */}
-                  </div>
-                ))
+                // data &&
+                // data.map((item: any) => (
+                //   <div className="flex items-center py-2 border-b text-sm" key={item.Id}>
+                //     <label className="w-2/6 px-2 font-semibold">
+                //       {item.AddOnName}
+                //     </label>
+                //     <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
+                //     <p className="w-2/6 px-2 text-black/[.6] text-right">{item.AddOnCount}</p>
+                //   </div>
+                // ))
+                ""
               )}
-              {addedAddOn.map((item) => (
+              {/* {addedAddOn.map((item) => (
                 <div className="flex items-center py-2 border-b text-sm" key={item.value}>
                   <label className="w-2/6 px-2 font-semibold">
                       {item.label}
                   </label>
                   <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
-                  {/* <label className="w-3/6 px-2 ">{item.label}</label>
-                  <p className="w-2/6 px-2">₱{formatCurrencyJP(item.Price)}</p> */}
                   <input
                     type="number"
                     name={item.value.toString()}
                     defaultValue="1"
                     minLength={1}
-                    className="input-decoration-none w-2/6 outline-none px-2 text-right"
+                    className="input-decoration-none w-2/6 px-2 text-right"
                     onChange={(e) => {
                       handleQuantityChange(e.target.value, item.value);
                     }}
                   />
+                </div>
+              ))} */}
+              {combinedAddOns?.map((item) => (
+                <div className="flex items-center py-2 border-b text-sm" key={item.value}>
+                  <label className="w-2/6 px-2 font-semibold">{item.AddOnName}</label>
+                  <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
+                  <input
+                    type="number"
+                    name={item.label}
+                    value={item.quantity}
+                    minLength={1}
+                    className="input-decoration-none w-2/6 px-2 text-right"
+                    onChange={(e) => handleQuantityChange(e.target.value, item.value)}
+                  />
+                  <button
+                    className="ml-2 text-red-500"
+                    onClick={() => removeAddOn(item.value)}
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </form>
@@ -333,7 +372,8 @@ export default function BillingAddOnForm() {
                 {generali18n.total}
               </h1>
               <h1 className="w-1/6 text-center font-bold">
-                ₱{formatCurrencyJP(addOnTotal + newAddOnsTotal)}
+                {/* ₱{formatCurrencyJP(addOnTotal + newAddOnsTotal)} */}
+                ₱{formatCurrencyJP(combinedTotal)}
               </h1>
             </div>
             {/* <div className="flex items-center">
@@ -367,6 +407,9 @@ export default function BillingAddOnForm() {
         <DialogFooter>
           <Button form="form" type="submit">
            {generali18n.submit}
+          </Button>
+          <Button form="form" type="button" onClick={() => console.log(combinedAddOns)}>
+           test
           </Button>
         </DialogFooter>
       </DialogContent>

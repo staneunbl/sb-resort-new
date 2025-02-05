@@ -60,7 +60,7 @@ export default function FinalizeBillingForm() {
     mutationKey: ["FinalizeBill"],
     mutationFn: async (value: number) => {
       const res = await finalizeBill(value);
-      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date(convertToLocalUTCTime(new Date())));
+      const res2 = await updateCheckOutTime(selectedBillingData.ReservationId, new Date());
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;

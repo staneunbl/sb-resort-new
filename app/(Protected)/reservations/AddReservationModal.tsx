@@ -1,5 +1,5 @@
 "use client"
-import { BabyIcon, CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleAlertIcon, CircleUserIcon, Loader2 } from "lucide-react";
+import { BabyIcon, CalendarIcon, CheckIcon, ChevronsUpDownIcon, CircleAlertIcon, CircleUserIcon, Info, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SelectComponent from "@/components/SelectComponent";
 import { useGlobalStore } from "@/store/useGlobalStore";
@@ -43,15 +43,22 @@ import { toast } from "sonner";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "next-export-i18n";
 import { Textarea } from "@/components/ui/textarea";
-import { capitalizeFirstLetter, computeInitialBooking, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP } from "@/utils/Helpers";
+import { capitalizeFirstLetter, computeInitialBooking, convertToLocalUTCTime, findWeekdaysInRange, formatCurrencyJP, getPercentage } from "@/utils/Helpers";
 import { countries } from "@/data/countries";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { RoomRate } from "@/types";
 import { DatePicker } from "@/components/ui/calendar2";
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+  } from "@/components/ui/tooltip";
+import { checkDiscount } from "@/app/ServerAction/discounts.action";
+import { checkPromoWalkIn, getPromo } from "@/app/ServerAction/promos.action";
 
 export default function AddReservationModal() {
 
-    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery } = useGlobalStore();
+    const { addReservationModalState, setAddReservationModalState, availableRoomsQuery, roomTypesQuery, roomRatesQuery, reservationQuery, appliedDiscount, setAppliedDiscount, appliedPromo, setAppliedPromo } = useGlobalStore();
     const [childCapacity, setChildCapacity] = useState(0);
     const [adultCapacity, setAdultCapacity] = useState(0);
     const [extraChild, setExtraChild] = useState(0);
@@ -85,7 +92,13 @@ export default function AddReservationModal() {
         email: z.string().email().min(1, {message: "Invalid email format."}),
         phoneNumber: z.string().min(9, {message: "Phone number must contain at least 9 digits."}).max(11, {message: "Phone number must contain at most 11 digits."}),
         country: z.string(),
-    
+        address1: z.string(),
+        address2: z.string().optional(),
+        city: z.string().min(1, { message: "Please enter a city" }),
+        province: z.string().min(1, {message: "Please enter a province"}),
+        zipCode: z.coerce.string().min(1, { message: "Please enter a zip code" }),
+        discount: z.string(),
+        promo: z.string(),
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -100,17 +113,122 @@ export default function AddReservationModal() {
             request: "",
             firstName: "",
             lastName: "",
-            birthday: new Date("1990-01-01"),
+            birthday: undefined,
             email: "",
             phoneNumber: "",
             country: "Philippines",
+            discount: "",
+            promo: ""
         }
     })
 
     const { data, isLoading, refetch } = availableRoomsQuery(form.getValues("dateRange").from, form.getValues("dateRange").to);
-    const { data: roomTypeData, isLoading: roomTypeLoading, refetch: roomTypeRefetch } = roomTypesQuery()
+    const { data: roomTypeData, isLoading: roomTypeLoading, refetch: roomTypeRefetch } = roomTypesQuery();
     const { data: roomRateData, isLoading: roomRateLoading, refetch: roomRateRefetch } = roomRatesQuery();
     const { refetch: reservationRefetch } = reservationQuery();
+    const [discountLoading, setDiscountLoading] = useState<boolean>(false);
+    const [promoLoading, setPromoLoading] = useState<boolean>(false);
+    const [initialBill, setInitialBill] = useState<number>(0);
+
+    async function checkVoucher(voucherCode: string) {
+        if(voucherCode == "") {
+            form.setError("discount", { message: "Please enter a discount code." });
+            form.clearErrors('promo');
+            return;
+        }
+        else {
+            setDiscountLoading(true);
+            setAppliedDiscount({} as any);
+            const data = await checkDiscount(voucherCode, {
+                roomTypeId: roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.Id,
+                startDate: form.getValues("dateRange.from"),
+                endDate: form.getValues("dateRange.to"),
+                nights: days.weekdays + days.weekends,
+                bill: initialBill
+            })
+            
+            if (data.success) {
+              setAppliedPromo({} as any);
+              setAppliedDiscount({
+                id: data.res?.Id,
+                name: data.res?.DiscountName,
+                code: data.res?.DiscountCode,
+                type: data.res?.DiscountType,
+                value: data.res?.DiscountValue
+              });
+              form.setValue("promo", "");
+              form.clearErrors("discount");
+
+            }
+            if (!data.success) {
+              form.setError("discount", { message: data.message });
+            }
+            console.log(data)
+            setDiscountLoading(false)
+        }
+      }
+
+    function removeDiscount() {
+        setAppliedDiscount({} as any);
+        form.clearErrors("discount");
+        form.setValue("discount", "");    
+    }
+
+    async function checkPromo(promoCode: string) {
+        if(promoCode == "") {
+            form.setError("promo", { message: "Please enter a promo code." });
+            form.clearErrors("discount");
+            return;
+        }
+        else {
+            setPromoLoading(true);
+            setAppliedPromo({} as any);
+            const data = await checkPromoWalkIn(promoCode);
+            console.log(data);
+            
+            if(data.success && data.res) {
+                setAppliedPromo(data.res)
+                setAppliedDiscount({} as any);
+            
+                
+                form.clearErrors("promo");
+                form.clearErrors("discount");
+                
+                form.setValue("discount", "");
+                form.setValue("roomType", data.res.RoomType.toLowerCase())
+            }
+            if(!data.success) {
+                form.setError("promo", { message: data.message });
+            }
+            
+            setPromoLoading(false);
+        }
+    }
+
+    function removePromo() {
+        setAppliedPromo({} as any);
+        form.clearErrors("promo");
+        form.setValue("promo", "");
+        form.setValue("roomType", "")
+        setRoomRate({
+            "RateTypeId": 0,
+            "RoomTypeId": 0,
+            "RoomType": "",
+            "MaxAdult": 0,
+            "MaxChild": 0,
+            "Description": "",
+            "BedTypeId": 0,
+            "Id": 0,
+            "BaseRoomRate": 0,
+            "ExtraAdultRate": 0,
+            "ExtraChildRate": 0,
+            "WeekendExtraAdultRate": 0,
+            "WeekendExtraChildRate": 0,
+            "WeekendRoomRate": 0,
+            "CreatedAt": new Date()
+        });
+    }
+    
 
     useEffect(() => {
         refetch()
@@ -122,11 +240,68 @@ export default function AddReservationModal() {
         setChildCapacity(roomTypeData?.find((room: any) => room.TypeName.toLowerCase() == form.getValues("roomType")?.toString().toLowerCase())?.MaxChild)
     }, [form.watch("roomType"), roomTypeData])
 
+    /*setRoomRate({
+            "RateTypeId": 0,
+            "RoomTypeId": 0,
+            "RoomType": "",
+            "MaxAdult": 0,
+            "MaxChild": 0,
+            "Description": "",
+            "BedTypeId": 0,
+            "Id": 0,
+            "BaseRoomRate": 0,
+            "ExtraAdultRate": 0,
+            "ExtraChildRate": 0,
+            "WeekendExtraAdultRate": 0,
+            "WeekendExtraChildRate": 0,
+            "WeekendRoomRate": 0,
+            "CreatedAt": new Date()
+        });*/
     
     useEffect(() => {
         if(!roomRateLoading && roomRateData) {
             const rate = roomRateData?.find((rate: any) => rate.RoomType.toLowerCase() == form.getValues("roomType"))
-            setRoomRate(rate)
+            console.log(appliedPromo.PromoCode)
+            if(appliedPromo.PromoCode) {
+                setRoomRate({
+                    "RateTypeId": 0,
+                    "RoomTypeId": 0,
+                    "RoomType": "",
+                    "MaxAdult": 0,
+                    "MaxChild": 0,
+                    "Description": "",
+                    "BedTypeId": 0,
+                    "Id": 0,
+                    "BaseRoomRate": 0,
+                    "ExtraAdultRate": 0,
+                    "ExtraChildRate": 0,
+                    "WeekendExtraAdultRate": 0,
+                    "WeekendExtraChildRate": 0,
+                    "WeekendRoomRate": 0,
+                    "CreatedAt": new Date()
+                });
+                const promoRate: RoomRate = {
+                    RateTypeId: 2,
+                    RoomTypeId: appliedPromo.RoomTypeId,
+                    RoomType: appliedPromo.RoomType,
+                    MaxAdult: rate.MaxAdult,
+                    MaxChild: rate.MaxChild,
+                    Description: rate.Description,
+                    BedTypeId: rate.BedTypeId,
+                    Id: appliedPromo.Id,
+                    BaseRoomRate: appliedPromo.BaseRoomRate,
+                    ExtraChildRate: appliedPromo.ExtraChildRate,
+                    ExtraAdultRate: appliedPromo.ExtraAdultRate,
+                    WeekendRoomRate: appliedPromo.WeekendRoomRate,
+                    WeekendExtraChildRate: appliedPromo.WeekendExtraChildRate,
+                    WeekendExtraAdultRate: appliedPromo.WeekendExtraAdultRate,
+                    CreatedAt: rate.CreatedAt
+                }
+                setRoomRate(promoRate)
+            }
+            else {
+                setRoomRate(rate)
+            }
         }
     }, [form.watch("roomType"), roomRateData])
     
@@ -148,6 +323,31 @@ export default function AddReservationModal() {
             setExtraChild(0)
         }
     }, [form.watch("childGuests"), childCapacity])
+
+    useEffect(() => {
+        if(appliedDiscount.code){
+            checkVoucher(appliedDiscount.code)
+        }
+        else if(appliedPromo.PromoCode) {
+            checkPromo(appliedPromo.PromoCode)
+        }
+    }, [roomRate])
+
+    useEffect(() => {
+        setInitialBill((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))
+        console.log((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))
+    }, [roomRate, form.watch("dateRange"), form.watch("adultGuests"), form.watch("childGuests"), form.watch("extraAdult"), form.watch("extraChild")])
+
+    useEffect(() => {
+        if(appliedDiscount) {
+            if(appliedDiscount.type == "percentage") {
+                setInitialBill(initialBill - (initialBill * (appliedDiscount.value / 100)))
+            }
+            if(appliedDiscount.type == "flat") {
+                setInitialBill(initialBill - appliedDiscount.value)
+            }
+        }
+    }, [appliedDiscount])
 
     useEffect(() => {
         console.log(form.getValues("country"))
@@ -191,13 +391,15 @@ export default function AddReservationModal() {
                         1,
                         values.country,
                         values.request || "",
-                        null,
-                        "",
-                        "",
-                        "",
-                        "",
+                        appliedDiscount.id || null,
+                        values.address1,
+                        values.address2 || "",
+                        values.city,
+                        values.province,
+                        values.zipCode,
                         values.adultGuests,
-                        values.childGuests
+                        values.childGuests,
+                        2
             )
             if(!res.success) throw new Error(res.res)
             return res.res
@@ -221,6 +423,7 @@ export default function AddReservationModal() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
+        console.log("onSubmit function")
         addMutation.mutate(values)
         console.log(values)
     }
@@ -253,9 +456,11 @@ export default function AddReservationModal() {
                 "CreatedAt": new Date()
             });
             setDays({weekends: 0, weekdays: 0});
+            setAppliedDiscount({} as any);
+            setAppliedPromo({} as any);
         }}
       >
-        <DialogContent className="sm:max-w-[950px] sm:max-h-[600px] overflow-hidden">
+        <DialogContent className="sm:max-w-[1200px] sm:max-h-[600px] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Add Reservation</DialogTitle>
             <DialogDescription>
@@ -275,6 +480,7 @@ export default function AddReservationModal() {
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
+                                                    type="button"
                                                     variant={"outline"}
                                                     className={cn(
                                                     "w-full pl-3 text-left font-normal  ",
@@ -327,9 +533,9 @@ export default function AddReservationModal() {
                             ):
                             (
                                 <>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col pb-4 border-b">
                                         <p className="text-lg font-bold">Room Details</p>
-                                        <div className="flex gap-4">
+                                        <div className="flex gap-4 ">
                                             <div className="w-full">
                                                 <FormField
                                                     name="roomType"
@@ -341,6 +547,7 @@ export default function AddReservationModal() {
                                                                     className="w-full"
                                                                     setState={field.onChange}
                                                                     state={field.value}
+                                                                    disabled={appliedPromo.PromoCode ? true : false}
                                                                     options={  Array.from(new Set(data?.map((room: any) => room.room_type))).map((roomType: any) => ({value: roomType, label: roomType})) || [{value: "Single", label: "Single"}] }
                                                                     placeholder={"Select room type..."}
                                                                 />
@@ -456,8 +663,22 @@ export default function AddReservationModal() {
                                                 />    
                                             </div>
                                         </div>
+                                        <div className="">
+                                            <FormField
+                                                name="request"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Special Requests</FormLabel>
+                                                        <FormControl className=" ">
+                                                            <Textarea className="border" {...field} value={field.value || ""} />
+                                                        </FormControl>
+                                                        <FormMessage></FormMessage>
+                                                    </FormItem>
+                                                )}
+                                            />    
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col pb-4 border-b">
                                         <p className="text-lg font-bold">Guest Details</p>
                                         <div className="flex gap-4">
                                             <div className="w-1/2">
@@ -490,86 +711,20 @@ export default function AddReservationModal() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-4 mt-4">
-                                            <div className="">
-                                                <FormField
-                                                    name="country"
-                                                    render={({ field }) => (
-                                                        <FormItem className={cn("col-span-4", "sm:col-span-2")}>
-                                                            <div className="flex items-center gap-2">
-                                                                <FormLabel>Country</FormLabel>
-                                                                <FormMessage className="text-xs" />
-                                                            </div>
-                                                            {/* <Input {...field} /> */}
-                                                            <Popover>
-                                                                <PopoverTrigger asChild>
-                                                                    <FormControl>
-                                                                        <Button
-                                                                        variant="outline"
-                                                                        role="combobox"
-                                                                        className={cn(
-                                                                            "w-full justify-between",
-                                                                            !field.value && "text-muted-foreground"
-                                                                        )}
-                                                                        >
-                                                                        {field.value
-                                                                            ? countries.find(
-                                                                                (country) => country.name === field.value
-                                                                            )?.name
-                                                                            : "Select Country"}
-                                                                            <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                                        </Button>
-                                                                    </FormControl>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className="w-full p-0">
-                                                                <Command>
-                                                                    <CommandInput
-                                                                    placeholder="Search country..."
-                                                                    className="h-9"
-                                                                    />
-                                                                    <CommandList>
-                                                                        <CommandEmpty>No framework found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            {countries.map((country) => (
-                                                                            <CommandItem
-                                                                                value={country.name}
-                                                                                key={country.name}
-                                                                                onSelect={() => {
-                                                                                form.setValue("country", country.name)
-                                                                                }}
-                                                                            >
-                                                                                {country.name}
-                                                                                <CheckIcon
-                                                                                className={cn(
-                                                                                    "ml-auto h-4 w-4",
-                                                                                    country.name === field.value
-                                                                                    ? "opacity-100"
-                                                                                    : "opacity-0"
-                                                                                )}
-                                                                                />
-                                                                            </CommandItem>
-                                                                            ))}
-                                                                        </CommandGroup>
-                                                                    </CommandList>
-                                                                </Command>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </FormItem>
-                                                    )}
-                                                /> 
-                                            </div>
+                                           
                                             <div>
                                                 <FormField
-                                                    name="birthDate"
+                                                    name="birthday"
                                                     render={({ field }) => (
                                                         <FormItem className={cn("col-span-4")}>
                                                         <div className="flex items-center gap-2">
                                                             <FormLabel>Birth Date</FormLabel>
-                                                            <FormMessage className="text-xs" />
                                                         </div>
                                                         <FormControl>
                                                             <DatePicker date={field.value} setDate={field.onChange} />
                                                             
                                                         </FormControl>
+                                                        <FormMessage className="text-xs" />
                                                         </FormItem>
                                                     )}
                                                 />
@@ -602,14 +757,79 @@ export default function AddReservationModal() {
                                                     )}
                                                 />    
                                             </div>
-                                            <div className="">
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-4 pb-4 border-b">
+                                        <p className="text-lg font-bold">Billing Address</p>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
                                                 <FormField
-                                                    name="request"
+                                                    name="address1"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>Special Requests</FormLabel>
+                                                            <FormLabel>Address 1</FormLabel>
                                                             <FormControl className=" ">
-                                                                <Textarea className="border" {...field} value={field.value || ""} />
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="address2"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Address 2</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="city"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>City</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="province"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Province / State / Region</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />    
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-1/2">
+                                                <FormField
+                                                    name="zipCode"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>ZIP Code</FormLabel>
+                                                            <FormControl className=" ">
+                                                                <Input {...field} />
                                                             </FormControl>
                                                             <FormMessage></FormMessage>
                                                         </FormItem>
@@ -618,6 +838,77 @@ export default function AddReservationModal() {
                                             </div>
                                         </div>
                                     </div>
+                                    <div className="flex gap-2 items-center">
+                                        <p className="text-lg font-bold">Promo / Discount</p>
+                                        <Tooltip data-align="start">
+                                            <TooltipTrigger asChild>
+                                                <span className="text-muted-foreground"><Info stroke="currentColor" size={14}></Info></span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>Only one of discount or promo can be active.</TooltipContent>
+                                        </Tooltip>
+                                    </div>
+                                        <div className="flex gap-4 pb-4">
+                                            <div className="flex flex-col gap-4 w-full">
+                                                <FormField
+                                                    name="discount"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-full">
+                                                            <FormLabel>Discount</FormLabel>
+                                                            <div className="flex gap-4 w-full">
+                                                                <FormControl className="flex flex-1 relative">
+                                                                    <Input {...field} disabled={discountLoading} />
+                                                                </FormControl>
+                                                                <Button type="button" disabled={discountLoading} onClick={() => appliedDiscount.code ? removeDiscount() : checkVoucher(field.value)} className={`min-w-32 w-32 ${appliedDiscount.code ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
+                                                                {
+                                                                        discountLoading ? 
+                                                                        <Loader2 className="animate-spin" /> : 
+                                                                            appliedDiscount.code?
+                                                                            "Remove" : 
+                                                                            "Apply"
+                                                                    }
+                                                                </Button>
+                                                            </div>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    name="promo"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-full">
+                                                            <FormLabel>Promo Code {appliedPromo ? "(" + appliedPromo.PromoCode + ")" : ""}</FormLabel>
+                                                            <div className="flex gap-4 w-full">
+                                                                <FormControl className="flex flex-1">
+                                                                    <div className="relative">
+                                                                        <div className="absolute top-0 right-0 pr-3 h-full z-1 flex items-center justify center"> 
+                                                                        <Tooltip data-align="start">
+                                                                            <TooltipTrigger asChild>
+                                                                                <span className="text-muted-foreground"><Info stroke="currentColor" size={14}></Info></span>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent>Applying a promo overrides selected room details.</TooltipContent>
+                                                                        </Tooltip> 
+                                                                        </div>
+                                                                        <Input {...field} />
+                                                                    </div>
+                                                                </FormControl>
+                                                                <Button disabled={(promoLoading)} type="button" onClick={() => appliedPromo.PromoCode ? removePromo() : checkPromo(field.value)} className={`min-w-32 w-32 ${appliedPromo.PromoCode ? "bg-red-500" : "bg-cstm-primary"} text-white`}>
+                                                                    {
+                                                                        promoLoading ? 
+                                                                        <Loader2 className="animate-spin" /> : 
+                                                                            appliedPromo.PromoCode?
+                                                                            "Remove" : 
+                                                                            "Apply"
+                                                                    }
+                                                                </Button>
+                                                            </div>
+                                                            <FormMessage></FormMessage>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                {/* <Button type="button" onClick={() => console.log(appliedDiscount, appliedPromo, form.getValues("roomType"), roomRate)}>DEBUG</Button> */}
+                                            </div>
+
+                                        </div>
                                 </>
                             )
                         }
@@ -626,7 +917,17 @@ export default function AddReservationModal() {
                         <div className="flex flex-col w-full h-fit p-4 bg-white border-gray-200 border shadow-lg rounded">
                             <p className="text-lg font-bold" onClick={() => {console.log(roomRate)}}>Booking Summary</p>
                             <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-4 text-sm">
+                                <div className="flex flex-col gap-3 text-sm">
+                                    {
+                                        appliedPromo.PromoCode && (
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-bold">Promo Code</p>
+                                            <div className="flex flex-col items-end">
+                                                <span className="p-1 rounded bg-cstm-secondary text-white">{appliedPromo.PromoCode}</span>
+                                            </div>
+                                        </div>
+                                        )
+                                    }
                                     <div>
                                         <p className="font-bold">Room</p>
                                         <div className="flex flex-col gap-2 ms-4">
@@ -674,6 +975,17 @@ export default function AddReservationModal() {
                                     <p className="text-black/[.70] ">VAT <span className="text-black/[.50] text-sm ">(12%)</span></p>
                                     <p className="text-black font-bold">¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12))}</p>
                                 </div>
+                                {
+                                    appliedDiscount.code && (
+                                    <div className="flex justify-between">
+                                        <p className="text-black/[.70]">Discount Code</p>
+                                        <div className="flex flex-col items-end">
+                                            <p className="text-green-500 font-bold ">{appliedDiscount.type === "percentage" ? `- ¥${formatCurrencyJP(getPercentage((initialBill), appliedDiscount.value))}` : `- ¥${formatCurrencyJP(appliedDiscount.value)}`}</p>
+                                            <p className="text-white text-sm text-end">{appliedDiscount.code ? appliedDiscount.type === "percentage" ? `${appliedDiscount.code} (${appliedDiscount.value}% off)` : `${appliedDiscount.code}`   : "None"}</p>
+                                        </div>
+                                    </div>
+                                    )
+                                }
                                 <div className="border-t-2 p-t-2">
                                 {/* <span>Total Bill</span>
                                 <span className="font-bold">
@@ -686,7 +998,8 @@ export default function AddReservationModal() {
                                 <div className="flex justify-between bg-cstm-secondary p-4 rounded-md mt-2 items-start">
                                     <p className="text-white/[.70] ">TOTAL</p>
                                     <p className="text-white text-3xl font-bold">
-                                        ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) )}
+                                        {/* ¥{formatCurrencyJP((computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild) * 0.12) + computeInitialBooking(roomRate, days.weekends, days.weekdays, extraAdult, extraChild))} */}
+                                        ¥{formatCurrencyJP(initialBill)}
                                     </p>
                                 </div>
                                 </div>
@@ -694,7 +1007,7 @@ export default function AddReservationModal() {
                             </div>
                         </div>
                         <div className="flex justify-end">
-                            <Button type="submit" className="w-full text-white" disabled={isLoading || submissionLoading}>{submissionLoading ? <Loader2 size={16} color="currentColor" className="animate-spin" /> : "Submit"}</Button>
+                            <Button type="submit" onClick={() => {console.log(form.formState.errors)}} className="w-full text-white" disabled={isLoading || submissionLoading}>{submissionLoading ? <Loader2 size={16} color="currentColor" className="animate-spin" /> : "Submit"}</Button>
                         </div>
                     </div>
                 </form>

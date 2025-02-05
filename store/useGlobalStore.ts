@@ -38,6 +38,10 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   selectedRoomData: null,
   setSelectedRoomData: (data) => set(() => ({ selectedRoomData: data })),
 
+  // History States
+  lastVisitedUrl: "",
+  setLastVisitedUrl: (data) => set(() => ({ lastVisitedUrl: data })),
+
   roomFormModalState: false,
   setRoomFormModalState: (data) => set(() => ({ roomFormModalState: data })),
   /* Add/Edit RoomRates States */
@@ -89,6 +93,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     set(() => ({ promosFormModalState: data })),
   selectedPromoData: {},
   setSelectedPromoData: (data) => set(() => ({ selectedPromoData: data })),
+  appliedPromo: {} as any,
+  setAppliedPromo: (data) => set(() => ({ appliedPromo: data })),
 
   /* Manage Guest/User */
   guestFormModalState: false,
@@ -157,6 +163,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedDiscountsFilter: (data: any) => set(() => ({ selectedDiscountsFilter: data })),
   selectedDiscountRoomType: [],
   setSelectedDiscountRoomType: (data: any) => set(() => ({ selectedDiscountRoomType: data })),
+  appliedDiscount: {} as any,
+  setAppliedDiscount: (data: any) => set((state) => ({ ...state, appliedDiscount: data })),
 
   roomTypesQuery: () => {
     return useQuery({
@@ -210,7 +218,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
       queryKey: ["GetRoomRates"],
       queryFn: async () => {
         const data = await getRoomRates();
-        console.log(data)
+        //console.log(data)
         return data.res as RoomRate[]
         //return (await getRoomRates()).res as RoomRate[],
       }
@@ -275,7 +283,7 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
     return useQuery({
       queryKey: ["GetAvailableRooms"],
       queryFn: async () => {
-        console.log(to, from)
+        //console.log(to, from)
         return (await getAvailableRoomsRPC(to,from)).res as any
       }
     })
@@ -320,8 +328,19 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   getConfigQuery: () => {
     return useQuery({
       queryKey: ["GetConfig"],
-      queryFn: async () => transformConfig(),
-      staleTime: Infinity
+      queryFn: async () => {
+        try {
+          const result = await transformConfig();
+          return result
+        }
+        catch (error) {
+          console.error("Config query error:", error);
+          throw error;
+        }
+      },
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      retry: 1
     })
   },
 
@@ -372,7 +391,11 @@ interface GlobalState {
 
   // General
   imageUploadMaxMB: number,
-  setImageUploadMaxMB: (value: number) => void
+  setImageUploadMaxMB: (value: number) => void,
+
+  // History State
+  lastVisitedUrl: string,
+  setLastVisitedUrl: (value: string) => void,
 
   localeFns: { [key: string]: Locale };
   /*  RoomForm States */
@@ -426,7 +449,26 @@ interface GlobalState {
   setSelectedPromoData: (data: any) => void;
   addOnFilterType: string;
   setAddOnFilterType: (data: string) => void;
+  appliedPromo: { Id: number, PromoName: string, PromoCode: string,  ExpiredAt: Date, RedemptionLeft: number, RoomTypeId: number, RoomType: string, BaseRoomRate: number, ExtraChildRate: number, ExtraAdultRate: number, WeekendRoomRate: number, WeekendExtraChildRate: number, WeekendExtraAdultRate: number }
+  setAppliedPromo: (promo: { Id: number, PromoName: string, PromoCode: string,  ExpiredAt: Date, RedemptionLeft: number, RoomTypeId: number, RoomType: string, BaseRoomRate: number, ExtraChildRate: number, ExtraAdultRate: number, WeekendRoomRate: number, WeekendExtraChildRate: number, WeekendExtraAdultRate: number }) => void
 
+  /*
+  {
+    "Id": 31,
+    "PromoCode": "DELUXE2024",
+    "PromoName": "DELUXE2024",
+    "RedemptionLeft": 43,
+    "ExpiredAt": "2025-02-28",
+    "RoomRateId": 54,
+    "RoomTypeId": 13,
+    "BaseRoomRate": 100,
+    "ExtraChildRate": 100,
+    "ExtraAdultRate": 100,
+    "WeekendRoomRate": 100,
+    "WeekendExtraChildRate": 100,
+    "WeekendExtraAdultRate": 100,
+    "RoomType": "Deluxe"
+}*/
   /* Billing Details */
 
   /* Report */
@@ -503,6 +545,8 @@ interface GlobalState {
   setSelectedDiscountsFilter: (data: any) => void;
   selectedDiscountRoomType: any
   setSelectedDiscountRoomType: (data: any) => void;
+  appliedDiscount: { id: number, name: string, code: string, type: string, value: number }
+  setAppliedDiscount: (discount: { id: number, name: string, code: string, type: string, value: number }) => void
 }
 
 

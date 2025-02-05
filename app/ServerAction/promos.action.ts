@@ -60,6 +60,29 @@ export async function deletePromo(id: string) {
     return { success: true };
 }
 
+export async function checkPromoWalkIn(promoCode: string) {
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+        .from("Promos")
+        .select("Id, PromoCode, PromoName, RedemptionLeft, ExpiredAt, ...RoomRates(RoomRateId:Id, RoomTypeId,...RoomTypes(RoomType:TypeName), BaseRoomRate, ExtraChildRate, ExtraAdultRate, WeekendRoomRate, WeekendExtraChildRate, WeekendExtraAdultRate)")
+        .eq("PromoCode", promoCode)
+        .neq("isDeleted", true)
+        .single();
+        console.log(data)
+    if (error || !data) {
+        return { success: false, message: "Inactive or invalid promo code.", res: null };
+    }
+
+    if(data && data.RedemptionLeft <= 0){
+        return { success: false, message: "Promo code has been fully redeemed.", res: null };
+    }
+
+    if (data.ExpiredAt < today) {
+        return { success: false, message: "Promo code has expired.", res: null };
+    }
+    return { success: true, message: "Promo code is valid.", res: data };
+}
+
 /* Public endpoint */
 export async function getPromo(promoCode: string) {
     const today = new Date().toISOString().split('T')[0];

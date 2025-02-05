@@ -1,3 +1,4 @@
+"use client";
 import { useConfig } from "@/utils/ConfigProvider";
 import { AtSignIcon, MapPinIcon, PhoneIcon, PinIcon, WavesIcon } from "lucide-react";
 import Image from "next/image";

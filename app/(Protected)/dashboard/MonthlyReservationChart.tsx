@@ -85,7 +85,7 @@ export default function MonthlyReservationChart() {
         {dashboardI18n.monthlyReservations}
       </CardHeader>
       <div className="p-4">
-        <ResponsiveContainer width="100%" height={250}>
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart width={672} height={250} data={res ?? []}>
             <CartesianGrid vertical horizontal={false} stroke={"#fff"} />
             <XAxis dataKey="Month" tick={{ fill: "hsl(206, 88%, 94%, 1)" }} />

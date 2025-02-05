@@ -80,7 +80,7 @@ export default function BillingFormModal() {
     mutationKey: ["AddBilling"],
     mutationFn: async (values: any) => {
       const res = await addBillings(values);
-      const res2 = await updateCheckInTime(values.ReservationId, new Date(convertToLocalUTCTime(new Date())))
+      const res2 = await updateCheckInTime(values.ReservationId, new Date())
       if (!res.success) throw new Error();
       if (!res2.success) throw new Error();
       return res;
@@ -107,7 +107,7 @@ export default function BillingFormModal() {
         selectedReservationData?.RoomTypeId || 0,
       );
       if (!res.success) throw new Error();
-      console.log(selectedReservationData.CheckInDate, selectedReservationData.CheckOutDate)
+      //console.log(selectedReservationData.CheckInDate, selectedReservationData.CheckOutDate)
       return calculateInitialBill(
         selectedReservationData.CheckInDate,
         selectedReservationData.CheckOutDate,
@@ -162,9 +162,9 @@ export default function BillingFormModal() {
     const subtotal = price + vat;
     const discountValue = selectedReservationData.DiscountId ? selectedReservationData.Discounts.DiscountType === 'percentage' ? getPercentage(subtotal, selectedReservationData.Discounts.DiscountValue) : selectedReservationData.Discounts.DiscountValue : 0;
     
-    console.log("Price :", price)
-    console.log("VAT: " , vat)
-    console.log("Discount: ", discountValue)
+    // console.log("Price :", price)
+    // console.log("VAT: " , vat)
+    // console.log("Discount: ", discountValue)
     return subtotal - discountValue
   } 
 

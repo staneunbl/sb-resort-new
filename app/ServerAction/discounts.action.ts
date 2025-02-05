@@ -234,6 +234,7 @@ export async function checkDiscount (discountCode: string, details: {
         .single()
 
     if(error || !data) {
+        console.log(error.message)
         return { success: false, message: "Invalid or inactive discount code." , res: null }
     }
     
