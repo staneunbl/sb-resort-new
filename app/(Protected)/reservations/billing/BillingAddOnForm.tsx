@@ -346,24 +346,47 @@ export default function BillingAddOnForm() {
               ))} */}
               {combinedAddOns?.map((item) => (
                 <div className="flex items-center py-2 border-b text-sm" key={item.value}>
-                  <label className="w-2/6 px-2 font-semibold">{item.AddOnName}</label>
+                  <label className="w-2/6 px-2 font-semibold">{item.AddOnName || item.label}</label>
                   <p className="w-2/6 px-2 text-black/[.6] text-right">₱{formatCurrencyJP(item.Price)}</p>
-                  <input
-                    type="number"
-                    name={item.label}
-                    value={item.quantity}
-                    minLength={1}
-                    className="input-decoration-none w-2/6 px-2 text-right"
-                    onChange={(e) => handleQuantityChange(e.target.value, item.value)}
-                  />
-                  <button
-                    className="ml-2 text-red-500"
-                    onClick={() => removeAddOn(item.value)}
-                  >
-                    Remove
-                  </button>
+                  <div className="w-2/6 px-2 flex justify-end items-center">
+                    
+                    <button
+                      type="button"
+                      className="text-xl text-red-500 px-2"
+                      onClick={() => handleQuantityChange(Math.max(item.quantity - 1, 1).toString(), item.value)}
+                    >
+                      -
+                    </button>
+
+      
+                    <input
+                      type="number"
+                      name={item.label}
+                      value={item.quantity}
+                      min={1}
+                      className="input-decoration-none w-12 px-2 text-right"
+                      onChange={(e) => handleQuantityChange(e.target.value, item.value)}
+                    />
+
+ 
+                    <button
+                      type="button"
+                      className="text-xl text-green-500 px-2"
+                      onClick={() => handleQuantityChange((item.quantity + 1).toString(), item.value)}
+                    >
+                      +
+                    </button>
+
+                    <button
+                      className="ml-2 text-red-500"
+                      onClick={() => removeAddOn(item.value)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ))}
+
             </form>
           </ScrollArea>
           <div className="p-2 ">
@@ -408,9 +431,9 @@ export default function BillingAddOnForm() {
           <Button form="form" type="submit">
            {generali18n.submit}
           </Button>
-          <Button form="form" type="button" onClick={() => console.log(combinedAddOns)}>
+          {/* <Button form="form" type="button" onClick={() => console.log(combinedAddOns)}>
            test
-          </Button>
+          </Button> */}
         </DialogFooter>
       </DialogContent>
     </Dialog>

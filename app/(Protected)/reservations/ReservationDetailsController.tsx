@@ -114,7 +114,7 @@ export default function ReservationDetailsController({ id }: { id: string }) {
               </AlertDialogContent>
             </AlertDialog>
             {/* ============================ */}
-            <AlertDialog>
+            {/* <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button className="h-min rounded bg-gray-500 p-1" size="sm">
                   {reservationI18n.noShow}
@@ -136,7 +136,7 @@ export default function ReservationDetailsController({ id }: { id: string }) {
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
-            </AlertDialog>
+            </AlertDialog> */}
           </div>
           {/* <div className="flex items-center gap-2">
             <Tooltip>
