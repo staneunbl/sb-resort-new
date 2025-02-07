@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
+import { format, isValid, parseISO } from "date-fns";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -108,12 +109,51 @@ export default function DetailedDataTable<TData, TValue>({
       },
       sorting: initialSort
     },
-    globalFilterFn:  (row, columnId, filterValue) => {
+    
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = filterValue.toLowerCase();
+      //iterates over each column,--returns true if any columns matches the search input.
       return columnToSearch.some((col: any) => {
-        const cellValue = row.getValue(col);
-        return cellValue?.toString().toLowerCase().includes(filterValue.toLowerCase());
+        //fetches value of the current col in the iteratiion
+        let cellValue = row.getValue(col);
+
+        // Special handling for full name search
+        if (col === "FirstName" || col === "LastName") {
+          const fullName = `${row.getValue("FirstName")} ${row.getValue("LastName")}`.toLowerCase();
+          return fullName.includes(searchValue);
+        }
+
+        // Special handling for date searching in "MMM dd, yyyy" format
+        if (col === "ChangedAt" && cellValue) {
+          let dateValue;
+          //check if cellValue is string/number to ensure it can be converted to a valid date
+          if (typeof cellValue === "string" || typeof cellValue === "number") {
+            //comverts raw data to valid date
+            //Fri Aug 09 2024 09:52 AM format
+            dateValue = new Date(cellValue); // Convert to Date
+          }
+          //ensures date conversion was successful
+          if (dateValue && isValid(dateValue)) {
+            //removes time
+            cellValue = format(dateValue, "MMM dd, yyyy");
+          } else {
+            return false; // Ignore invalid dates
+          }
+        }
+
+        // Special handling for "CreatedAt" and "ExpiredAt" (Promo Dates)
+        if ((col === "CreatedAt" || col === "ExpiredAt") && typeof cellValue === "string" && cellValue) {
+          const dateValue = new Date(cellValue);
+          if (isValid(dateValue)) {
+            cellValue = format(dateValue, "MMM yyyy"); // Jul 2024
+          } else {
+            return false;
+          }
+        }
+        return cellValue?.toString().toLowerCase().includes(searchValue);
       });
     }
+
   });
 
   useEffect(() => {

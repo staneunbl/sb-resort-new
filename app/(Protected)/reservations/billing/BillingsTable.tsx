@@ -264,7 +264,12 @@ export default function BillingsTable() {
           title={reservationI18n.billings}
           isLoading={isLoading}
           columns={column as ColumnDef<any>[]}
-          data={data || []}
+          // data={data || []}
+          data={
+            data?.filter((billing: any) =>
+              billing.BillingStatus.toLowerCase() === selectedBillingStatusFilter.toLowerCase()
+            ) || []
+          }
           visibility={{ Id: false, FirstName: false, LastName: false }}
           columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber", "CheckInDate", "CheckOutDate"]}
           initialSort={[{id: "ReservationId", desc: true}]}
