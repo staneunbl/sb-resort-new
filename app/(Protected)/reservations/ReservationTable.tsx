@@ -502,9 +502,14 @@ export default function ReservationTable() {
         columns={columns}
         isLoading={isLoading}
         // data={reservations || []}
-        data={reservations?.filter((reservation: any) =>
-          reservation.RoomType.toLowerCase() === reservationFilterRoomTypeOpt.toLowerCase()
-        ) || []}
+        data={(reservations && reservations.length > 0)
+          ? reservations.filter((reservation: any) =>
+              reservationFilterRoomTypeOpt
+                ? reservation.RoomType.toLowerCase() === reservationFilterRoomTypeOpt.toLowerCase()
+                : true
+            )
+          : []}
+        
         pageSize={10}
         columnToSearch={["Id", "ReservationStatus", "ReservationType", "GuestFName", "GuestLName", "CheckInDate", "CheckOutDate", "RoomType"]}
         searchPlaceholder={reservationI18n.searchReservation}
