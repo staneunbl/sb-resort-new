@@ -187,7 +187,7 @@ export default function PromosTable() {
         data={data}
         pageSize={7}
         searchPlaceholder="Search Promo Name"
-        columnToSearch={["PromoName", "PromoCode", "RoomType", "CreatedAt", "ExpiredAt"]}
+        columnToSearch={["Id", "PromoName", "PromoCode", "RoomType", "CreatedAt", "ExpiredAt"]}
         filterByCol={[
           {
             column: "RoomTypeId",
