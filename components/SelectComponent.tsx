@@ -43,7 +43,7 @@ export default function SelectComponent({
   // };
 
   const handleValueChange = (value: string) => {
-    console.log("change " ,value)
+    console.log("Selected Room Type:", value);
     if(value == undefined || value == "") return
     if (setState) {
       setState(value);

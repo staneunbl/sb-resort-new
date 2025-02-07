@@ -182,6 +182,9 @@ export default function AuditLogTable() {
       createdAt: "2022-01-01",
     },
   ];
+
+
+  
   return (
     <div className="p-4">
       <DetailedDataTable

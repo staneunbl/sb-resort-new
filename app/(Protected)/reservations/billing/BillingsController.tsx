@@ -14,7 +14,7 @@ export default function BillingsController() {
     setSelectedBillingStatusFilter,
     resetSelectOptState,
   } = useGlobalStore();
-
+  console.log("Selected Billing Status Filter:", selectedBillingStatusFilter)
   return (
     <div className="flex w-full flex-row items-center justify-between gap-2 border-b border-cstm-border px-4 py-3">
       <div className="flex gap-4">
@@ -55,10 +55,13 @@ export default function BillingsController() {
           ]}
           placeholder="Billing Status"
           valueType="label"
-        />
+        />  
 
         <Button>
-          <FilterX onClick={resetSelectOptState} />
+          <FilterX  onClick={() => {
+            console.log("Reset button clicked!");
+            resetSelectOptState();
+          }} />
         </Button>
       </div>
     </div>

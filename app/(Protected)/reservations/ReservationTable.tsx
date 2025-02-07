@@ -501,7 +501,10 @@ export default function ReservationTable() {
         title={reservationI18n.reservations}
         columns={columns}
         isLoading={isLoading}
-        data={reservations || []}
+        // data={reservations || []}
+        data={reservations?.filter((reservation: any) =>
+          reservation.RoomType.toLowerCase() === reservationFilterRoomTypeOpt.toLowerCase()
+        ) || []}
         pageSize={10}
         columnToSearch={["Id", "ReservationStatus", "ReservationType", "GuestFName", "GuestLName", "CheckInDate", "CheckOutDate", "RoomType"]}
         searchPlaceholder={reservationI18n.searchReservation}

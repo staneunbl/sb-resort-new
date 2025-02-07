@@ -24,11 +24,14 @@ export default function ReservationController() {
     setAddReservationModalState
   } = useGlobalStore();
   const { data: RoomTypeOption } = roomTypeOptionsQuery();
+  console.log("RoomTypeOption:",RoomTypeOption)
   const { data } = useQuery({
     queryKey: ["GetReservationStatusOpt"],
     queryFn: async () =>
       (await getReservationStatusOptions()).res as MainOptions[],
   });
+
+  console.log("Selected Room Type Filter:", reservationFilterRoomTypeOpt);
   return (
     <div className="flex w-full flex-row items-center justify-between gap-2 border-b border-cstm-border px-4 py-3">
       <div className="flex w-full items-center gap-4">
