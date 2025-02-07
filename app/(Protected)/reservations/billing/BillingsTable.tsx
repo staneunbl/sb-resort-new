@@ -265,11 +265,14 @@ export default function BillingsTable() {
           isLoading={isLoading}
           columns={column as ColumnDef<any>[]}
           // data={data || []}
-          data={
-            data?.filter((billing: any) =>
-              billing.BillingStatus.toLowerCase() === selectedBillingStatusFilter.toLowerCase()
-            ) || []
-          }
+          data={(data && data.length > 0)
+            ? data.filter((billing: any) =>
+                selectedBillingStatusFilter
+                  ? billing.BillingStatus.toLowerCase() === selectedBillingStatusFilter.toLowerCase()
+                  : true // Show all if no filter is applied
+              )
+            : []} // Ensure an empty array if no data
+          
           visibility={{ Id: false, FirstName: false, LastName: false }}
           columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber", "CheckInDate", "CheckOutDate"]}
           initialSort={[{id: "ReservationId", desc: true}]}
