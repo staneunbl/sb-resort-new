@@ -517,6 +517,13 @@ export async function addAmenity(label: string, description: string){
     .from("Amenities")
     .insert({ Label: label, Description: description })
     .select()
+  
+  if(error) {
+    console.log(error)
+    return { success: false, res: error.message, error: error.message };
+  }
+
+  return { success: true, res: data, }
 }
 
 export async function addAmenityToRoomType(roomTypeId: number, amenityId: number){
@@ -526,7 +533,7 @@ export async function addAmenityToRoomType(roomTypeId: number, amenityId: number
     .select()
 
     if (error) {
-      return { success: false, res: error.message, };
+      return { success: false, res: data, error: error.message, };
     }
     return { success: true, res: data };
 }
