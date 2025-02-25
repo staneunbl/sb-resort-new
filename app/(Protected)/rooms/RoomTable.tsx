@@ -20,6 +20,7 @@ import { deleteRoom } from "@/app/ServerAction/rooms.action";
 import { toast } from "sonner";
 import { useTranslation } from "next-export-i18n";
 import { Room } from "@/types";
+import { format } from "date-fns";
 
 export default function RoomTable() {
   const {
@@ -161,7 +162,32 @@ export default function RoomTable() {
       },
     },
     {
-      id: "actions",
+      accessorKey: "CreatedAt",
+      enableHiding: false,
+      header: ({column}: any) => {
+        return (
+          <div className="flex">
+            <Button 
+              className="p-0 bg-transparent font-semibold flex gap-1"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              Created Since 
+              {
+                column.getIsSorted() === 'asc' ? 
+                <ChevronUpIcon size={12} /> : 
+                column.getIsSorted() === 'desc' ? <ChevronDownIcon size={12} /> : 
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              }
+            </Button>
+          </div>
+        )
+      },
+      cell: ({row}) => {
+        return format(new Date(row.getValue("CreatedAt")), "MMM dd, yyyy | hh:mm a")
+      }
+    },
+    {
+      id: "actions",  
       enableHiding: false,
       cell: ({ row }: any) => {
         const record = row.original;

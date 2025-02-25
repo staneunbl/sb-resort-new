@@ -151,9 +151,10 @@ export async function addRoomType(values: any) {
 export async function getEditValues(value: any = -1) {
   //if (value == -1) return { success: true, res: [] };
   const { data, error } = await supabase
-    .from("get_current_roomtype_rate_rpc")
+    .from("get_current_roomtype_rate_rpc_1")
     .select("*")
     .eq("RoomTypeId", value).limit(1);
+    console.log("editValue fetch: " ,data)
   if (error) {
     return { success: false, res: data, error: error.message };
   }
@@ -517,6 +518,13 @@ export async function addAmenity(label: string, description: string){
     .from("Amenities")
     .insert({ Label: label, Description: description })
     .select()
+  
+  if(error) {
+    console.log(error)
+    return { success: false, res: error.message, error: error.message };
+  }
+
+  return { success: true, res: data, }
 }
 
 export async function addAmenityToRoomType(roomTypeId: number, amenityId: number){
@@ -526,7 +534,7 @@ export async function addAmenityToRoomType(roomTypeId: number, amenityId: number
     .select()
 
     if (error) {
-      return { success: false, res: error.message, };
+      return { success: false, res: data, error: error.message, };
     }
     return { success: true, res: data };
 }

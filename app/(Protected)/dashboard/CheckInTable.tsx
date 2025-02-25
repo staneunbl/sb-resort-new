@@ -16,8 +16,12 @@ export default function CheckInTable() {
     queryKey: ["checkIn"],
     queryFn: async () => {
       const res = await dashboardCheckIn();
+      const cleaned = res.res.filter((item: any) => item.CheckInActual != null)
+      const dateSort = cleaned.sort((a: any, b: any) => { return Date.parse(b.CheckOutDate) - Date.parse(a.CheckOutDate)});
+      console.log(dateSort)
+      const top5 = dateSort.slice(0, 5);
       if (!res.success) throw new Error();
-      return res.res;
+      return top5;
     },
   });
   const { t } = useTranslation();
@@ -36,24 +40,23 @@ export default function CheckInTable() {
       header: dashboardI18n.roomNumber,
       cell: (cell: any) => {
         return (
-          <HoverCard>
-            <HoverCardTrigger>Hover</HoverCardTrigger>
-            <HoverCardContent className="text-center">
-              {cell.getValue().length > 0 ? (
+          <p>
+            {
+              cell.getValue().length > 0 ? (
                 cell.getValue().map((item: any) => <p key={item}>{item}</p>)
               ) : (
                 <p>No Room Set Yet</p>
-              )}
-            </HoverCardContent>
-          </HoverCard>
+              )
+            }
+          </p>
         );
       },
     },
     {
-      accessorKey: "CheckInDate",
+      accessorKey: "CheckInActual",
       header: dashboardI18n.checkInTime,
-      cell: (cell: any) => {
-        return <div>{format(cell.getValue(), "MMM dd, yyyy")}</div>;
+      cell: (row: any) => {
+        return <div>{row.getValue("CheckInActual") ? format(row.getValue("CheckInActual"), "MMM dd, yyyy | hh:mm a") : "-"}</div>;
       },
     },
   ];

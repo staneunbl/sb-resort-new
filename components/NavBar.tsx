@@ -88,7 +88,7 @@ const NavBar = memo(function ({
           role: [2, 3],
         },
         {
-          name: "Amenities",
+          name: navBari18n.amenities,
           url: "/rooms/amenities",
           icon: <BedDouble />,
           role: [2, 3],
