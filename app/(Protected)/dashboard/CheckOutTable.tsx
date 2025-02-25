@@ -17,8 +17,12 @@ export default function CheckOutTable() {
     queryKey: ["checkOut"],
     queryFn: async () => {
       const res = await dashboardCheckOut();
+      const cleaned = res.res.filter((item: any) => item.CheckOutActual != null)
+      const dateSort = cleaned.sort((a: any, b: any) => { return Date.parse(b.CheckOutDate) - Date.parse(a.CheckOutDate)});
+      const top5 = dateSort.slice(0, 5);
+
       if (!res.success) throw new Error();
-      return res.res;
+      return top5;
     },
   });
   const generalI18n = t("general");
@@ -36,24 +40,23 @@ export default function CheckOutTable() {
       header: dashboardI18n.roomNumber,
       cell: (cell: any) => {
         return (
-          <HoverCard>
-            <HoverCardTrigger>Hover</HoverCardTrigger>
-            <HoverCardContent className="text-center">
-              {cell.getValue().length > 0 ? (
+          <p>
+            {
+              cell.getValue().length > 0 ? (
                 cell.getValue().map((item: any) => <p key={item}>{item}</p>)
               ) : (
                 <p>No Room Set Yet</p>
-              )}
-            </HoverCardContent>
-          </HoverCard>
+              )
+            }
+          </p>
         );
       },
     },
     {
-      accessorKey: "CheckOutDate",
+      accessorKey: "CheckOutActual",
       header: dashboardI18n.checkOutTime,
-      cell: (cell: any) => {
-        return <div>{format(cell.getValue(), "MMM dd, yyyy")}</div>;
+      cell: (row: any) => {
+        return <div>{format(row.getValue("CheckOutActual") || "00", "MMM dd, yyyy | hh:mm a")}</div>;
       },
     },
   ];

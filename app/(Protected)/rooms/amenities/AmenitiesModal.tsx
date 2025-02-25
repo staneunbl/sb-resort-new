@@ -35,10 +35,14 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import SelectComponent from "@/components/SelectComponent";
 import { useTranslation } from "next-export-i18n";
-import { addRoomRate, editAmenity, editRoomRate } from "@/app/ServerAction/rooms.action";
+import { addAmenity, addRoomRate, editAmenity, editRoomRate } from "@/app/ServerAction/rooms.action";
 import { useEffect } from "react";
 
 export function AmenitiesModal() {
+
+    const {t} = useTranslation();
+    const amenityI18n = t("Amenity");
+    const genI18n = t("general");
 
     const {
         amenityFormModalState,
@@ -58,8 +62,8 @@ export function AmenitiesModal() {
       mode: "onChange",
       resolver: zodResolver(formSchema),
       values: {
-        Label: selectedAmenity.Label,
-        Description: selectedAmenity.Description
+        Label: selectedAmenity.Label || "",
+        Description: selectedAmenity.Description || ""
       }
     });
 
@@ -72,7 +76,9 @@ export function AmenitiesModal() {
             return data
         },
         onSuccess: (data) => {
-            toast.success("Amenity updated successfully");
+            toast.success(genI18n.success, {
+                description: amenityI18n.amenityUpdateSuccess
+            });
             refetch();
             setAmenityFormModalState(false);
         },
@@ -80,9 +86,31 @@ export function AmenitiesModal() {
             toast.error(error.message);
         }
       });
+      
+    const addMutation = useMutation({
+        mutationFn: async (values: z.infer<typeof formSchema>) => {
+           const { res:data, error } = await addAmenity(values.Label, values.Description)
+
+           if(error) throw new Error("Error")
+
+           return data
+        },
+        onSuccess: (data) => {
+          toast.success(genI18n.success, {
+            description: amenityI18n.amenityAddSuccess
+          })
+          refetch();
+          setAmenityFormModalState(false);
+        },
+        onError: (error) => {
+          console.log(error)
+          toast.error(error.message)
+        }
+
+    })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        mutation.mutate(values);
+      selectedAmenity.label ? mutation.mutate(values) : addMutation.mutate(values);  
     }
 
     return (
@@ -95,10 +123,10 @@ export function AmenitiesModal() {
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>
-                Edit Amenity
+                {selectedAmenity.Label ? amenityI18n.editAmenity : amenityI18n.addAmenity}
               </DialogTitle>
               <DialogDescription>
-                Edit an Amenity's Label and Description
+                { selectedAmenity.Label ? amenityI18n.amenityEditDesc : amenityI18n.amenityAddDesc }
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -107,13 +135,13 @@ export function AmenitiesModal() {
                   name="Label"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Label</FormLabel>
+                      <FormLabel>{ genI18n.label }</FormLabel>
                       <Input
-                        placeholder="Label"
+                        placeholder={ genI18n.label }
                         {...field}
                       />
                       <FormDescription>
-                        Used to display the Amenity in the system.
+                        { amenityI18n.amenityLabelDesc}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -123,13 +151,13 @@ export function AmenitiesModal() {
                   name="Description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{ genI18n.description }</FormLabel>
                       <Input
-                        placeholder="Description"
+                        placeholder={ genI18n.description }
                         {...field}
                       />
                       <FormDescription>
-                        Text to be displayed to the customer.
+                          { amenityI18n.amenityDescriptionDesc }
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -139,12 +167,12 @@ export function AmenitiesModal() {
                 <Button
                   type="button"
                   variant="ghost">
-                    Cancel
+                    { genI18n.cancel }
                   </Button>
                   <Button
                   type="submit"
                   variant="default">
-                    Save
+                    { genI18n.save }
                   </Button>
                 </DialogFooter>
                 </form>

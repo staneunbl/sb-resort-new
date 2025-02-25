@@ -40,7 +40,10 @@
       "Done": "Done"
     },
     "total": "Total",
-    "submit": "Submit"
+    "submit": "Submit",
+    "label": "Label",
+    "save": "Save"
+
   },
   "months": {
     "january": "January",
@@ -240,6 +243,24 @@
     "discounts": "Discounts",
     "logout": "Logout",
     "addOns": "Add-ons",
-    "settings": "Settings"
+    "settings": "Settings",
+    "amenities": "Amenities"
+  },
+  "Amenity": {
+    "amenity": "Amenity",
+    "addAmenity": "Add Amenity",
+    "editAmenity": "Edit Amenity",
+    "deleteAmenity": "Delete Amenity",
+    "amenityId": "Amenity ID",
+    "amenityName": "Amenity Name",
+    "amenityDesc": "Amenity Description",
+    "amenityUpdateSuccess": "Amenity updated successfully.",
+    "amenityUpdateFailed": "Amenity update failed.",
+    "amenityAddSuccess": "Amenity added successfully.",
+    "amenityAddFailed": "Amenity add failed.",
+    "amenityEditDesc": "Please fill out the form to edit your amenity details",
+    "amenityAddDesc": "Please fill out the form to add a new amenity",
+    "amenityLabelDesc": "Used to display the amenity in the system.",
+    "amenityDescriptionDesc": "Used to display the amenity to the customer"
   }
 }

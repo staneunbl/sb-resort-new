@@ -159,7 +159,7 @@ export function AmenitiesTable() {
                 searchPlaceholder={"Search Amenities..."}
                 columns={column}
                 columnToSearch={["Id", "Label", "Description"]}
-                pageSize={20}
+                pageSize={10}
                 initialSort={[{ id: "Id", desc: true }]}
             />
         </div>

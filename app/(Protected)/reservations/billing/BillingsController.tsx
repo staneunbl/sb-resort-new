@@ -12,6 +12,8 @@ export default function BillingsController() {
     localeFns,
     selectedBillingStatusFilter,
     setSelectedBillingStatusFilter,
+    selectedBillingReservationStatusFilter,
+    setSelectedBillingReservationStatusFilter,
     resetSelectOptState,
   } = useGlobalStore();
   console.log("Selected Billing Status Filter:", selectedBillingStatusFilter)
@@ -54,6 +56,23 @@ export default function BillingsController() {
             },
           ]}
           placeholder="Billing Status"
+          valueType="label"
+        />  
+
+        <SelectComponent
+          state={selectedBillingReservationStatusFilter}
+          setState={setSelectedBillingReservationStatusFilter}
+          options={[
+            {
+              label: "Checked-In",
+              value: "Checked-In",
+            },
+            {
+              label: "Done",
+              value: "Done",
+            },
+          ]}
+          placeholder="Reservation Status"
           valueType="label"
         />  
 

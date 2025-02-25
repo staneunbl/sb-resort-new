@@ -40,6 +40,7 @@ export default function BillingsTable() {
     billingsQuery,
     setFinilizeBillingModalState,
     selectedBillingStatusFilter,
+    selectedBillingReservationStatusFilter,
     resetSelectOptState,
     reservationSummaryQuery
   } = useGlobalStore();
@@ -276,6 +277,7 @@ export default function BillingsTable() {
           visibility={{ Id: false, FirstName: false, LastName: false }}
           columnToSearch={["ReservationId", "FirstName", "LastName", "RoomNumber", "CheckInDate", "CheckOutDate"]}
           initialSort={[{id: "ReservationId", desc: true}]}
+          filterByCol={[ {column: "ReservationStatus", filterValue: selectedBillingReservationStatusFilter}]}
         />
       </div>
     </>

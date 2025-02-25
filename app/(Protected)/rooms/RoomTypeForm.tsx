@@ -180,6 +180,8 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
         amenities: editValues.Amenities || [],
       });
     }
+    console.log(amenities, selectedAmenities)
+    console.log(editValues)
   }, [editValues, bedTypeOptions, form]);
 
   console.log(editValues?.BedTypeId.toString())
@@ -309,7 +311,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   }, [editValues])
 
   useEffect(() => {
-    if(editValues?.Amenities) {
+    if(editValues?.Amenities.length > 0) {
       setSelectedAmenities(editValues.Amenities)
     }
   }, [editValues])
@@ -370,7 +372,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                 {generalI18n.cancel}
               </Button>
               <Button className="bg-cstm-secondary" type="submit" >
-                {roomsI18n.editRoomType}
+                {id && editValues ? roomsI18n.editRoomType : roomsI18n.addRoomType }
               </Button>
             </div>
           </div>
@@ -835,6 +837,7 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
                                 <div className="flex gap-4 flex-wrap">
                                   {
                                     field.value?.map((selectedId: any) => {
+                                      console.log("field value ", field.value)
                                       let amenity = amenities?.find((item: any) => item.Id === selectedId);
                                       return (
                                         amenity && (
@@ -931,4 +934,4 @@ export default function RoomTypeForm({ id }: { id?: string | undefined }) {
   );
 }
 
-const defaultDescription: string = `Enter description here...`;
+const defaultDescription: string = ``;

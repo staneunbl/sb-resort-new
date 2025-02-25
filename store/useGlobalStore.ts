@@ -122,6 +122,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
   setSelectedRoomTypePromosFilter: (data) => set(() => ({ selectedRoomTypePromosFilter: data })),
   selectedBillingStatusFilter: "",
   setSelectedBillingStatusFilter: (data) => set(() => ({ selectedBillingStatusFilter: data })),
+  selectedBillingReservationStatusFilter: "",
+  setSelectedBillingReservationStatusFilter: (data) => set(() => ({ selectedBillingReservationStatusFilter: data })),
   selectedRoomRateRoomTypeFilter: "",
   setSelectedRoomRateRoomTypeFilter: (data: string) => set(() => ({selectedRoomRateRoomTypeFilter: data})),
 
@@ -144,7 +146,8 @@ export const useGlobalStore = create<GlobalState>()((set) => ({
       addOnFilterType: "",
       userRoleFilterOpt: "",
       selectedBillingStatusFilter: "",
-      selectedDiscountsFilter: ""
+      selectedDiscountsFilter: "",
+      selectedBillingReservationStatusFilter: ""
     });
   },
 
@@ -511,6 +514,8 @@ interface GlobalState {
   setSelectedRoomTypePromosFilter: (data: string) => void;
   selectedBillingStatusFilter: string;
   setSelectedBillingStatusFilter: (data: string) => void;
+  selectedBillingReservationStatusFilter: string;
+  setSelectedBillingReservationStatusFilter: (data: string) => void;
   setUserRoleFilterOpt: (data: string) => void;
   resetSelectOptState: () => void;
 
