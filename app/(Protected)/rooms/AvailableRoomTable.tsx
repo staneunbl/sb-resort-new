@@ -151,6 +151,7 @@ export default function AvailableRoomTable() {
         columns={columns}
         columnToSearch={["Name"]}
         data={availRoomType || []}
+        pageSize={10}
       />
     </div>
   );

@@ -151,9 +151,10 @@ export async function addRoomType(values: any) {
 export async function getEditValues(value: any = -1) {
   //if (value == -1) return { success: true, res: [] };
   const { data, error } = await supabase
-    .from("get_current_roomtype_rate_rpc")
+    .from("get_current_roomtype_rate_rpc_1")
     .select("*")
     .eq("RoomTypeId", value).limit(1);
+    console.log("editValue fetch: " ,data)
   if (error) {
     return { success: false, res: data, error: error.message };
   }
