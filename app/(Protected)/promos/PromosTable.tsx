@@ -15,8 +15,7 @@ import { format } from "date-fns";
 import { Ellipsis } from "lucide-react";
 import { useTranslation } from "next-export-i18n";
 import { useState } from "react";
-import { CalendarIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import {
   HoverCard,
   HoverCardContent,
@@ -39,7 +38,10 @@ export default function PromosTable({ role }: PromosTableProps) {
   } = useGlobalStore();
   const [openDelete, setOpenDelete] = useState(false);
   let selectedPromoId = 0;
+
   const { data, isLoading } = promosQuery();
+  console.log("Promos Table Data:", data);
+  ;
 
   const baseColumns = [
     {
@@ -135,6 +137,27 @@ export default function PromosTable({ role }: PromosTableProps) {
         return format(date, "MMM yyyy");
       },
     },
+    {
+      accessorKey: "ValidFrom",
+      header: "Start Date",
+      cell: ({ cell }: any) => {
+        const date = new Date(cell.getValue());
+        return format(date, "MMM dd, yyyy");
+      },
+    },
+    {
+      id: "Status",
+      header: "Status",
+      cell: ({ row }: any) => {
+        const statusId = row.original.StatusId;
+        const statusLabel = statusId === 1 ? "Active" : "Inactive";
+        return (
+          <span className={statusId === 1 ? "text-green-500" : "text-red-500"}>
+            {statusLabel}
+          </span>
+        );
+      },
+    },    
   ];
 
   const actionsColumn = {
