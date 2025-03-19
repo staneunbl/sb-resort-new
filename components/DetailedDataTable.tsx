@@ -119,10 +119,13 @@ export default function DetailedDataTable<TData, TValue>({
 
         // Special handling for full name search
         if (col === "FirstName" || col === "LastName") {
-          const fullName = `${row.getValue("FirstName")} ${row.getValue("LastName")}`.toLowerCase();
+          const firstName = row.getValue("FirstName") ?? "";
+          const lastName = row.getValue("LastName") ?? "";
+          const fullName = `${firstName} ${lastName}`.replace(/\s+/g, " ").trim().toLowerCase();
+                
           return fullName.includes(searchValue);
         }
-
+      
         // Special handling for date searching in "MMM dd, yyyy" format
         if (col === "ChangedAt" && cellValue) {
           let dateValue;
@@ -176,7 +179,7 @@ export default function DetailedDataTable<TData, TValue>({
             }
             onChange={(event) => {
               setGlobalFilter(event.target.value);
-            }}
+            }}            
             className="max-w-sm"
           />
 
