@@ -57,6 +57,7 @@ export function DiscountsTable({ role }: DiscountTableProps) {
     selectedDiscountRoomType,
     getAllDiscountRoomTypeQuery,
     roomTypeOptionsQuery,
+    selectedDiscountsFilter,
   } = useGlobalStore();
 
   const { t } = useTranslation();
@@ -82,7 +83,6 @@ export function DiscountsTable({ role }: DiscountTableProps) {
         .filter((discount: any) => discount.DiscountId === id)
         .map((discount: any) => discount.RoomTypeId);
     }
-
     return [];
   };
 
@@ -454,17 +454,17 @@ export function DiscountsTable({ role }: DiscountTableProps) {
                 <p>
                   {record?.Id && filterRoomTypes(record.Id).length > 0
                     ? filterRoomTypes(record.Id)
-                        .map((roomTypeId: number) => {
+                      .map((roomTypeId: number) => {
 
-                          const roomType = roomTypeOptions?.find(
-                            (room: { value: number; label: string }) => 
-                              room.value === roomTypeId
-                          );
+                        const roomType = roomTypeOptions?.find(
+                          (room: { value: number; label: string }) =>
+                            room.value === roomTypeId
+                        );
 
-                          return roomType ? roomType.label : null; // Ignore unknown types
-                        })
-                        .filter(Boolean)
-                        .join(", ")
+                        return roomType ? roomType.label : null; // Ignore unknown types
+                      })
+                      .filter(Boolean)
+                      .join(", ")
                     : "No selected Room Types"}
                 </p>
               </div>
@@ -599,25 +599,35 @@ export function DiscountsTable({ role }: DiscountTableProps) {
       <DetailedDataTable
         isLoading={isLoading}
         title={"Discounts"}
-        data={
-          (data as any[])?.map((record) => {
+        data={(() => {      
+          if (!data) return [];
+      
+          // Apply Strict Room Type Filtering
+          const filteredData = data.filter((record: { Id: number; }) => {
+            const roomTypesForDiscount = filterRoomTypes(record.Id);
+      
+            return (
+              selectedDiscountsFilter.length === 0 || 
+              selectedDiscountsFilter.every((selectedType: any) => roomTypesForDiscount.includes(selectedType))
+            );
+          });
+            
+          return filteredData.map((record: { Id: number; }) => {
             const roomTypeNames = filterRoomTypes(record.Id)
-              .map((roomTypeId: number) => {
-                const roomType = roomTypeOptions?.find(
-                  (room: { value: number; label: string }) => room.value === roomTypeId
-                );
+              .map((roomTypeId: any) => {
+                const roomType = roomTypeOptions?.find((room: { value: any; }) => room.value === roomTypeId);
                 return roomType ? roomType.label : null;
               })
               .filter(Boolean)
               .join(", ");
-
+      
             return {
               ...record,
               RoomTypes: roomTypeNames,
             };
-          }) || []
-        }
-        searchPlaceholder={"Search Discounts"}
+          });
+        })()} 
+        searchPlaceholder="Search Discounts"
         columns={[
           ...columns,
           {
