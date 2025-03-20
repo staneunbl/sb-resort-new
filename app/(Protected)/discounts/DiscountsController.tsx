@@ -21,6 +21,9 @@ export function DiscountsController({ role }: DiscountControllerProps) {
     setSelectedDiscountData,
   } = useGlobalStore();
   const { data: RoomTypeOption } = roomTypeOptionsQuery();
+
+ // console.log("Room Type Options Data:", RoomTypeOption);
+
   return (
     <div>
       <div className="flex w-full flex-row items-center justify-between gap-2 border-b border-cstm-border px-4 py-3">
