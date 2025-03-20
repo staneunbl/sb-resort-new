@@ -153,17 +153,9 @@ export default function PromosTable({ role }: PromosTableProps) {
     },
     {
       accessorKey: "CreatedAt",
-      header: "Date Created",
+      header: "Start Date",
       cell: ({ row, cell }: any) => {
         const date = new Date(cell.getValue() || 0);
-        return format(date, "MMM yyyy");
-      },
-    },
-    {
-      accessorKey: "ValidFrom",
-      header: "Start Date",
-      cell: ({ cell }: any) => {
-        const date = new Date(cell.getValue());
         return format(date, "MMM dd, yyyy");
       },
     },

@@ -48,51 +48,40 @@ export function DiscountsController({ role }: DiscountControllerProps) {
             setOpen((prev) => !prev);
           }}
         >
-          Select Room Type
+          {selectedRoomTypes.length > 0
+            ? RoomTypeOption.filter((option: { value: any; }) => selectedRoomTypes.includes(Number(option.value)))
+              .map((option: { label: any; }) => option.label)
+              .join(", ")
+            : "Select Room Type"}
           <ChevronDown size={16} />
         </Button>
         {open && (
           <div className="absolute top-full mt-2 w-60 bg-white border rounded-lg shadow-md p-2 z-50">
             {RoomTypeOption?.length > 0 ? (
-              <>
-                <div className="max-h-60 overflow-y-auto">
-                  {RoomTypeOption?.map((option: {
-                    value: any;
-                    label: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> |
-                    Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined;
-                  }, index: number) => {
-                    const roomTypeId = Number(option.value);
+              <div className="max-h-60 overflow-y-auto">
+                {RoomTypeOption.map((option: { value: any; label: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | React.PromiseLikeOfReactNode | null | undefined; }, index: any) => {
+                  const roomTypeId = Number(option.value);
 
-                    if (isNaN(roomTypeId)) {
-                      console.warn("Invalid Room Type ID:", option.value);
-                      return null;
-                    }
-
-                    return (
-                      <label
-                        key={roomTypeId}
-                        className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded-md"
-                      >
-                        <Checkbox
-                          checked={selectedRoomTypes.includes(roomTypeId)}
-                          onCheckedChange={() => {
-                            handleRoomTypeChange(roomTypeId);
-                          }}
-                        />
-                        {option.label}
-                      </label>
-                    );
-                  })}
-
-                </div>
-              </>
+                  return (
+                    <label
+                      key={roomTypeId}
+                      className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded-md"
+                    >
+                      <Checkbox
+                        checked={selectedRoomTypes.includes(roomTypeId)}
+                        onCheckedChange={() => handleRoomTypeChange(roomTypeId)}
+                      />
+                      {option.label}
+                    </label>
+                  );
+                })}
+              </div>
             ) : (
               <p className="text-gray-500">No Room Types Available</p>
             )}
           </div>
         )}
       </div>
-
       {/* Filter & Clear Buttons */}
       <div className="flex gap-2">
         <Button
