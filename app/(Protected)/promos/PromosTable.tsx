@@ -15,6 +15,10 @@ import { format } from "date-fns";
 import { Ellipsis } from "lucide-react";
 import { useTranslation } from "next-export-i18n";
 import { useState } from "react";
+import { togglePromoStatus } from "@/app/ServerAction/promos.action";
+import { Switch } from "@/components/ui/switch";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import {
   HoverCard,
@@ -33,14 +37,32 @@ export default function PromosTable({ role }: PromosTableProps) {
     promosFormModalState,
     setPromosFormModalState,
     setSelectedPromoData,
+    selectedPromoData,
     promosQuery,
     selectedRoomTypePromosFilter,
   } = useGlobalStore();
+  const { refetch } = promosQuery();
   const [openDelete, setOpenDelete] = useState(false);
   let selectedPromoId = 0;
 
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ promoId, newStatus }: { promoId: number; newStatus: boolean }) => {
+      return await togglePromoStatus(promoId, newStatus);
+    },
+    onSuccess: () => {
+      toast.success("Success", {
+        description: "Promo status has been updated successfully",
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Error", {
+        description: error.message || "Could not update promo status",
+      });
+    },
+  });
+
   const { data, isLoading } = promosQuery();
-  console.log("Promos Table Data:", data);
   ;
 
   const baseColumns = [
@@ -149,15 +171,18 @@ export default function PromosTable({ role }: PromosTableProps) {
       id: "Status",
       header: "Status",
       cell: ({ row }: any) => {
-        const statusId = row.original.StatusId;
-        const statusLabel = statusId === 1 ? "Active" : "Inactive";
-        return (
-          <span className={statusId === 1 ? "text-green-500" : "text-red-500"}>
-            {statusLabel}
-          </span>
-        );
+        const IsActive = row.original.IsActive;
+
+        const handleToggleStatus = () => {
+          toggleStatusMutation.mutate({
+            promoId: row.original.PromoDetailId,
+            newStatus: !IsActive,
+          });
+        };
+
+        return <Switch checked={IsActive} onCheckedChange={handleToggleStatus} />;
       },
-    },    
+    }
   ];
 
   const actionsColumn = {
@@ -207,7 +232,7 @@ export default function PromosTable({ role }: PromosTableProps) {
       <AlertConfirmDelete
         openState={openDelete}
         onOpenChange={setOpenDelete}
-        onConfirm={() => {}}
+        onConfirm={() => { }}
       />
       <DetailedDataTable
         title="Promos"

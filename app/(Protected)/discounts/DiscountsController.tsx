@@ -1,5 +1,5 @@
 "use client";
-import { FilterX, Plus, ChevronDown } from "lucide-react";
+import { Filter, Plus, ChevronDown } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useGlobalStore } from "@/store/useGlobalStore";
@@ -99,7 +99,7 @@ export function DiscountsController({ role }: DiscountControllerProps) {
           className="flex items-center gap-2 bg-cstm-primary text-cstm-tertiary"
           onClick={applyFilters}
         >
-          <FilterX size={20} />
+          <Filter size={20} />
         </Button>
         <Button
           className="bg-red-500 text-white px-4 py-2 rounded-md"
