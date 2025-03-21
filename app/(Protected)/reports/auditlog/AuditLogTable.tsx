@@ -9,6 +9,8 @@ export default function AuditLogTable() {
     queryKey: ["GetAuditLog"],
     queryFn: async () => (await getAuditLog()).res as any,
   });
+
+
   const columns = [
     {
       accessorKey: "Id",
@@ -44,6 +46,7 @@ export default function AuditLogTable() {
           <div className="text-center">{format(date, "MMM dd, yyyy, h:mm a")}</div>
         );
       },
+      enableSorting: true,
     },
     {
       accessorKey: "FirstName",
@@ -52,6 +55,8 @@ export default function AuditLogTable() {
       accessorKey: "LastName",
     },
   ];
+
+
   const data = [
     {
       id: "1",
@@ -183,8 +188,6 @@ export default function AuditLogTable() {
     },
   ];
 
-
-  
   return (
     <div className="p-4">
       <DetailedDataTable
