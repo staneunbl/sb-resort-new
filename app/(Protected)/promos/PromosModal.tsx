@@ -334,7 +334,7 @@ export default function PromosModal() {
               />
             </div>
             <DialogFooter>
-              <Button className="mt-3 bg-cstm-secondary" type="submit">
+              <Button className="mt-8 bg-cstm-secondary" type="submit">
                 {isEdit ? "Update Promo Rate" : "Add Promo Rate"}
               </Button>
             </DialogFooter>
