@@ -643,7 +643,7 @@ export function DiscountsTable({ role }: DiscountTableProps) {
           "DiscountValue",
           "RoomTypes",
         ]}
-        pageSize={20}
+        pageSize={10}
         initialSort={[{ id: "Id", desc: true }]}
         visibility={{
           StartDate: false,
