@@ -85,9 +85,9 @@ export default function RoomRatesModal() {
         ? selectedRateData?.RateTypeId.toString()
         : "",
       validity: {
-        from: selectedRateData ? selectedRateData?.ValidFrom : 0,
-        to: selectedRateData ? selectedRateData?.ValidTo : 0,
-      },
+        from: selectedRateData?.ValidFrom ? new Date(selectedRateData.ValidFrom) : (null as unknown as Date),
+        to: selectedRateData?.ValidTo ? new Date(selectedRateData.ValidTo) : (null as unknown as Date),
+      },        
       BaseRoomRate: selectedRateData
         ? selectedRateData?.BaseRoomRate.toString()
         : "",
@@ -111,7 +111,7 @@ export default function RoomRatesModal() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+    // This will be type-safe and validated.
     console.log(values);
     mutation.mutate(values);
   }
@@ -214,6 +214,7 @@ export default function RoomRatesModal() {
                 </FormItem>
               )}
             />
+            {/* Dates */}
             <FormField
               control={form.control}
               name="validity"
@@ -234,25 +235,18 @@ export default function RoomRatesModal() {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value?.from ? (
-                            field.value.to ? (
-                              <>
-                                {format(field.value.from, "LLL dd, y", {
-                                  locale: localeFns[locale],
-                                })}{" "}
-                                -{" "}
-                                {format(field.value.to, "LLL dd, y", {
-                                  locale: localeFns[locale],
-                                })}
-                              </>
-                            ) : (
-                              format(field.value.from, "LLL dd, y", {
-                                locale: localeFns[locale],
-                              })
-                            )
-                          ) : (
-                            <span>{generalI18n.pickDateRange}</span>
-                          )}
+{field.value?.from ? (
+  field.value.to ? (
+    <>
+      {format(field.value.from, "LLL dd, y", { locale: localeFns[locale] })} -{" "}
+      {format(field.value.to, "LLL dd, y", { locale: localeFns[locale] })}
+    </>
+  ) : (
+    format(field.value.from, "LLL dd, y", { locale: localeFns[locale] })
+  )
+) : (
+  <span>{generalI18n.pickDateRange}</span>
+)}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
