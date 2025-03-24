@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import { format } from "date-fns";
-import { Ellipsis } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+  Ellipsis,
+} from "lucide-react";
 import { useTranslation } from "next-export-i18n";
 import { useState } from "react";
 import { togglePromoStatus } from "@/app/ServerAction/promos.action";
@@ -68,7 +73,28 @@ export default function PromosTable({ role }: PromosTableProps) {
   const baseColumns = [
     {
       accessorKey: "Id",
-      header: "Promo ID",
+
+      header: ({ column }: any) => {
+        return (
+          <div className="flex">
+            <Button
+              className="flex gap-1 bg-transparent p-0 font-semibold"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              {"Promo ID"}{" "}
+              {column.getIsSorted() === "asc" ? (
+                <ChevronUpIcon size={12} />
+              ) : column.getIsSorted() === "desc" ? (
+                <ChevronDownIcon size={12} />
+              ) : (
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              )}
+            </Button>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "PromoDetailId",
@@ -76,7 +102,27 @@ export default function PromosTable({ role }: PromosTableProps) {
     },
     {
       accessorKey: "PromoName",
-      header: "Promo Name",
+      header: ({ column }: any) => {
+        return (
+          <div className="flex">
+            <Button
+              className="flex gap-1 bg-transparent p-0 font-semibold"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              {"Promo Name"}{" "}
+              {column.getIsSorted() === "asc" ? (
+                <ChevronUpIcon size={12} />
+              ) : column.getIsSorted() === "desc" ? (
+                <ChevronDownIcon size={12} />
+              ) : (
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              )}
+            </Button>
+          </div>
+        );
+      },
     },
     {
       accessorKey: "PromoCode",
@@ -153,7 +199,27 @@ export default function PromosTable({ role }: PromosTableProps) {
     },
     {
       accessorKey: "CreatedAt",
-      header: "Start Date",
+      header: ({ column }: any) => {
+        return (
+          <div className="flex">
+            <Button
+              className="flex gap-1 bg-transparent p-0 font-semibold"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              {"Date Created"}{" "}
+              {column.getIsSorted() === "asc" ? (
+                <ChevronUpIcon size={12} />
+              ) : column.getIsSorted() === "desc" ? (
+                <ChevronDownIcon size={12} />
+              ) : (
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              )}
+            </Button>
+          </div>
+        );
+      },
       cell: ({ row, cell }: any) => {
         const date = new Date(cell.getValue() || 0);
         return format(date, "MMM dd, yyyy");

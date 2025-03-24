@@ -1,14 +1,22 @@
 "use client";
 import { getAuditLog } from "@/app/ServerAction/reports.action";
 import DetailedDataTable from "@/components/DetailedDataTable";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+} from "lucide-react";
 
 export default function AuditLogTable() {
   const { data: auditLog, isLoading } = useQuery({
     queryKey: ["GetAuditLog"],
     queryFn: async () => (await getAuditLog()).res as any,
   });
+
+
   const columns = [
     {
       accessorKey: "Id",
@@ -35,15 +43,36 @@ export default function AuditLogTable() {
     },
     {
       accessorKey: "ChangedAt",
-      header: () => {
-        return <div className="text-center">Date</div>;
+      header: ({ column }: any) => {
+        return (
+          <div className="flex">
+            <Button
+              className="flex gap-1 bg-transparent p-0 font-semibold"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              {"Date Created"}{" "}
+              {column.getIsSorted() === "asc" ? (
+                <ChevronUpIcon size={12} />
+              ) : column.getIsSorted() === "desc" ? (
+                <ChevronDownIcon size={12} />
+              ) : (
+                <ChevronsUpDownIcon size={12} strokeWidth={2} />
+              )}
+            </Button>
+          </div>
+        );
       },
       cell: ({ cell }: any) => {
         const date = new Date(cell.getValue() || "00");
         return (
-          <div className="text-center">{format(date, "MMM dd, yyyy, h:mm a")}</div>
+          <div className="text-center">
+            {format(date, "MMM dd, yyyy, h:mm a")}
+          </div>
         );
       },
+      enableSorting: true,
     },
     {
       accessorKey: "FirstName",
@@ -52,6 +81,8 @@ export default function AuditLogTable() {
       accessorKey: "LastName",
     },
   ];
+
+
   const data = [
     {
       id: "1",
@@ -183,14 +214,19 @@ export default function AuditLogTable() {
     },
   ];
 
-
-  
   return (
     <div className="p-4">
       <DetailedDataTable
         title="Audit Log"
         columns={columns}
-        columnToSearch={["ActionName", "TableName", "ChangedAt", "FirstName", "LastName", "user"]}
+        columnToSearch={[
+          "ActionName",
+          "TableName",
+          "ChangedAt",
+          "FirstName",
+          "LastName",
+          "user",
+        ]}
         isLoading={isLoading}
         data={auditLog}
         pagination={true}
