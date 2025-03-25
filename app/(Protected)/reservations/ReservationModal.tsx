@@ -89,9 +89,9 @@ export default function ReservationModal() {
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       const res = !isEmptyObj(selectedReservationData)
         ? await editReservations({
-            ...values,
-            Id: selectedReservationData.Id,
-          })
+          ...values,
+          Id: selectedReservationData.Id,
+        })
         : await addReservationsLobby(values);
       if (!res.success) {
         throw new Error("Something went wrong, please try again later");
@@ -219,70 +219,14 @@ export default function ReservationModal() {
               render={({ field }) => (
                 <FormItem className="flex flex-col justify-center space-y-1">
                   <FormLabel className="mb-2 text-left">Room Count</FormLabel>
-                  <div>
-                    <FormControl>
-                      <Input className="border" {...field} />
-                    </FormControl>
-                  </div>
+                  <FormControl>
+                    <Input className="border" {...field} value="1" readOnly />
+                  </FormControl>
+                  <p className="text-sm text-gray-500">* Only 1 room per person can be reserved.</p> {/* Strict note */}
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/*  <FormField
-                name="dateRange"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="text-center">
-                      Check In - Check Out Date
-                    </FormLabel>
-                    <FormControl>
-                      <Popover modal>
-                        <PopoverTrigger>
-                          <FormControl>
-                            <Button
-                              type="button"
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value?.from ? (
-                                field.value?.to ? (
-                                  <>
-                                    {format(field.value?.from, "LLL dd, y")} -{" "}
-                                    {format(field.value?.to, "LLL dd, y")}
-                                  </>
-                                ) : (
-                                  format(field.value?.from, "LLL dd, y")
-                                )
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            initialFocus
-                            mode="range"
-                            defaultMonth={field.value?.from}
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            numberOfMonths={1}
-                            disabled={(date) => {
-                              return date < new Date();
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
             <FormField
               control={form.control}
               name="ExtraChild"

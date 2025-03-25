@@ -8,12 +8,10 @@ import SelectComponent from "@/components/SelectComponent";
 import { getAuditLog } from "@/app/ServerAction/reports.action";
 
 export default function AuditLogController() {
-  const router = useRouter();
-
-  // Get state management functions
   const { userRoleFilterOpt, setUserRoleFilterOpt, resetSelectOptState } = useGlobalStore();
   const [filteredUsers, setFilteredUsers] = React.useState<{ label: string; value: string }[]>([]);
   const [auditLog, setAuditLog] = React.useState<any[]>([]);
+  const router = useRouter();
 
   React.useEffect(() => {
     async function fetchAuditLog() {

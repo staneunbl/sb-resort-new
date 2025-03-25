@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -30,21 +29,6 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ChevronsUpDown, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   addBillings,
@@ -53,18 +37,7 @@ import {
 } from "@/app/ServerAction/reservations.action";
 import { getCurrentRoomTypesRate } from "@/app/ServerAction/rooms.action";
 import {
-  MultiSelector,
-  MultiSelectorContent,
-  MultiSelectorInput,
-  MultiSelectorItem,
-  MultiSelectorList,
-  MultiSelectorTrigger,
-} from "@/components/MultiSelect";
-import {
   calculateInitialBill,
-  commafy,
-  convertToLocalUTC,
-  convertToLocalUTCTime,
   formatCurrencyJP,
   getPercentage,
 } from "@/utils/Helpers";
@@ -170,9 +143,9 @@ export default function BillingFormModal() {
     const discountValue = selectedReservationData.DiscountId
       ? selectedReservationData.Discounts.DiscountType === "percentage"
         ? getPercentage(
-            subtotal,
-            selectedReservationData.Discounts.DiscountValue,
-          )
+          subtotal,
+          selectedReservationData.Discounts.DiscountValue,
+        )
         : selectedReservationData.Discounts.DiscountValue
       : 0;
 
@@ -190,8 +163,8 @@ export default function BillingFormModal() {
         setBillingFormModalState(open);
       }}
     >
-      <DialogContent className="flex min-h-[500px] flex-col sm:max-w-[450px]">
-        <DialogHeader className="mb-8">
+      <DialogContent className="flex flex-col sm:max-w-[450px]">
+        <DialogHeader className="mt-2 mb-3">
           <DialogTitle>{reservationI18n.billing}</DialogTitle>
           <DialogDescription>
             {reservationI18n.billingFormDesc}
@@ -213,11 +186,10 @@ export default function BillingFormModal() {
               <DialogDescription className="font-semibold">
                 {reservationI18n.initialBill}:{" "}
                 <span className="text-green-500">
-                  {`${
-                    !isFetched && currentRoomtypeRate
-                      ? "Calculating..."
-                      : `P ${formatCurrencyJP(reservationBill(currentRoomtypeRate || 0))}`
-                  }`}
+                  {`${!isFetched && currentRoomtypeRate
+                    ? "Calculating..."
+                    : `P ${formatCurrencyJP(reservationBill(currentRoomtypeRate || 0))}`
+                    }`}
                 </span>
               </DialogDescription>
             </div>
@@ -236,32 +208,29 @@ export default function BillingFormModal() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>{roomsI18n.roomNumber}</FormLabel>
-                    <MultiSelector
-                      values={field.value}
-                      onValuesChange={field.onChange}
-                      loop
-                      className="max-w text-sm"
-                      maximumSelectedValues={selectedReservationData?.RoomCount}
-                    >
-                      <MultiSelectorTrigger>
-                        <MultiSelectorInput
-                          placeholder={roomsI18n.roomNumber}
-                        />
-                      </MultiSelectorTrigger>
-                      <MultiSelectorContent>
-                        <MultiSelectorList>
-                          {RoomOptions &&
-                            RoomOptions.map((item) => (
-                              <MultiSelectorItem
-                                key={item.label}
-                                value={item.label}
-                              >
-                                Room {item.label}
-                              </MultiSelectorItem>
-                            ))}
-                        </MultiSelectorList>
-                      </MultiSelectorContent>
-                    </MultiSelector>
+                    {/* Show message when no rooms are available */}
+                    {!RoomOptions || RoomOptions.length === 0 ? (
+                      <p className="text-sm text-red-500 font-semibold">
+                        🚨 THERE ARE NO AVAILABLE ROOMS
+                      </p>
+                    ) : (
+                      <Select
+                        value={field.value?.toString() || ""}
+                        onValueChange={(value) => field.onChange(value)}
+                      >
+                        <SelectTrigger className="max-w text-sm">
+                          <SelectValue placeholder={roomsI18n.roomNumber} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {RoomOptions.map((item) => (
+                            <SelectItem key={item.label} value={item.label.toString()}>
+                              Room {item.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+
                     <div className="h-4">
                       <FormMessage />
                     </div>
@@ -282,9 +251,12 @@ export default function BillingFormModal() {
                 )}
               />
             </div>
-            {/* Footer with auto margin to push it to the bottom */}
             <DialogFooter className="mt-auto">
-              <Button className="bg-cstm-secondary" type="submit">
+              <Button
+                className="bg-cstm-secondary"
+                type="submit"
+                disabled={!RoomOptions || RoomOptions.length === 0} // Disable if no rooms available
+              >
                 Submit
               </Button>
             </DialogFooter>
