@@ -175,11 +175,11 @@ export default function BillingFormModal() {
         )
         : selectedReservationData.Discounts.DiscountValue
       : 0;
-  
+
     const total = subtotal - discountValue;
     const depositPercentage = 50; // Set deposit percentage (example: 50%)
     const minDeposit = total * (depositPercentage / 100); // Calculate deposit amount
-  
+
     return { total, minDeposit, depositPercentage };
   };
 
@@ -205,6 +205,9 @@ export default function BillingFormModal() {
               <DialogDescription className="font-semibold">
                 {reservationI18n.numberOfRooms}:{" "}
                 {`${selectedReservationData?.RoomCount}`}
+              </DialogDescription>
+              <DialogDescription className="font-semibold">
+                {roomsI18n.roomType}: {selectedReservationData?.RoomType}
               </DialogDescription>
             </div>
             <div className="w-1/2">
