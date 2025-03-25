@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -29,6 +30,21 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ChevronsUpDown, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   addBillings,
@@ -37,7 +53,18 @@ import {
 } from "@/app/ServerAction/reservations.action";
 import { getCurrentRoomTypesRate } from "@/app/ServerAction/rooms.action";
 import {
+  MultiSelector,
+  MultiSelectorContent,
+  MultiSelectorInput,
+  MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
+} from "@/components/MultiSelect";
+import {
   calculateInitialBill,
+  commafy,
+  convertToLocalUTC,
+  convertToLocalUTCTime,
   formatCurrencyJP,
   getPercentage,
 } from "@/utils/Helpers";
@@ -148,11 +175,12 @@ export default function BillingFormModal() {
         )
         : selectedReservationData.Discounts.DiscountValue
       : 0;
-
-    // console.log("Price :", price)
-    // console.log("VAT: " , vat)
-    // console.log("Discount: ", discountValue)
-    return subtotal - discountValue;
+  
+    const total = subtotal - discountValue;
+    const depositPercentage = 50; // Set deposit percentage (example: 50%)
+    const minDeposit = total * (depositPercentage / 100); // Calculate deposit amount
+  
+    return { total, minDeposit, depositPercentage };
   };
 
   return (
@@ -181,15 +209,25 @@ export default function BillingFormModal() {
             </div>
             <div className="w-1/2">
               <DialogDescription className="font-semibold">
-                {roomsI18n.roomType}: {selectedReservationData?.RoomType}
-              </DialogDescription>
-              <DialogDescription className="font-semibold">
                 {reservationI18n.initialBill}:{" "}
                 <span className="text-green-500">
                   {`${!isFetched && currentRoomtypeRate
                     ? "Calculating..."
-                    : `P ${formatCurrencyJP(reservationBill(currentRoomtypeRate || 0))}`
+                    : `P ${formatCurrencyJP(reservationBill(currentRoomtypeRate || 0).total)}`
                     }`}
+                </span>
+                <br />
+                <span className="text-sm text-gray-500">Minimum Deposit Required:</span>{" "}
+                <br />
+                <span className="text-blue-500">
+                  {`${!isFetched && currentRoomtypeRate
+                    ? "Calculating..."
+                    : `P ${formatCurrencyJP(reservationBill(currentRoomtypeRate || 0).minDeposit)}`
+                    }`}
+                </span>
+                <br />
+                <span className="text-gray-500">
+                  {`(${reservationBill(currentRoomtypeRate || 0).depositPercentage}% deposit required)`}
                 </span>
               </DialogDescription>
             </div>
