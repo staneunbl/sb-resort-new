@@ -605,7 +605,7 @@ export default function AddReservationModal() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-bold">
-                        Check In/Out Dates
+                        Check-in/Check-out Dates
                       </FormLabel>
                       <FormControl className=" ">
                         <Popover>

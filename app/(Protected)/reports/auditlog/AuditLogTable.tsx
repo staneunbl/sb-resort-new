@@ -9,13 +9,28 @@ import {
   ChevronsUpDownIcon,
   ChevronUpIcon,
 } from "lucide-react";
+import { useGlobalStore } from "@/store/useGlobalStore";
+import React from "react";
 
 export default function AuditLogTable() {
+  const { userRoleFilterOpt } = useGlobalStore();
+
   const { data: auditLog, isLoading } = useQuery({
     queryKey: ["GetAuditLog"],
     queryFn: async () => (await getAuditLog()).res as any,
   });
 
+  const filteredData = React.useMemo(() => {
+    if (!auditLog) return [];
+
+    return userRoleFilterOpt
+      ? auditLog.filter(
+        (log: any) =>
+          `${log.FirstName} ${log.LastName}`.toLowerCase() ===
+          userRoleFilterOpt.toLowerCase()
+      )
+      : auditLog;
+  }, [auditLog, userRoleFilterOpt]);
 
   const columns = [
     {
@@ -25,10 +40,12 @@ export default function AuditLogTable() {
     {
       accessorKey: "user",
       header: "User",
-      cell: ({ cell, row }: any) => {
+      cell: ({ row }: any) => {
+        const firstName = row.original.FirstName?.trim() || "";
+        const lastName = row.original.LastName?.trim() || "";
         return (
           <div>
-            {row.getValue("FirstName")} {row.getValue("LastName")}
+            {firstName} {lastName}
           </div>
         );
       },
@@ -82,138 +99,6 @@ export default function AuditLogTable() {
     },
   ];
 
-
-  const data = [
-    {
-      id: "1",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Frontdesk",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "2",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "3",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Frontdesk",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "4",
-      action: "Login",
-      firstName: "Jean",
-      role: "Admin",
-      lastName: "Doe",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "5",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "6",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "7",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "8",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "9",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "10",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "11",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "12",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "13",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "14",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "15",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-    {
-      id: "16",
-      action: "Login",
-      firstName: "Jean",
-      lastName: "Doe",
-      role: "Admin",
-      createdAt: "2022-01-01",
-    },
-  ];
-
   return (
     <div className="p-4">
       <DetailedDataTable
@@ -228,7 +113,7 @@ export default function AuditLogTable() {
           "user",
         ]}
         isLoading={isLoading}
-        data={auditLog}
+        data={filteredData}
         pagination={true}
         pageSize={12}
         visibility={{

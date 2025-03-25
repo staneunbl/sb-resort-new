@@ -1,6 +1,7 @@
 import AuditLogTable from "./AuditLogTable";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
+import AuditLogController from "./AuditLogController";
 
 export default async function page() {
   const supabase = createClient();
@@ -16,6 +17,7 @@ export default async function page() {
   
   return (
     <div>
+      <AuditLogController />
       <AuditLogTable />
     </div>
   );

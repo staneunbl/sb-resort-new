@@ -5,14 +5,14 @@ import {
   FloatingMenu,
   BubbleMenu,
 } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { StarterKit } from "@tiptap/starter-kit";
 import TipTapToolbar from "./TipTapToolbar";
 import Heading from "@tiptap/extension-heading";
 import OList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import Placeholder from "@tiptap/extension-placeholder";
-import Underline from "@tiptap/extension-underline";
 import { useEffect } from "react";
+import Underline from "@tiptap/extension-underline";
 
 const Tiptap = ({ value, onChange, placeholder }: any) => {
   const editor = useEditor(
